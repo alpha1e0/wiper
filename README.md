@@ -1,2 +1,2 @@
 # wip
-Probe the information of the target web
+Probe the information of the target network.
