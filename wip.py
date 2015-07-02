@@ -7,15 +7,6 @@ See the file COPYING for copying detail
 '''
 
 import logging
-import ConfigParse
-
-class Conf(object):
-
-    def __init__(self):
-        cp = ConfigParse.ConfigParse()
-        cp.read('config.cfg')
-
-        self.ROOT_DIR = cp.get('basic', 'project_path') 
 
 
 def initLog():
@@ -32,5 +23,18 @@ def initLog():
 
     return log
 
-conf = Conf()
-log = initLog()
+class ProjectManage(object):
+
+    def __init__(self, projectName):
+        self.projectName = projectName
+        self.projectPath = os.path.join(conf.ROOT_PATH, projectName)
+        self.logPath = os.path.join(self.projectPath, 'wiplog')
+
+    def createProject(self):
+        if os.path.ispath(self.projectPath):
+            return True
+
+        os.mkdir(self.projectPath)
+        os.mkdir(self.logPath)
+
+
