@@ -5,10 +5,11 @@ use wip;
 
 create table project (
 	id integer not null auto_increment, 
-	name varchar(100) unique,
+	name varchar(100) not null unique,
 	url varchar(100), 
 	ip varchar(50), 
 	whois text, 
+	ctime timestamp not null default CURRENT_TIMESTAMP,
 	description text,
 	primary key (id)
 ) engine=InnoDB  default charset=utf8;
