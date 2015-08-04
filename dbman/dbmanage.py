@@ -39,7 +39,6 @@ class DBManage(object):
         except mdb.Error as msg:
             log.error("[E]: Connect failed, reason is {0}".format(msg))
             return False
-            #raise Exception
 
         return True
 
