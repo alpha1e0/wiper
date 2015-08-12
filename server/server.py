@@ -22,7 +22,9 @@ def startServer():
 		"/listproject", "ProjectList",
 		"/getprojectdetail", "ProjectDetail",
 		"/deleteproject", "ProjectDelete",
-		"/modifyproject", "ProjectModify")
+		"/modifyproject", "ProjectModify",
+		"/addhost","HostAdd",
+		"/listhost","HostList")
 
 	app = web.application(urls, globals())
 
@@ -35,7 +37,7 @@ class Index:
 
 		return index()
 
-
+# ================================处理project表相关的代码=========================================
 class ProjectList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
@@ -51,18 +53,21 @@ class ProjectList:
 
 class ProjectDetail:
 	def GET(self):
+		web.header('Content-Type', 'application/json')
 		param = web.input()
 
-		sqlCmd = "select name,url,ip,whois,ctime,description from project where id={0}".format(param.projectid.strip())
+		sqlCmd = "select * from project where id={0}".format(param.projectid.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
 			raise web.internalerror("Query project detail failed!")
 
 		result = list(result[0])
-		result[4] = result[4].strftime("%Y-%m-%d %H:%M:%S")
+		result[5] = result[5].strftime("%Y-%m-%d %H:%M:%S")
+		nameList = ('id','name','url','ip','whois','ctime','description')
 
-		return json.dumps(result)
+		return json.dumps(dict(zip(nameList,result)))
+
 
 class ProjectDelete:
 	def GET(self):
@@ -96,4 +101,33 @@ class ProjectAdd:
 		if not dbcon.sql(sqlCmd):
 			raise web.internalerror('Add project failed!')
 		
+		return True
+
+#=================================处理host表相关的代码=========================================
+
+class HostList:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid.strip(),param.orderby.strip())
+
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror('Query host failed!')
+
+		return json.dumps(dict(result))
+
+class HostAdd:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "insert into host(url,ip,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}','{7}')".format(param.url.strip(),param.ip.strip(),param.level.strip(),\
+			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.projectid.strip())
+
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Add host failed!')
+
 		return True
