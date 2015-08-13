@@ -24,7 +24,10 @@ def startServer():
 		"/deleteproject", "ProjectDelete",
 		"/modifyproject", "ProjectModify",
 		"/addhost","HostAdd",
-		"/listhost","HostList")
+		"/listhost","HostList",
+		"/gethostdetail","HostDetail",
+		"/deletehost","HostDelete",
+		"/modifyhost","HostModify")
 
 	app = web.application(urls, globals())
 
@@ -54,9 +57,9 @@ class ProjectList:
 class ProjectDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
-		param = web.input()
 
-		sqlCmd = "select * from project where id={0}".format(param.projectid.strip())
+		param = web.input()
+		sqlCmd = "select * from project where id={0}".format(param.id.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
@@ -69,10 +72,22 @@ class ProjectDetail:
 		return json.dumps(dict(zip(nameList,result)))
 
 
+class ProjectAdd:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "insert into project(name, url, ip, whois, description) values('{0}', '{1}', '{2}', '{3}', '{4}')".format(\
+			param.name.strip(), param.url.strip(), param.ip.strip(), param.whois.strip(), param.description.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Add project failed!')
+		
+		return True
+
+
 class ProjectDelete:
 	def GET(self):
 		param = web.input()
-		sqlCmd = "delete from project where id={0}".format(param.projectid.strip())
+		sqlCmd = "delete from project where id={0}".format(param.id.strip())
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
 			raise web.internalerror("Delete project failed!")
@@ -91,18 +106,6 @@ class ProjectModify:
 		
 		return True
 
-
-class ProjectAdd:
-	def POST(self):
-		param = web.input()
-		sqlCmd = "insert into project(name, url, ip, whois, description) values('{0}', '{1}', '{2}', '{3}', '{4}')".format(\
-			param.name.strip(), param.url.strip(), param.ip.strip(), param.whois.strip(), param.description.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Add project failed!')
-		
-		return True
-
 #=================================处理host表相关的代码=========================================
 
 class HostList:
@@ -110,24 +113,65 @@ class HostList:
 		web.header('Content-Type', 'application/json')
 
 		param = web.input()
-		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid.strip(),param.orderby.strip())
+		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.project_id.strip(),param.orderby.strip())
 
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
 			raise web.internalerror('Query host failed!')
 
-		return json.dumps(dict(result))
+		result = map(lambda x:zip(("id","url","ip"),x), result)
+		result = map(lambda x:dict(x), result)
+
+		return json.dumps(result)
+
+class HostDetail:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select * from host where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror("Query host detail failed!")
+
+		result = list(result[0])
+		nameList = ('id','url','ip','level','os','server_info','middleware','description','project_id')
+
+		return json.dumps(dict(zip(nameList,result)))
 
 class HostAdd:
 	def POST(self):
 		param = web.input()
 		sqlCmd = "insert into host(url,ip,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
 			,'{2}','{3}','{4}','{5}','{6}','{7}')".format(param.url.strip(),param.ip.strip(),param.level.strip(),\
-			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.projectid.strip())
+			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.project_id.strip())
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
 			raise web.internalerror('Add host failed!')
 
+		return True
+
+class HostDelete:
+	def GET(self):
+		param = web.input()
+		sqlCmd = "delete from host where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror("Delete host failed!")
+
+		return True
+
+class HostModify:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "update host set url='{0}',ip='{1}',level='{2}',os='{3}',server_info='{4}',middleware='{5}',description='{6}' \
+			where id={7}".format(param.url.strip(),param.ip.strip(),param.level.strip(),param.os.strip(),param.serverinfo.strip(),\
+			param.middleware.strip(),param.description.strip(),param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Modify host failed!')
+		
 		return True
