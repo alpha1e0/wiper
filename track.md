@@ -1,7 +1,7 @@
 
 1. 填充表单是否在beforeSerialize函数中进行
 2. 添加project、host之类是否要提前删除form中数据（修改project会填充form）
-3. form自动填充是否是因为问题2造成的，而不是浏览器固有机制，使用web developer的form进行试验
+
 4. host list中加orderby 参数
 
 1. 删除project的时候是否要递归删除host、vul、comment

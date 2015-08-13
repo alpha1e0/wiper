@@ -18,8 +18,8 @@
             <nav class="navbar navbar-inverse">
                 <div id="navbar" class="navbar-collapse collapse">
                   <ul class="nav navbar-nav">
-                    <li class="active"><a href="#wip-tab-project" data-toggle="tab">项目</a></li>
-                    <li><a href="#wip-tab-project-detail" data-toggle="tab">项目详情</a></li>
+                    <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目</a></li>
+                    <li><a href="#wip-tab-project-detail" id="wip-tab-button-detail" data-toggle="tab">项目详情</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">计划任务<span class="caret"></span></a>
                         <ul class="dropdown-menu" role="menu">
@@ -47,6 +47,9 @@
                 <div id="wip-tab-project" class="tab-pane row-fluid active">
                     <div class="col-md-3">
                         <div id="wip-project-button-group">
+                            <div class="btn-group">
+                                <button id="wip-project-button-refresh" type="button" class="btn btn-primary">O</button>
+                            </div>
                             <div class="btn-group">
                                 <button id="wip-project-button-add" type="button" class="btn btn-success">添加项目</button>
                             </div>
@@ -81,6 +84,9 @@
                     <div class="col-md-3">
                         <div id="wip-host-button-group">
                             <div class="btn-group">
+                                <button id="wip-host-button-refresh" type="button" class="btn btn-primary">O</button>
+                            </div>
+                            <div class="btn-group">
                                 <button id="wip-host-button-add" type="button" class="btn btn-success">添加host</button>
                             </div>
                             <div class="btn-group">
@@ -110,18 +116,15 @@
                         <hr />
                         <div>
                             <div class="list-group" id="wip-host-list">
-                                <a href="#" class="list-group-item">
-                                    <span><b>172.1.1.1 </b><i>h3c.com</i></span>                             
-                                </a>
-                                <a href="#" class="list-group-item">
-                                    <span><b>172.1.1.2 </b><i>api.h3c.com</i></span> 
-                                </a>
                             </div>
                         </div>
                     </div>
                     <!-- port information-->  
                     <div class="col-md-3">
                         <div id="wip-host-button-group">
+                            <div class="btn-group">
+                                <button id="wip-vul-button-refresh" type="button" class="btn btn-primary">O</button>
+                            </div>
                             <div class="btn-group">
                                 <button id="wip-vul-button-list" type="button" class="btn btn-success">显示漏洞</button>
                             </div>
@@ -132,9 +135,6 @@
                         <hr />
                         <div class="wip-vul-list">
                             <div class="list-group" id="wip-vul-comment-list">
-                                <a href="#" class="list-group-item active">cve-2014-0224</a>
-                                <a href="#" class="list-group-item">PORT 443</a>
-                                <a href="#" class="list-group-item">PORT 22</a>
                             </div>
                         </div>
                     </div>
@@ -255,58 +255,58 @@
                     <div class="modal-body">
                         <form class="form-horizontal" id="wip-host-modal-form">
                             <div class="form-group" hidden>
-                                <label for="wip-host-modal-id" class="col-sm-2 control-label">URL:</label>
+                                <label for="wip-host-modal-id" class="col-sm-2 control-label">ID:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-id" name="id" type="text" class="form-control" placeholder="xxx.com">
+                                    <input id="wip-host-modal-form-id" name="id" type="text" class="form-control" placeholder="xxx.com">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="wip-host-modal-url" class="col-sm-2 control-label">URL:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-url" name="url" type="text" class="form-control" placeholder="xxx.com">
+                                    <input id="wip-host-modal-form-url" name="url" type="text" class="form-control" placeholder="xxx.com">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="wip-host-modal-ip" class="col-sm-2 control-label">IP地址:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-ip" name="ip" type="text" class="form-control" placeholder="10.1.15.163">
+                                    <input id="wip-host-modal-form-ip" name="ip" type="text" class="form-control" placeholder="10.1.15.163">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="wip-host-modal-os" class="col-sm-2 control-label">OS信息:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-os" name="os" type="text" class="form-control" placeholder="windows server 2008">
+                                    <input id="wip-host-modal-form-os" name="os" type="text" class="form-control" placeholder="windows server 2008">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-host-modal-server" class="col-sm-2 control-label">Server信息:</label>
+                                <label for="wip-host-modal-server" class="col-sm-2 control-label">服务信息:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-server" name="serverinfo" type="text" class="form-control" placeholder="Apache 2.6.3">
+                                    <input id="wip-host-modal-form-server_info" name="serverinfo" type="text" class="form-control" placeholder="Apache 2.6.3">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="wip-host-modal-frame" class="col-sm-2 control-label">中间件:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-host-modal-frame" name="middleware" type="text" class="form-control" placeholder="java struts">
+                                    <input id="wip-host-modal-form-middleware" name="middleware" type="text" class="form-control" placeholder="java struts">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="wip-host-modal-disp" class="col-sm-2 control-label">描述:</label>
                                 <div class="col-sm-10">
-                                    <textarea id="wip-host-modal-disp" name="description" class="form-control" rows="3"></textarea>
+                                    <textarea id="wip-host-modal-form-description" name="description" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" value="1" checked> 提示
+                                <input type="radio" name="level" value="4" checked> 提示
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" value="2"> 一般
+                                <input type="radio" name="level" value="3"> 一般
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" value="3"> 重要
+                                <input type="radio" name="level" value="2"> 重要
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" value="4"> 关键
+                                <input type="radio" name="level" value="1"> 关键
                             </label>
                             <hr />
                             <div class="form-group">
@@ -373,16 +373,16 @@
                                 </div>
                             </div>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="1" value="option1" checked> 提示
+                                <input type="radio" name="level" value="4" checked> 提示
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="2" value="option1"> 一般
+                                <input type="radio" name="level" value="3"> 一般
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="3" value="option1"> 重要
+                                <input type="radio" name="level" value="2"> 重要
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="4" value="option1"> 关键
+                                <input type="radio" name="level" value="1"> 关键
                             </label>
                             <hr />
                             <div class="form-group">
@@ -436,16 +436,16 @@
                                 </div>
                             </div>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="1" value="option1" checked> 提示
+                                <input type="radio" name="level" value="4" checked> 提示
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="2" value="option1"> 一般
+                                <input type="radio" name="level" value="3"> 一般
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="3" value="option1"> 重要
+                                <input type="radio" name="level" value="2"> 重要
                             </label>
                             <label class="checkbox-inline">
-                                <input type="radio" name="level" id="4" value="option1"> 关键
+                                <input type="radio" name="level" value="1"> 关键
                             </label>
                             <hr />
                             <div class="form-group">

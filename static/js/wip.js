@@ -17,10 +17,10 @@ Current.prototype.init = function(){
 	this.vul = null;
 	this.comment = null;
 
-	$("#wip-title-project").text("project");
-	$("#wip-title-host").text("host");
-	$("#wip-title-vul").text("vul");
-	$("#wip-title-comment").text("comment");
+	$("#wip-title-project").text("[project]");
+	$("#wip-title-host").text("[host]");
+	$("#wip-title-vul").text("[vul]");
+	$("#wip-title-comment").text("[comment]");
 }
 Current.prototype.initProject = function(){
 	this.project = null;
@@ -28,40 +28,40 @@ Current.prototype.initProject = function(){
 	this.vul = null;
 	this.comment = null;
 
-	$("#wip-title-project").text("project");
-	$("#wip-title-host").text("host");
-	$("#wip-title-vul").text("vul");
-	$("#wip-title-comment").text("comment");
+	$("#wip-title-project").text("[project]");
+	$("#wip-title-host").text("[host]");
+	$("#wip-title-vul").text("[vul]");
+	$("#wip-title-comment").text("[comment]");
 }
 Current.prototype.initHost = function(){
 	this.host = null;
 	this.vul = null;
 	this.comment = null;
 
-	$("#wip-title-host").text("host");
-	$("#wip-title-vul").text("vul");
-	$("#wip-title-comment").text("comment");
+	$("#wip-title-host").text("[host]");
+	$("#wip-title-vul").text("[vul]");
+	$("#wip-title-comment").text("[comment]");
 }
 Current.prototype.initVul = function(){
 	this.vul = null;
 
-	$("#wip-title-vul").text("vul");
+	$("#wip-title-vul").text("[vul]");
 }
 Current.prototype.initComment = function(){
 	this.comment = null;
 
-	$("#wip-title-comment").text("comment");
+	$("#wip-title-comment").text("[comment]");
 }
 Current.prototype.setProject = function(project){
 	this.project = project;
 	if(!project) {
-		$("#wip-title-project").text("project");
-		this.setHost(null);
-		this.setVul(null);
-		this.setComment(null);
+		$("#wip-title-project").text("[project]");
 	} else {
-		$("#wip-title-project").text(project.name);
-	}	
+		$("#wip-title-project").text("["+project.name+"]");
+	}
+	this.setHost(null);
+	this.setVul(null);
+	this.setComment(null);
 }
 Current.prototype.getProject = function(){
 	return this.project;
@@ -69,12 +69,12 @@ Current.prototype.getProject = function(){
 Current.prototype.setHost = function(host){
 	this.host = host;
 	if(!host){
-		$("#wip-title-host").text("host");
-		this.setVul(null);
-		this.setComment(null);
+		$("#wip-title-host").text("[host]");
 	} else {
-		$("#wip-title-host").text(host.ip+'|'+host.url);
-	}	
+		$("#wip-title-host").text("["+host.ip+' | '+host.url+"]");
+	}
+	this.setVul(null);
+	this.setComment(null);
 }
 Current.prototype.getHost = function(){
 	return this.host;
@@ -82,9 +82,9 @@ Current.prototype.getHost = function(){
 Current.prototype.setVul = function(vul){
 	this.vul = vul;
 	if(!vul) {
-		$("#wip-title-vul").text("vul");
+		$("#wip-title-vul").text("[vul]");
 	} else {
-		$("#wip-title-vul").text(vul.name);
+		$("#wip-title-vul").text("["+vul.name+"]");
 	}	
 }
 Current.prototype.getVul = function(){
@@ -93,9 +93,9 @@ Current.prototype.getVul = function(){
 Current.prototype.setComment = function(comment){
 	this.comment = comment;
 	if(!comment) {
-		$("#wip-title-comment").text("comment");
+		$("#wip-title-comment").text("[comment]");
 	} else {
-		$("#wip-title-comment").text(comment.name);
+		$("#wip-title-comment").text("["+comment.name+"]");
 	}	
 }
 Current.prototype.getComment = function(){
@@ -117,8 +117,13 @@ $(document).ready(function() {
     $("#wip-project-button-add").click(addProject);
     $("#wip-project-button-delete").click(deleteProject);
     $("#wip-project-button-modify").click(modifyProject);
+    $("#wip-project-button-refresh").click(refreshProject);
 
+    $("#wip-tab-button-detail").click(listHost);
     $("#wip-host-button-add").click(addHost);
+    $("#wip-host-button-delete").click(deleteHost);
+    $("#wip-host-button-modify").click(modifyHost);
+    $("#wip-host-button-refresh").click(refreshHost);
 });
 
 /**************************************
@@ -242,6 +247,12 @@ function clickProject(){
 	});
 }
 
+function refreshProject(){
+	current.initProject();
+	listProject();
+	$("#wip-project-detail").empty();
+}
+
 /**************************************
 * Date: 2015-8-13
 * Description: manage the host table
@@ -267,7 +278,7 @@ function addHost(){
     	success:function(){   		
     		alert("提交成功!");
     		$("#wip-host-modal").modal("hide");
-    		listProject();
+    		listHost();
     	},
     	error:function(err){
     	 	alert("提交失败!");
@@ -278,11 +289,11 @@ function addHost(){
 }
 
 function deleteHost(){
-	if(confirm("是否删除当前Host？") == false){
-		return
-	}
 	if(!current.getHost()) {
 		alert("请先选择Host!");
+		return
+	}
+	if(confirm("是否删除当前Host？") == false){
 		return
 	}
 	$.get("/deletehost?id="+current.getHost().id, function(data,status){
@@ -297,6 +308,7 @@ function deleteHost(){
 
 function modifyHost(){
 	$("#wip-host-modal").modal("show");
+	alert(current.getHost().id)
 	$("#wip-host-modal-form-id").val(current.getHost().id);
 	$("#wip-host-modal-form-url").val(current.getHost().url);
 	$("#wip-host-modal-form-ip").val(current.getHost().ip);
@@ -325,8 +337,14 @@ function modifyHost(){
 }
 
 function listHost(){
+	//如果没有重新选择project，则不刷新host list
+	if(current.getHost()){
+		if(current.getHost().project_id == current.getProject().id) {
+			return
+		}
+	}
 	function addHostItem(id, url, ip){
-		var b = $("<b></b>").text(ip)
+		var b = $("<b></b>").text(ip+" | ")
 		var i = $("<i></i>").text(url)
 		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-host-id-"+id).attr("href","#").append(b,i);
 		item.click(clickHost);
@@ -334,8 +352,14 @@ function listHost(){
 	}
 
 	current.initHost();
-	$("#wip-host-list").empty()
-	$.getJSON("/listhost", function(result){
+	$("#wip-host-list").empty();
+	$("#wip-vul-comment-list").empty();
+	if(!current.getProject()){
+		//alert("请先选择project!");
+		return
+	}
+	var url = "/listhost?project_id=" + current.getProject().id + "&orderby=" + "level";
+	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
 			addHostItem(value.id, value.url, value.ip);
 		});
@@ -354,16 +378,23 @@ function clickHost(){
 	}
 
 	$("#wip-vul-comment-list").empty();
+	levelList = ["关键","重要","一般","提示"];
 	$.getJSON("/gethostdetail?id="+id, function(result){
 		current.setHost(result);
 		addHostDetailItem("URL地址", result.url);
 		addHostDetailItem("IP地址", result.ip);
-		addHostDetailItem("等级", result.level);
+		addHostDetailItem("等级", levelList[result.level]);
 		addHostDetailItem("OS信息", result.os);
 		addHostDetailItem("Server信息", result.server_info);
 		addHostDetailItem("中间件", result.middleware);
 		addHostDetailItem("描述", result.description);
 	});
+}
+
+function refreshHost(){
+	current.initHost();
+	listHost();
+	$("#wip-vul-comment-list").empty();
 }
 
 /**************************************
