@@ -32,12 +32,12 @@ create table host (
 create table vul (
 	id integer not null auto_increment, 
 	name varchar(50), 
+	url varchar(4096),
 	info varchar(1024), 
 	type integer, 
 	levle integer, 
 	description text, 
 	host_id integer not null, 
-	port_id integer not null, 
 	primary key (id),
 	constraint host_id_vul foreign key (host_id) references host (id)
 ) engine=InnoDB  default charset=utf8;
@@ -47,12 +47,12 @@ create table vul (
 create table comment (
 	id integer not null auto_increment, 
 	name varchar(100), 
+	url varchar(4096),
 	info varchar(1024), 
 	level integer, 
 	attachment varchar(100),
 	description text, 
 	host_id integer not null, 
-	port_id integer not null, 
 	primary key (id),
 	constraint host_id_comment foreign key (host_id) references host (id)
 ) engine=InnoDB  default charset=utf8;

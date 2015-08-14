@@ -27,7 +27,17 @@ def startServer():
 		"/listhost","HostList",
 		"/gethostdetail","HostDetail",
 		"/deletehost","HostDelete",
-		"/modifyhost","HostModify")
+		"/modifyhost","HostModify",
+		"/addvul","VulAdd",
+		"/listvul","VulList",
+		"/getvuldetail","VulDetail",
+		"/deletevul","VulDelete",
+		"/modifyvul","VulModify",
+		"/addcomment","CommentAdd",
+		"/listcomment","CommentList",
+		"/getcommentdetail","CommentDetail",
+		"/deletecomment","CommentDelete",
+		"/modifycomment","CommentModify",)
 
 	app = web.application(urls, globals())
 
@@ -51,7 +61,10 @@ class ProjectList:
 		if not result:
 			raise web.internalerror('Query project failed!')
 
-		return json.dumps(dict(result))
+		result = map(lambda x:zip(("id","name"),x), result)
+		result = map(lambda x:dict(x), result)
+
+		return json.dumps(result)
 
 
 class ProjectDetail:
@@ -125,6 +138,7 @@ class HostList:
 
 		return json.dumps(result)
 
+
 class HostDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
@@ -141,6 +155,7 @@ class HostDetail:
 
 		return json.dumps(dict(zip(nameList,result)))
 
+
 class HostAdd:
 	def POST(self):
 		param = web.input()
@@ -154,6 +169,7 @@ class HostAdd:
 
 		return True
 
+
 class HostDelete:
 	def GET(self):
 		param = web.input()
@@ -164,6 +180,7 @@ class HostDelete:
 
 		return True
 
+
 class HostModify:
 	def POST(self):
 		param = web.input()
@@ -173,5 +190,153 @@ class HostModify:
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
 			raise web.internalerror('Modify host failed!')
+		
+		return True
+
+#=================================处理vul表相关的代码=========================================
+
+class VulList:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.host_id.strip(),param.orderby.strip())
+
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror('Query vul failed!')
+
+		result = map(lambda x:zip(("id","name"),x), result)
+		result = map(lambda x:dict(x), result)
+
+		return json.dumps(result)
+
+
+class VulDetail:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select * from vul where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror("Query vul detail failed!")
+
+		result = list(result[0])
+		nameList = ('id','name','url','info','type','level','description','host_id')
+
+		return json.dumps(dict(zip(nameList,result)))
+
+
+class VulAdd:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),\
+			param.level.strip(),param.description.strip(),param.host_id.strip())
+
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Add vul failed!')
+
+		return True
+
+
+class VulDelete:
+	def GET(self):
+		param = web.input()
+		sqlCmd = "delete from vul where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror("Delete vul failed!")
+
+		return True
+
+
+class VulModify:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "update vul set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}' \
+			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),param.level.strip(),\
+			param.description.strip(),param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Modify vul failed!')
+		
+		return True
+
+#=================================处理comment表相关的代码=========================================
+
+class CommentList:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.host_id.strip(),param.orderby.strip())
+
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror('Query comment failed!')
+
+		result = map(lambda x:zip(("id","name"),x), result)
+		result = map(lambda x:dict(x), result)
+
+		return json.dumps(result)
+
+
+class CommentDetail:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		param = web.input()
+		sqlCmd = "select * from comment where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror("Query comment detail failed!")
+
+		result = list(result[0])
+		nameList = ('id','name','url','info','level','attachment','description','host_id')
+
+		return json.dumps(dict(zip(nameList,result)))
+
+
+class CommentAdd:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "insert into comment(name,info,level,attachment,description,host_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),\
+			param.level.strip(),param.attachment.strip(),param.description.strip(),param.host_id.strip())
+
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Add comment failed!')
+
+		return True
+
+
+class CommentDelete:
+	def GET(self):
+		param = web.input()
+		sqlCmd = "delete from comment where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror("Delete comment failed!")
+
+		return True
+
+
+class CommentModify:
+	def POST(self):
+		param = web.input()
+		sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}' \
+			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.level.strip(),\
+			param.attachment.strip(),param.description.strip(),param.id.strip())
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Modify comment failed!')
 		
 		return True

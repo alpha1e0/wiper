@@ -119,7 +119,7 @@ $(document).ready(function() {
     $("#wip-project-button-modify").click(modifyProject);
     $("#wip-project-button-refresh").click(refreshProject);
 
-    $("#wip-tab-button-detail").click(listHost);
+    $("#wip-tab-button-detail").click(function(){listHost();});
     $("#wip-host-button-add").click(addHost);
     $("#wip-host-button-delete").click(deleteHost);
     $("#wip-host-button-modify").click(modifyHost);
@@ -154,11 +154,11 @@ function addProject(){
 }
 
 function deleteProject(){
-	if(confirm("是否删除当前项目？") == false){
-		return
-	}
 	if(!current.getProject()) {
 		alert("请先选择project!");
+		return
+	}
+	if(confirm("是否删除当前项目？") == false){
 		return
 	}
 	$.get("/deleteproject?id="+current.getProject().id, function(data,status){
@@ -172,13 +172,17 @@ function deleteProject(){
 }
 
 function modifyProject(){
+	if(!current.getProject()) {
+		alert("请先选择project!");
+		return;
+	}
 	$("#wip-project-modal").modal("show");
 	$("#wip-project-modal-form-id").val(current.getProject().id);
 	$("#wip-project-modal-form-name").val(current.getProject().name);
 	$("#wip-project-modal-form-url").val(current.getProject().url);
 	$("#wip-project-modal-form-ip").val(current.getProject().ip);
 	$("#wip-project-modal-form-whois").val(current.getProject().whois);
-	$("#wip-project-modal-form-disp").val(current.getProject().description);
+	$("#wip-project-modal-form-description").val(current.getProject().description);
 
 	
 	var options = {
@@ -218,8 +222,8 @@ function listProject(){
 	current.initProject();
 	$("#wip-project-list").empty()
 	$.getJSON("/listproject", function(result){
-		$.each(result, function(id, name){
-			addProjectItem(id, name);
+		$.each(result, function(i, value){
+			addProjectItem(value.id, value.name);
 		});
 	});
 }
@@ -307,8 +311,11 @@ function deleteHost(){
 }
 
 function modifyHost(){
+	if(!current.getHost()) {
+		alert("请先选择Host!");
+		return;
+	}
 	$("#wip-host-modal").modal("show");
-	alert(current.getHost().id)
 	$("#wip-host-modal-form-id").val(current.getHost().id);
 	$("#wip-host-modal-form-url").val(current.getHost().url);
 	$("#wip-host-modal-form-ip").val(current.getHost().ip);
@@ -336,7 +343,11 @@ function modifyHost(){
     $("#wip-host-modal-form").ajaxForm(options);
 }
 
-function listHost(){
+function listHost(orderby="level"){
+	if(!current.getProject()) {
+		//alert("请先选择Project!");
+		return;
+	}
 	//如果没有重新选择project，则不刷新host list
 	if(current.getHost()){
 		if(current.getHost().project_id == current.getProject().id) {
@@ -354,11 +365,7 @@ function listHost(){
 	current.initHost();
 	$("#wip-host-list").empty();
 	$("#wip-vul-comment-list").empty();
-	if(!current.getProject()){
-		//alert("请先选择project!");
-		return
-	}
-	var url = "/listhost?project_id=" + current.getProject().id + "&orderby=" + "level";
+	var url = "/listhost?project_id=" + current.getProject().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
 			addHostItem(value.id, value.url, value.ip);
@@ -367,6 +374,10 @@ function listHost(){
 }
 
 function clickHost(){
+	if(!current.getProject()) {
+		alert("请先选择project!");
+		return
+	}
 	function addHostDetailItem(name, value){
 		$("#wip-vul-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
 	}
@@ -401,3 +412,281 @@ function refreshHost(){
 * Date: 2015-8-13
 * Description: manage the vul table
 **************************************/
+function addVul(){
+	 $("#wip-vul-modal").modal("show");
+	 var options = {
+    	type:"POST",
+    	url:"addvul",
+    	beforeSerialize:function(form, opt){
+    	},
+    	beforeSubmit:function(formData, jqForm, opt){
+    		//参数校验
+    		if (!current.getHost()) {
+    			alert("请先选择host!");
+    			$("#wip-vul-modal").modal("hide");
+    			return false;
+    		}
+    		var host_id = current.getHost().id;
+    		formData[7] = {'name':'host_id', 'value':host_id}
+    	},
+    	success:function(){   		
+    		alert("提交成功!");
+    		$("#wip-vul-modal").modal("hide");
+    		listVul();
+    	},
+    	error:function(err){
+    	 	alert("提交失败!");
+    	}
+    };
+
+    $("#wip-vul-modal-form").ajaxForm(options);
+}
+
+function deleteVul(){
+	if(!current.getVul()) {
+		alert("请先选择Vul!");
+		return
+	}
+	if(confirm("是否删除当前Vul？") == false){
+		return
+	}
+	$.get("/deletevul?id="+current.getVul().id, function(data,status){
+		if(status!="success") {
+			alert("删除失败！");
+		}
+	});
+	listVul();
+	$("#wip-vul-comment-list").empty();
+	current.setVul(null);
+}
+
+function modifyVul(){
+	if(!current.getVul()) {
+		alert("请先选择Vul!");
+		return
+	}
+	$("#wip-vul-modal").modal("show");
+	$("#wip-vul-modal-form-id").val(current.getVul().id);
+	$("#wip-vul-modal-form-name").val(current.getVul().name);
+	$("#wip-vul-modal-form-url").val(current.getVul().url);
+	$("#wip-vul-modal-form-info").val(current.getVul().info);
+	$("#wip-vul-modal-form-type").val(current.getVul().type);
+	$("#wip-vul-modal-form-level").val(current.getVul().level);
+	$("#wip-vul-modal-form-description").val(current.getVul().description);
+	
+	var options = {
+    	type:"POST",
+    	url:"modifyvul",
+    	beforeSubmit:function(formData, jqForm, opt){
+    	},
+    	success:function(){    		
+    		alert("提交成功!");
+    		$("#wip-vul-modal").modal("hide");
+    		listVul();
+    	},
+    	error:function(err){
+    	 	alert("提交失败!");
+    	}
+    };
+
+    $("#wip-vul-modal-form").ajaxForm(options);
+}
+
+function listVul(orderby="level"){
+	if(!current.getHost()) {
+		alert("请先选择Host!");
+		return;
+	}
+
+	function addVulItem(id, name){
+		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-vul-id-"+id).attr("href","#").text(name);
+		item.click(clickVul);
+		$("#wip-vul-list").append(item);
+	}
+
+	current.initVul();
+	$("#wip-vul-comment-list").empty();
+	var url = "/listvul?host_id=" + current.getHost().id + "&orderby=" + orderby;
+	$.getJSON(url, function(result){
+		$.each(result, function(i, value){
+			addVulItem(value.id, value.name);
+		});
+	});
+}
+
+function clickVul(){
+	if(!current.getHost()) {
+		alert("请先选择project!");
+		return
+	}
+	function addVulDetailItem(name, value){
+		$("#wip-vul-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+	}
+
+	var id = $(this).attr('id').substring(11);
+	$(this).addClass("active");
+	if(current.getVul() && (current.getVul().id != id)){
+		$("#wip-vul-id-"+current.getVul().id).removeClass("active");
+	}
+
+	$("#wip-vul-comment-list").empty();
+	levelList = ["关键","重要","一般","提示"];
+	typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
+	$.getJSON("/getvuldetail?id="+id, function(result){
+		current.setVul(result);
+		addVulDetailItem("名称", result.name);
+		addVulDetailItem("等级", levelList[result.level]);
+		addVulDetailItem("URL地址", result.url);
+		addVulDetailItem("详情", result.info);
+		addVulDetailItem("类型", typeList[result.type]);		
+		addVulDetailItem("描述", result.description);
+	});
+}
+
+function refreshVul(){
+	current.initVul();
+	listVul();
+	$("#wip-vul-comment-list").empty();
+}
+
+/**************************************
+* Date: 2015-8-13
+* Description: manage the comment table
+**************************************/
+
+function addComment(){
+         $("#wip-comment-modal").modal("show");
+         var options = {
+        type:"POST",
+        url:"addcomment",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+                //参数校验
+                if (!current.getHost()) {
+                        alert("请先选择host!");
+                        $("#wip-comment-modal").modal("hide");
+                        return false;
+                }
+                var host_id = current.getHost().id;
+                formData[7] = {'name':'host_id', 'value':host_id}
+        },
+        success:function(){             
+                alert("提交成功!");
+                $("#wip-comment-modal").modal("hide");
+                listComment();
+        },
+        error:function(err){
+                alert("提交失败!");
+        }
+    };
+
+    $("#wip-comment-modal-form").ajaxForm(options);
+}
+
+function deleteComment(){
+        if(!current.getComment()) {
+                alert("请先选择Comment!");
+                return
+        }
+        if(confirm("是否删除当前Comment？") == false){
+                return
+        }
+        $.get("/deletecomment?id="+current.getComment().id, function(data,status){
+                if(status!="success") {
+                        alert("删除失败！");
+                }
+        });
+        listComment();
+        $("#wip-comment-comment-list").empty();
+        current.setComment(null);
+}
+
+function modifyComment(){
+        if(!current.getComment()) {
+                alert("请先选择Comment!");
+                return
+        }
+        $("#wip-comment-modal").modal("show");
+        $("#wip-comment-modal-form-id").val(current.getComment().id);
+        $("#wip-comment-modal-form-name").val(current.getComment().name);
+        $("#wip-comment-modal-form-url").val(current.getComment().url);
+        $("#wip-comment-modal-form-info").val(current.getComment().info);        
+        $("#wip-comment-modal-form-level").val(current.getComment().level);
+        $("#wip-comment-modal-form-type").val(current.getComment().attachment);
+        $("#wip-comment-modal-form-description").val(current.getComment().description);
+        
+        var options = {
+        type:"POST",
+        url:"modifycomment",
+        beforeSubmit:function(formData, jqForm, opt){
+        },
+        success:function(){             
+                alert("提交成功!");
+                $("#wip-comment-modal").modal("hide");
+                listComment();
+        },
+        error:function(err){
+                alert("提交失败!");
+        }
+    };
+
+    $("#wip-comment-modal-form").ajaxForm(options);
+}
+
+function listComment(orderby="level"){
+        if(!current.getHost()) {
+                alert("请先选择Host!");
+                return;
+        }
+
+        function addCommentItem(id, name){
+                var item = $("<a></a>").addClass("list-group-item").attr("id","wip-comment-id-"+id).attr("href","#").text(name);
+                item.click(clickComment);
+                $("#wip-comment-list").append(item);
+        }
+
+        current.initComment();
+        $("#wip-comment-comment-list").empty();
+        var url = "/listcomment?host_id=" + current.getHost().id + "&orderby=" + orderby;
+        $.getJSON(url, function(result){
+                $.each(result, function(i, value){
+                        addCommentItem(value.id, value.name);
+                });
+        });
+}
+
+function clickComment(){
+        if(!current.getHost()) {
+                alert("请先选择project!");
+                return
+        }
+        function addCommentDetailItem(name, value){
+                $("#wip-comment-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+        }
+
+        var id = $(this).attr('id').substring(15);
+        $(this).addClass("active");
+        if(current.getComment() && (current.getComment().id != id)){
+                $("#wip-comment-id-"+current.getComment().id).removeClass("active");
+        }
+
+        $("#wip-comment-comment-list").empty();
+        levelList = ["关键","重要","一般","提示"];
+        typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
+        $.getJSON("/getcommentdetail?id="+id, function(result){
+                current.setComment(result);
+                addCommentDetailItem("名称", result.name);
+                addCommentDetailItem("等级", levelList[result.level]);
+                addCommentDetailItem("URL地址", result.url);
+                addCommentDetailItem("详情", result.info);                
+                addCommentDetailItem("附件", result.attachment);
+                addCommentDetailItem("描述", result.description);
+        });
+}
+
+function refreshComment(){
+        current.initComment();
+        listComment();
+        $("#wip-comment-comment-list").empty();
+}
