@@ -110,10 +110,8 @@ Current.prototype.getComment = function(){
 var current = new Current();
 
 $(document).ready(function() {
-
     listProject();
 
-//    bindAddProjectEvent();
     $("#wip-project-button-add").click(addProject);
     $("#wip-project-button-delete").click(deleteProject);
     $("#wip-project-button-modify").click(modifyProject);
@@ -124,6 +122,18 @@ $(document).ready(function() {
     $("#wip-host-button-delete").click(deleteHost);
     $("#wip-host-button-modify").click(modifyHost);
     $("#wip-host-button-refresh").click(refreshHost);
+
+    $("#wip-vul-button-list").click(function(){listVul();});
+    $("#wip-comment-button-list").click(function(){listComment();});
+    $("#wip-vul-button-refresh").click(refreshHost);
+
+    $("#wip-vul-button-add").click(addVul);
+    $("#wip-vul-button-delete").click(deleteVul);
+    $("#wip-vul-button-modify").click(modifyVul);
+
+    $("#wip-comment-button-add").click(addComment);
+    $("#wip-comment-button-delete").click(deleteComment);
+    $("#wip-comment-button-modify").click(modifyComment);
 });
 
 /**************************************
@@ -389,12 +399,13 @@ function clickHost(){
 	}
 
 	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
 	levelList = ["关键","重要","一般","提示"];
 	$.getJSON("/gethostdetail?id="+id, function(result){
 		current.setHost(result);
 		addHostDetailItem("URL地址", result.url);
 		addHostDetailItem("IP地址", result.ip);
-		addHostDetailItem("等级", levelList[result.level]);
+		addHostDetailItem("等级", levelList[result.level-1]);
 		addHostDetailItem("OS信息", result.os);
 		addHostDetailItem("Server信息", result.server_info);
 		addHostDetailItem("中间件", result.middleware);
@@ -501,11 +512,12 @@ function listVul(orderby="level"){
 	function addVulItem(id, name){
 		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-vul-id-"+id).attr("href","#").text(name);
 		item.click(clickVul);
-		$("#wip-vul-list").append(item);
+		$("#wip-vul-comment-list").append(item);
 	}
 
 	current.initVul();
 	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
 	var url = "/listvul?host_id=" + current.getHost().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
@@ -520,7 +532,7 @@ function clickVul(){
 		return
 	}
 	function addVulDetailItem(name, value){
-		$("#wip-vul-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		$("#wip-vul-comment-detail").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
 	}
 
 	var id = $(this).attr('id').substring(11);
@@ -529,24 +541,25 @@ function clickVul(){
 		$("#wip-vul-id-"+current.getVul().id).removeClass("active");
 	}
 
-	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
 	levelList = ["关键","重要","一般","提示"];
 	typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
 	$.getJSON("/getvuldetail?id="+id, function(result){
 		current.setVul(result);
 		addVulDetailItem("名称", result.name);
-		addVulDetailItem("等级", levelList[result.level]);
+		addVulDetailItem("等级", levelList[result.level-1]);
 		addVulDetailItem("URL地址", result.url);
 		addVulDetailItem("详情", result.info);
-		addVulDetailItem("类型", typeList[result.type]);		
+		addVulDetailItem("类型", typeList[result.type-1]);		
 		addVulDetailItem("描述", result.description);
 	});
 }
 
 function refreshVul(){
 	current.initVul();
+	current.initComment();
 	listVul();
-	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
 }
 
 /**************************************
@@ -555,8 +568,8 @@ function refreshVul(){
 **************************************/
 
 function addComment(){
-         $("#wip-comment-modal").modal("show");
-         var options = {
+    $("#wip-comment-modal").modal("show");
+    var options = {
         type:"POST",
         url:"addcomment",
         beforeSerialize:function(form, opt){
@@ -585,38 +598,38 @@ function addComment(){
 }
 
 function deleteComment(){
-        if(!current.getComment()) {
-                alert("请先选择Comment!");
-                return
+    if(!current.getComment()) {
+        alert("请先选择Comment!");
+        return
+    }
+    if(confirm("是否删除当前Comment？") == false){
+        return
+    }
+    $.get("/deletecomment?id="+current.getComment().id, function(data,status){
+        if(status!="success") {
+            alert("删除失败！");
         }
-        if(confirm("是否删除当前Comment？") == false){
-                return
-        }
-        $.get("/deletecomment?id="+current.getComment().id, function(data,status){
-                if(status!="success") {
-                        alert("删除失败！");
-                }
-        });
-        listComment();
-        $("#wip-comment-comment-list").empty();
-        current.setComment(null);
+    });
+    listComment();
+    $("#wip-vul-comment-list").empty();
+    current.setComment(null);
 }
 
 function modifyComment(){
-        if(!current.getComment()) {
-                alert("请先选择Comment!");
-                return
-        }
-        $("#wip-comment-modal").modal("show");
-        $("#wip-comment-modal-form-id").val(current.getComment().id);
-        $("#wip-comment-modal-form-name").val(current.getComment().name);
-        $("#wip-comment-modal-form-url").val(current.getComment().url);
-        $("#wip-comment-modal-form-info").val(current.getComment().info);        
-        $("#wip-comment-modal-form-level").val(current.getComment().level);
-        $("#wip-comment-modal-form-type").val(current.getComment().attachment);
-        $("#wip-comment-modal-form-description").val(current.getComment().description);
+    if(!current.getComment()) {
+        alert("请先选择Comment!");
+        return
+    }
+    $("#wip-comment-modal").modal("show");
+    $("#wip-comment-modal-form-id").val(current.getComment().id);
+    $("#wip-comment-modal-form-name").val(current.getComment().name);
+    $("#wip-comment-modal-form-url").val(current.getComment().url);
+    $("#wip-comment-modal-form-info").val(current.getComment().info);        
+    $("#wip-comment-modal-form-level").val(current.getComment().level);
+    $("#wip-comment-modal-form-type").val(current.getComment().attachment);
+    $("#wip-comment-modal-form-description").val(current.getComment().description);
         
-        var options = {
+    var options = {
         type:"POST",
         url:"modifycomment",
         beforeSubmit:function(formData, jqForm, opt){
@@ -635,58 +648,59 @@ function modifyComment(){
 }
 
 function listComment(orderby="level"){
-        if(!current.getHost()) {
-                alert("请先选择Host!");
-                return;
-        }
+    if(!current.getHost()) {
+        alert("请先选择Host!");
+        return;
+    }
 
-        function addCommentItem(id, name){
-                var item = $("<a></a>").addClass("list-group-item").attr("id","wip-comment-id-"+id).attr("href","#").text(name);
-                item.click(clickComment);
-                $("#wip-comment-list").append(item);
-        }
+    function addCommentItem(id, name){
+        var item = $("<a></a>").addClass("list-group-item").attr("id","wip-comment-id-"+id).attr("href","#").text(name);
+        item.click(clickComment);
+        $("#wip-vul-comment-list").append(item);
+    }
 
-        current.initComment();
-        $("#wip-comment-comment-list").empty();
-        var url = "/listcomment?host_id=" + current.getHost().id + "&orderby=" + orderby;
-        $.getJSON(url, function(result){
-                $.each(result, function(i, value){
-                        addCommentItem(value.id, value.name);
-                });
+    current.initComment();
+    $("#wip-vul-comment-list").empty();
+    $("#wip-vul-comment-detail").empty();
+    var url = "/listcomment?host_id=" + current.getHost().id + "&orderby=" + orderby;
+    $.getJSON(url, function(result){
+        $.each(result, function(i, value){
+            addCommentItem(value.id, value.name);
         });
+    });
 }
 
 function clickComment(){
-        if(!current.getHost()) {
-                alert("请先选择project!");
-                return
-        }
-        function addCommentDetailItem(name, value){
-                $("#wip-comment-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
-        }
+    if(!current.getHost()) {
+        alert("请先选择project!");
+        return
+    }
+    function addCommentDetailItem(name, value){
+        $("#wip-vul-comment-detail").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+    }
 
-        var id = $(this).attr('id').substring(15);
-        $(this).addClass("active");
-        if(current.getComment() && (current.getComment().id != id)){
-                $("#wip-comment-id-"+current.getComment().id).removeClass("active");
-        }
+    var id = $(this).attr('id').substring(15);
+    $(this).addClass("active");
+    if(current.getComment() && (current.getComment().id != id)){
+        $("#wip-comment-id-"+current.getComment().id).removeClass("active");
+    }
 
-        $("#wip-comment-comment-list").empty();
-        levelList = ["关键","重要","一般","提示"];
-        typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
-        $.getJSON("/getcommentdetail?id="+id, function(result){
-                current.setComment(result);
-                addCommentDetailItem("名称", result.name);
-                addCommentDetailItem("等级", levelList[result.level]);
-                addCommentDetailItem("URL地址", result.url);
-                addCommentDetailItem("详情", result.info);                
-                addCommentDetailItem("附件", result.attachment);
-                addCommentDetailItem("描述", result.description);
-        });
+    $("#wip-vul-comment-detail").empty();
+    levelList = ["关键","重要","一般","提示"];
+    typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
+    $.getJSON("/getcommentdetail?id="+id, function(result){
+        current.setComment(result);
+        addCommentDetailItem("名称", result.name);
+        addCommentDetailItem("等级", levelList[result.level]);
+        addCommentDetailItem("URL地址", result.url);
+        addCommentDetailItem("详情", result.info);                
+        addCommentDetailItem("附件", result.attachment);
+        addCommentDetailItem("描述", result.description);
+    });
 }
 
 function refreshComment(){
-        current.initComment();
-        listComment();
-        $("#wip-comment-comment-list").empty();
+    current.initComment();
+    listComment();
+    $("#wip-vul-comment-list").empty();
 }

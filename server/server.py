@@ -234,7 +234,7 @@ class VulAdd:
 	def POST(self):
 		param = web.input()
 		sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),\
+			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),
 			param.level.strip(),param.description.strip(),param.host_id.strip())
 
 		dbcon = DBManage()
@@ -259,7 +259,7 @@ class VulModify:
 	def POST(self):
 		param = web.input()
 		sqlCmd = "update vul set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}' \
-			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),param.level.strip(),\
+			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),param.level.strip(),
 			param.description.strip(),param.id.strip())
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
@@ -307,8 +307,8 @@ class CommentDetail:
 class CommentAdd:
 	def POST(self):
 		param = web.input()
-		sqlCmd = "insert into comment(name,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),\
+		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),
 			param.level.strip(),param.attachment.strip(),param.description.strip(),param.host_id.strip())
 
 		dbcon = DBManage()
@@ -332,8 +332,8 @@ class CommentDelete:
 class CommentModify:
 	def POST(self):
 		param = web.input()
-		sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}' \
-			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.level.strip(),\
+		sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',level='{3}',attachment='{4}',description='{5}' \
+			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.level.strip(),
 			param.attachment.strip(),param.description.strip(),param.id.strip())
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):

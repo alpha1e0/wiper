@@ -35,7 +35,7 @@ create table vul (
 	url varchar(4096),
 	info varchar(1024), 
 	type integer, 
-	levle integer, 
+	level integer, 
 	description text, 
 	host_id integer not null, 
 	primary key (id),
