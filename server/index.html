@@ -20,16 +20,7 @@
                   <ul class="nav navbar-nav">
                     <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目</a></li>
                     <li><a href="#wip-tab-project-detail" id="wip-tab-button-detail" data-toggle="tab">项目详情</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">计划任务<span class="caret"></span></a>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li class="divider"></li>
-                            <li class="dropdown-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </li>
+                    <li><a href="#wip-tab-auto-task" id="wip-tab-button-autotask" data-toggle="tab">自动化</a></li>
                     <form class="navbar-form navbar-left" role="search">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Search">
@@ -107,7 +98,7 @@
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#" id="wip-host-button-autosort">综合排序</a></li>
+                                    <!--<li><a href="#" id="wip-host-button-autosort">综合排序</a></li>-->
                                     <li><a href="#" id="wip-host-button-ipsort">按IP排序</a></li>
                                     <li><a href="#" id="wip-host-button-urlsort">按URL排序</a></li>
                                 </ul>
@@ -176,6 +167,24 @@
                         <div class="wip-vul-list" id="wip-vul-comment-detail">
                             <div class="list-group">
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--tab auto task-->
+                <div id="wip-tab-auto-task" class="tab-pane row-fluid">
+                    <div class="col-md-3">
+                        <h3><span class="label label-success">当前选择：</span></h3>
+                        <hr />
+                        <div id="wip-autotask-current-list">
+                            <div class="list-group">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <h3><span class="label label-success">可选任务：</span></h3>
+                        <hr />
+                        <div id="wip-autotask-task-list">
                         </div>
                     </div>
                 </div>

@@ -1,9 +1,9 @@
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-6
-* Description: the class Current record the current data
-*
-**************************************/
+* Author: alphp1e0
+* Description: 记录当前状态的类，用于记录当前选择哪些project、host、vul、comment，对于当前状态的更新需要同步更新页面标题
+******************************************************************************************************/
 function Current(){
 	this.project = null;
 	this.host = null;
@@ -102,27 +102,30 @@ Current.prototype.getComment = function(){
 	return this.comment;
 }
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-6
-* Description: init the program
-*
-**************************************/
+* Description: 初始化工作，绑定事件
+******************************************************************************************************/
 var current = new Current();
 
 $(document).ready(function() {
     listProject();
-
+    //绑定与project相关操作的事件
     $("#wip-project-button-add").click(addProject);
     $("#wip-project-button-delete").click(deleteProject);
     $("#wip-project-button-modify").click(modifyProject);
     $("#wip-project-button-refresh").click(refreshProject);
 
+    //绑定与host相关操作的事件
     $("#wip-tab-button-detail").click(function(){listHost();});
     $("#wip-host-button-add").click(addHost);
     $("#wip-host-button-delete").click(deleteHost);
     $("#wip-host-button-modify").click(modifyHost);
     $("#wip-host-button-refresh").click(refreshHost);
+    $("#wip-host-button-ipsort").click(function(){listHost("ip");});
+    $("#wip-host-button-urlsort").click(function(){listHost("url");});
 
+    //绑定与vul、comment相关操作的事件
     $("#wip-vul-button-list").click(function(){listVul();});
     $("#wip-comment-button-list").click(function(){listComment();});
     $("#wip-vul-button-refresh").click(refreshHost);
@@ -134,15 +137,18 @@ $(document).ready(function() {
     $("#wip-comment-button-add").click(addComment);
     $("#wip-comment-button-delete").click(deleteComment);
     $("#wip-comment-button-modify").click(modifyComment);
+
+    //绑定与auto task相关操作的事件
+    $("#wip-tab-button-autotask").click(listCurrent);
 });
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-6
-* Description: manage the project table
-**************************************/
+* Author: alphp1e0
+* Description: project相关操作，增、删、改操作，显示项目列表、显示项目详情
+******************************************************************************************************/
 
 function addProject(){
-//	 data-toggle="modal" data-target="#wip-project"
 	 $("#wip-project-modal").modal("show");
 	 var options = {
     	type:"POST",
@@ -199,15 +205,7 @@ function modifyProject(){
     	type:"POST",
     	url:"modifyproject",
     	beforeSubmit:function(formData, jqForm, opt){
-//    		var project = {};
-//    		project.id = formData[0].value;
-//    		project.name = formData[1].value;
-//    		project.ip = formData[2].value;
-//    		project.url = formData[3].value;
-//    		project.whois = formData[4].value;
-//    		project.description = formData[5].value;
-
-//    		current.setProject(project);
+    		//参数校验
     	},
     	success:function(){    		
     		alert("提交成功!");
@@ -267,10 +265,11 @@ function refreshProject(){
 	$("#wip-project-detail").empty();
 }
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-13
-* Description: manage the host table
-**************************************/
+* Author: alphp1e0
+* Description: host相关的操作，增、删、该，显示host列表、显示host详情
+******************************************************************************************************/
 
 function addHost(){
 	 $("#wip-host-modal").modal("show");
@@ -419,10 +418,11 @@ function refreshHost(){
 	$("#wip-vul-comment-list").empty();
 }
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-13
-* Description: manage the vul table
-**************************************/
+* Author: alphp1e0
+* Description: 漏洞相关操作，增、删、该，显示漏洞列表，显示漏洞详情
+******************************************************************************************************/
 function addVul(){
 	 $("#wip-vul-modal").modal("show");
 	 var options = {
@@ -562,10 +562,11 @@ function refreshVul(){
 	$("#wip-vul-comment-detail").empty();
 }
 
-/**************************************
+/******************************************************************************************************
 * Date: 2015-8-13
-* Description: manage the comment table
-**************************************/
+* Author: alphp1e0
+* Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
+******************************************************************************************************/
 
 function addComment(){
     $("#wip-comment-modal").modal("show");
@@ -704,3 +705,57 @@ function refreshComment(){
     listComment();
     $("#wip-vul-comment-list").empty();
 }
+
+
+/******************************************************************************************************
+* Date: 2015-8-17
+* Author: alphp1e0
+* Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
+******************************************************************************************************/
+
+function listCurrent(){
+	$("#wip-autotask-current-list").empty();
+	if(current.getProject()) {
+		var projectItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("项目："+current.getProject().name);
+		projectItem.attr("id", "wip-task-current-project");
+		projectItem.click(listProjectTask);
+		$("#wip-autotask-current-list").append(projectItem);
+	}
+	if(current.getHost()) {
+		var hostItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("Host："+current.getHost().ip+" | "+current.getHost().url);
+		hostItem.attr("id", "wip-task-current-host")
+		hostItem.click(listHostTask);
+		$("#wip-autotask-current-list").append(hostItem);
+	}
+	if(current.getVul()) {
+		var vulItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("漏洞："+current.getVul().name);
+		vulItem.attr("id", "wip-task-current-vul")
+		vulItem.click(listVulTask);
+		$("#wip-autotask-current-list").append(vulItem);
+	}
+	if(current.getComment()) {
+		var commentItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("备注："+current.getComment().name);
+		commentItem.attr("id", "wip-task-current-comment")
+		commentItem.click(listCommentTask);
+		$("#wip-autotask-current-list").append(commentItem);
+	}
+}
+
+function listProjectTask(){
+	$("#wip-autotask-current-project").addClass("active");
+}
+
+function listHostTask(){
+	$("#wip-autotask-current-host").addClass("active");
+}
+
+function listVulTask(){
+	$("#wip-autotask-current-vul").addClass("active");
+}
+
+function listCommentTask(){
+	$("#wip-autotask-current-comment").addClass("active");
+}
+
+
+
