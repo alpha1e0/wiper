@@ -14,6 +14,7 @@ import MySQLdb as mdb
 
 from init import log
 
+
 class DBManage(object):
     '''
     Manage the information database

@@ -1,4 +1,5 @@
 wip.sublime-project
 wip.sublime-workspace
 *.pyc
-log/wiplog.log
+/log/wiplog.log
+/dbman/db.config
