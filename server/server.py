@@ -37,7 +37,8 @@ def startServer():
 		"/listcomment","CommentList",
 		"/getcommentdetail","CommentDetail",
 		"/deletecomment","CommentDelete",
-		"/modifycomment","CommentModify",)
+		"/modifycomment","CommentModify",
+		"/addattachment","AttachmentAdd")
 
 	app = web.application(urls, globals())
 
@@ -374,3 +375,27 @@ class CommentModify:
 			raise web.internalerror('Modify comment failed!')
 		
 		return True
+
+
+class AttachmentAdd:
+	def POST(self):
+		param = web.input(attachment={})
+		#此处需要校验参数
+		
+		print param.name + "|" + param.host_id
+		print param['attachment'].filename + "|" + param['attachment'].value
+
+
+		#attachName = "{0}_{1}_"
+
+#		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+#			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),
+#			param.level.strip(),param.attachment.strip(),param.description.strip(),param.host_id.strip())
+
+#		dbcon = DBManage()
+#		if not dbcon.sql(sqlCmd):
+#			raise web.internalerror('Add comment failed!')
+
+		return True
+
+

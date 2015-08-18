@@ -138,6 +138,8 @@ $(document).ready(function() {
     $("#wip-comment-button-delete").click(deleteComment);
     $("#wip-comment-button-modify").click(modifyComment);
 
+    $("#wip-attachment-button-add").click(addAttachment);
+
     //绑定与auto task相关操作的事件
     $("#wip-tab-button-autotask").click(listCurrent);
 });
@@ -576,22 +578,22 @@ function addComment(){
         beforeSerialize:function(form, opt){
         },
         beforeSubmit:function(formData, jqForm, opt){
-                //参数校验
-                if (!current.getHost()) {
-                        alert("请先选择host!");
-                        $("#wip-comment-modal").modal("hide");
-                        return false;
-                }
-                var host_id = current.getHost().id;
-                formData[7] = {'name':'host_id', 'value':host_id}
+            //参数校验
+            if (!current.getHost()) {
+                alert("请先选择host!");
+                $("#wip-comment-modal").modal("hide");
+                return false;
+            }
+            var host_id = current.getHost().id;
+            formData[7] = {'name':'host_id', 'value':host_id}
         },
         success:function(){             
-                alert("提交成功!");
-                $("#wip-comment-modal").modal("hide");
-                listComment();
+            alert("提交成功!");
+            $("#wip-comment-modal").modal("hide");
+            listComment();
         },
         error:function(err){
-                alert("提交失败!");
+            alert("提交失败!");
         }
     };
 
@@ -636,12 +638,12 @@ function modifyComment(){
         beforeSubmit:function(formData, jqForm, opt){
         },
         success:function(){             
-                alert("提交成功!");
-                $("#wip-comment-modal").modal("hide");
-                listComment();
+            alert("提交成功!");
+            $("#wip-comment-modal").modal("hide");
+            listComment();
         },
         error:function(err){
-                alert("提交失败!");
+            alert("提交失败!");
         }
     };
 
@@ -706,6 +708,34 @@ function refreshComment(){
     $("#wip-vul-comment-list").empty();
 }
 
+function addAttachment(){
+	$("#wip-attachment-modal").modal("show");
+    var options = {
+        type:"POST",
+        url:"addattachment",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+            if (!current.getHost()) {
+                alert("请先选择host!");
+                $("#wip-attachment-modal").modal("hide");
+                return false;
+            }
+            var host_id = current.getHost().id;
+            formData[2] = {'name':'host_id', 'value':host_id}
+        },
+        success:function(){             
+            alert("提交成功!");
+            $("#wip-attachment-modal").modal("hide");
+        },
+        error:function(err){
+            alert("提交失败!");
+        }
+    };
+
+    $("#wip-attachment-modal-form").ajaxForm(options);
+}
 
 /******************************************************************************************************
 * Date: 2015-8-17
