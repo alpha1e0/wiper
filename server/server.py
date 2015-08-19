@@ -383,9 +383,7 @@ class AttachmentAdd:
 	def POST(self):
 		param = web.input(attachment={})
 		#此处需要校验参数
-		
-		#print param.name + "|" + param.host_id
-		#print param['attachment'].filename + "|" + param['attachment'].value		
+			
 		hostID = param.host_id.strip()
 		attachName = param.name.strip()
 		attachFilename = param['attachment'].filename.strip()
@@ -400,7 +398,7 @@ class AttachmentAdd:
 			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
 
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format("attachment_"+fileNamePrefix,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
+			,'{2}','{3}','{4}','{5}','{6}')".format("attachment_"+fileName,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
 
 		try:
 			fd = open("static/attachment/"+fileName, "wb")
