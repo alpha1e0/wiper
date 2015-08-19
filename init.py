@@ -30,4 +30,13 @@ def initLog():
     return log
 
 
+if not os.path.exists("log"):
+    os.mkdir("log")
+
+if not os.path.exists("attachment"):
+    os.mkdir("attachment")
+
+
 log = initLog()
+
+

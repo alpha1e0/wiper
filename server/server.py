@@ -7,9 +7,11 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
+import sys
+import os
+import time
 import web
 import json
-import sys
 
 from dbman.dbmanage import DBManage
 from init import log
@@ -382,19 +384,33 @@ class AttachmentAdd:
 		param = web.input(attachment={})
 		#此处需要校验参数
 		
-		print param.name + "|" + param.host_id
-		print param['attachment'].filename + "|" + param['attachment'].value
+		#print param.name + "|" + param.host_id
+		#print param['attachment'].filename + "|" + param['attachment'].value		
+		hostID = param.host_id.strip()
+		attachName = param.name.strip()
+		attachFilename = param['attachment'].filename.strip()
 
+		fileCTime = time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime())
+		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
 
-		#attachName = "{0}_{1}_"
+		if attachName != "":
+			attachType = os.path.splitext(attachFilename)[-1]
+			fileName = "{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
+		else:
+			fileName = "{0}_{1}".format(fileNamePrefix,attachFilename)
 
-#		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-#			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),
-#			param.level.strip(),param.attachment.strip(),param.description.strip(),param.host_id.strip())
+		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}')".format(fileNamePrefix+"attachment","","","3",fileName,"attachment:"+fileName,param.host_id.strip())
 
-#		dbcon = DBManage()
-#		if not dbcon.sql(sqlCmd):
-#			raise web.internalerror('Add comment failed!')
+		dbcon = DBManage()
+		if not dbcon.sql(sqlCmd):
+			raise web.internalerror('Add attachment comment failed!')
+
+		try:
+			df = open("attachment/"+fileName, "wb")
+			fd.write(param['attachment'].value)
+		except:
+			raise web.internalerror('Add attachment failed!')
 
 		return True
 
