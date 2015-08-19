@@ -33,8 +33,8 @@ def initLog():
 if not os.path.exists("log"):
     os.mkdir("log")
 
-if not os.path.exists("attachment"):
-    os.mkdir("attachment")
+if not os.path.exists("static/attachment"):
+    os.mkdir("static/attachment")
 
 
 log = initLog()

@@ -697,8 +697,11 @@ function clickComment(){
         addCommentDetailItem("等级", levelList[result.level]);
         addCommentDetailItem("URL地址", result.url);
         addCommentDetailItem("详情", result.info);                
-        addCommentDetailItem("附件", result.attachment);
+        //addCommentDetailItem("附件", result.attachment);
         addCommentDetailItem("描述", result.description);
+        attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), result.attachment)
+        attachmentItem.attr("href","static/attachment/"+result.attachment)
+        $("#wip-vul-comment-detail").append(attachmentItem);
     });
 }
 

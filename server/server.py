@@ -390,27 +390,31 @@ class AttachmentAdd:
 		attachName = param.name.strip()
 		attachFilename = param['attachment'].filename.strip()
 
-		fileCTime = time.strftime("%Y-%m-%d-%H:%M:%S",time.localtime())
+		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
 		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
 
 		if attachName != "":
 			attachType = os.path.splitext(attachFilename)[-1]
-			fileName = "{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
+			fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
 		else:
-			fileName = "{0}_{1}".format(fileNamePrefix,attachFilename)
+			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
 
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(fileNamePrefix+"attachment","","","3",fileName,"attachment:"+fileName,param.host_id.strip())
+			,'{2}','{3}','{4}','{5}','{6}')".format("attachment_"+fileNamePrefix,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
+
+		try:
+			fd = open("static/attachment/"+fileName, "wb")
+			fd.write(param['attachment'].value)
+		except Exception as msg:
+			raise web.internalerror('Add attachment failed!')
+		finally:
+			fd.close()
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
+			if os.path.exists("static/attachment/"+fileName):
+				os.remove("static/attachment/"+fileName)
 			raise web.internalerror('Add attachment comment failed!')
-
-		try:
-			df = open("attachment/"+fileName, "wb")
-			fd.write(param['attachment'].value)
-		except:
-			raise web.internalerror('Add attachment failed!')
 
 		return True
 
