@@ -43,7 +43,6 @@ create table vul (
 ) engine=InnoDB  default charset=utf8;
 
 
-
 create table comment (
 	id integer not null auto_increment, 
 	name varchar(100), 
@@ -57,3 +56,13 @@ create table comment (
 	constraint host_id_comment foreign key (host_id) references host (id)
 ) engine=InnoDB  default charset=utf8;
 
+
+create table tmp_task_result_byhost (
+	id integer not null auto_increment, 
+	url varchar(100), 
+	ip varchar(50), 
+	source varchar(50),
+	project_id integer not null,
+	primary key (id),
+	constraint project_id_host foreign key (project_id) references project (id)
+) engine=InnoDB  default charset=utf8;

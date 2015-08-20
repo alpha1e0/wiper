@@ -771,6 +771,11 @@ function listCurrent(){
 		commentItem.click(listCommentTask);
 		$("#wip-autotask-current-list").append(commentItem);
 	}
+
+	$("#wip-autotask-task-zonetrans").hide();
+	$("#wip-autotask-task-googlehacking").hide();
+	$("#wip-autotask-task-dnsbrute").hide();
+	$("#wip-autotask-task-subnetscan").hide();
 }
 
 function listProjectTask(){
@@ -778,6 +783,13 @@ function listProjectTask(){
 	$("#wip-autotask-current-host").removeClass("active");
 	$("#wip-autotask-current-vul").removeClass("active");
 	$("#wip-autotask-current-comment").removeClass("active");
+
+	getTaskStatus();
+
+	$("#wip-autotask-task-zonetrans").show();
+	$("#wip-autotask-task-googlehacking").show();
+	$("#wip-autotask-task-dnsbrute").show();
+	$("#wip-autotask-task-subnetscan").show();
 }
 
 function listHostTask(){
@@ -785,6 +797,13 @@ function listHostTask(){
 	$("#wip-autotask-current-host").addClass("active");
 	$("#wip-autotask-current-vul").removeClass("active");
 	$("#wip-autotask-current-comment").removeClass("active");
+
+	getTaskStatus();
+
+	$("#wip-autotask-task-zonetrans").show();
+	$("#wip-autotask-task-googlehacking").show();
+	$("#wip-autotask-task-dnsbrute").show();
+	$("#wip-autotask-task-subnetscan").show();
 }
 
 function listVulTask(){
@@ -792,6 +811,11 @@ function listVulTask(){
 	$("#wip-autotask-current-host").removeClass("active");
 	$("#wip-autotask-current-vul").addClass("active");
 	$("#wip-autotask-current-comment").removeClass("active");
+
+	$("#wip-autotask-task-zonetrans").hide();
+	$("#wip-autotask-task-googlehacking").hide();
+	$("#wip-autotask-task-dnsbrute").hide();
+	$("#wip-autotask-task-subnetscan").hide();
 }
 
 function listCommentTask(){
@@ -799,7 +823,32 @@ function listCommentTask(){
 	$("#wip-autotask-current-host").removeClass("active");
 	$("#wip-autotask-current-vul").removeClass("active");
 	$("#wip-autotask-current-comment").addClass("active");
+
+	$("#wip-autotask-task-zonetrans").hide();
+	$("#wip-autotask-task-googlehacking").hide();
+	$("#wip-autotask-task-dnsbrute").hide();
+	$("#wip-autotask-task-subnetscan").hide();
 }
 
+function getTaskStatus(){
+	if(!current.getProject()){
+		return false;
+	}
+	$.get("/gettaskstatus?id="+current.getProject().id, function(data,status){
+        if(status!="success") {
+            return false;
+        }
+        var text = $("<p></p").addClass("text-danger").text("有任务结果，单击查看")
+        $("#wip-autotask-task-list").prepend($("<a></a>").addClass("list-group-item").attr("href","#").click(listTaskResult).text("有任务结果，单击查看"), $("<hr />"));
+    });    
+}
 
+function listTaskResult(){
+//	$.getJSON(url, function(result){
+//        $.each(result, function(i, value){
+//            addCommentItem(value.id, value.name);
+//        });
+//    });
+	alert("task result");
+}
 
