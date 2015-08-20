@@ -831,6 +831,7 @@ function listCommentTask(){
 }
 
 function getTaskStatus(){
+	$("#wip-autotask-task-status").remove();
 	if(!current.getProject()){
 		return false;
 	}
@@ -838,8 +839,7 @@ function getTaskStatus(){
         if(status!="success") {
             return false;
         }
-        var text = $("<p></p").addClass("text-danger").text("有任务结果，单击查看")
-        $("#wip-autotask-task-list").prepend($("<a></a>").addClass("list-group-item").attr("href","#").click(listTaskResult).text("有任务结果，单击查看"), $("<hr />"));
+        $("#wip-autotask-task-list").prepend($("<a></a>").attr("id","wip-autotask-task-status").addClass("list-group-item").attr("href","#").click(listTaskResult).text("有任务结果，单击查看"));
     });    
 }
 
