@@ -111,34 +111,34 @@ var current = new Current();
 $(document).ready(function() {
     listProject();
     //绑定与project相关操作的事件
-    $("#wip-project-button-add").click(addProject);
-    $("#wip-project-button-delete").click(deleteProject);
-    $("#wip-project-button-modify").click(modifyProject);
-    $("#wip-project-button-refresh").click(refreshProject);
+    $("#wip-button-project-add").click(addProject);
+    $("#wip-button-project-delete").click(deleteProject);
+    $("#wip-button-project-modify").click(modifyProject);
+    $("#wip-button-project-refresh").click(refreshProject);
 
     //绑定与host相关操作的事件
     $("#wip-tab-button-detail").click(function(){listHost();});
-    $("#wip-host-button-add").click(addHost);
-    $("#wip-host-button-delete").click(deleteHost);
-    $("#wip-host-button-modify").click(modifyHost);
-    $("#wip-host-button-refresh").click(refreshHost);
-    $("#wip-host-button-ipsort").click(function(){listHost("ip");});
-    $("#wip-host-button-urlsort").click(function(){listHost("url");});
+    $("#wip-button-host-add").click(addHost);
+    $("#wip-button-host-delete").click(deleteHost);
+    $("#wip-button-host-modify").click(modifyHost);
+    $("#wip-button-host-refresh").click(refreshHost);
+    $("#wip-button-host-ipsort").click(function(){listHost("ip");});
+    $("#wip-button-host-urlsort").click(function(){listHost("url");});
 
     //绑定与vul、comment相关操作的事件
-    $("#wip-vul-button-list").click(function(){listVul();});
-    $("#wip-comment-button-list").click(function(){listComment();});
-    $("#wip-vul-button-refresh").click(refreshHost);
+    $("#wip-button-vul-list").click(function(){listVul();});
+    $("#wip-button-comment-list").click(function(){listComment();});
+    $("#wip-button-vul-refresh").click(refreshHost);
 
-    $("#wip-vul-button-add").click(addVul);
-    $("#wip-vul-button-delete").click(deleteVul);
-    $("#wip-vul-button-modify").click(modifyVul);
+    $("#wip-button-vul-add").click(addVul);
+    $("#wip-button-vul-delete").click(deleteVul);
+    $("#wip-button-vul-modify").click(modifyVul);
 
-    $("#wip-comment-button-add").click(addComment);
-    $("#wip-comment-button-delete").click(deleteComment);
-    $("#wip-comment-button-modify").click(modifyComment);
+    $("#wip-button-comment-add").click(addComment);
+    $("#wip-button-comment-delete").click(deleteComment);
+    $("#wip-button-comment-modify").click(modifyComment);
 
-    $("#wip-attachment-button-add").click(addAttachment);
+    $("#wip-button-attachment-add").click(addAttachment);
 
     //绑定与auto task相关操作的事件
     $("#wip-tab-button-autotask").click(listCurrent);
@@ -151,7 +151,7 @@ $(document).ready(function() {
 ******************************************************************************************************/
 
 function addProject(){
-	 $("#wip-project-modal").modal("show");
+	 $("#wip-modal-project").modal("show");
 	 var options = {
     	type:"POST",
     	url:"addproject",
@@ -160,15 +160,15 @@ function addProject(){
     	},
     	success:function(){   		
     		alert("提交成功!");
-    		$("#wip-project-modal").modal("hide");
+    		$("#wip-modal-project").modal("hide");
     		listProject();
     	},
     	error:function(err){
     	 	alert("提交失败!");
     	}
     };
-    //$('#wip-project-modal-form').submit(function(){$(this).ajaxSubmit(options);return false;});  
-    $("#wip-project-modal-form").ajaxForm(options);
+    //$('#wip-modal-form-project').submit(function(){$(this).ajaxSubmit(options);return false;});  
+    $("#wip-modal-form-project").ajaxForm(options);
 }
 
 function deleteProject(){
@@ -194,13 +194,13 @@ function modifyProject(){
 		alert("请先选择project!");
 		return;
 	}
-	$("#wip-project-modal").modal("show");
-	$("#wip-project-modal-form-id").val(current.getProject().id);
-	$("#wip-project-modal-form-name").val(current.getProject().name);
-	$("#wip-project-modal-form-url").val(current.getProject().url);
-	$("#wip-project-modal-form-ip").val(current.getProject().ip);
-	$("#wip-project-modal-form-whois").val(current.getProject().whois);
-	$("#wip-project-modal-form-description").val(current.getProject().description);
+	$("#wip-modal-project").modal("show");
+	$("#wip-modal-form-project-id").val(current.getProject().id);
+	$("#wip-modal-form-project-name").val(current.getProject().name);
+	$("#wip-modal-form-project-url").val(current.getProject().url);
+	$("#wip-modal-form-project-ip").val(current.getProject().ip);
+	$("#wip-modal-form-project-whois").val(current.getProject().whois);
+	$("#wip-modal-form-project-description").val(current.getProject().description);
 
 	
 	var options = {
@@ -211,7 +211,7 @@ function modifyProject(){
     	},
     	success:function(){    		
     		alert("提交成功!");
-    		$("#wip-project-modal").modal("hide");
+    		$("#wip-modal-project").modal("hide");
     		listProject();
     	},
     	error:function(err){
@@ -219,7 +219,7 @@ function modifyProject(){
     	}
     };
 
-    $("#wip-project-modal-form").ajaxForm(options);
+    $("#wip-modal-form-project").ajaxForm(options);
 }
 
 function listProject(){
@@ -240,7 +240,7 @@ function listProject(){
 
 function clickProject(){
 	function addProjectDetailItem(name, value){
-		$("#wip-project-detail").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		$("#wip-project-detail").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":"), $("<br />"), value));
 	}
 
 	var id = $(this).attr('id').substring(15);
@@ -274,7 +274,7 @@ function refreshProject(){
 ******************************************************************************************************/
 
 function addHost(){
-	 $("#wip-host-modal").modal("show");
+	 $("#wip-modal-host").modal("show");
 	 var options = {
     	type:"POST",
     	url:"addhost",
@@ -284,7 +284,7 @@ function addHost(){
     		//参数校验
     		if (!current.getProject()) {
     			alert("请先选择project!");
-    			$("#wip-host-modal").modal("hide");
+    			$("#wip-modal-host").modal("hide");
     			return false;
     		}
     		var project_id = current.getProject().id;
@@ -292,7 +292,7 @@ function addHost(){
     	},
     	success:function(){   		
     		alert("提交成功!");
-    		$("#wip-host-modal").modal("hide");
+    		$("#wip-modal-host").modal("hide");
     		listHost();
     	},
     	error:function(err){
@@ -300,7 +300,7 @@ function addHost(){
     	}
     };
 
-    $("#wip-host-modal-form").ajaxForm(options);
+    $("#wip-modal-form-host").ajaxForm(options);
 }
 
 function deleteHost(){
@@ -326,15 +326,15 @@ function modifyHost(){
 		alert("请先选择Host!");
 		return;
 	}
-	$("#wip-host-modal").modal("show");
-	$("#wip-host-modal-form-id").val(current.getHost().id);
-	$("#wip-host-modal-form-url").val(current.getHost().url);
-	$("#wip-host-modal-form-ip").val(current.getHost().ip);
-	$("#wip-host-modal-form-level").val(current.getHost().level);
-	$("#wip-host-modal-form-os").val(current.getHost().os);
-	$("#wip-host-modal-form-server_info").val(current.getHost().server_info);
-	$("#wip-host-modal-form-middleware").val(current.getHost().middleware);
-	$("#wip-host-modal-form-description").val(current.getHost().description);
+	$("#wip-modal-host").modal("show");
+	$("#wip-modal-form-host-id").val(current.getHost().id);
+	$("#wip-modal-form-host-url").val(current.getHost().url);
+	$("#wip-modal-form-host-ip").val(current.getHost().ip);
+	$("#wip-modal-form-host-level").val(current.getHost().level);
+	$("#wip-modal-form-host-os").val(current.getHost().os);
+	$("#wip-modal-form-host-server_info").val(current.getHost().server_info);
+	$("#wip-modal-form-host-middleware").val(current.getHost().middleware);
+	$("#wip-modal-form-host-description").val(current.getHost().description);
 	
 	var options = {
     	type:"POST",
@@ -343,7 +343,7 @@ function modifyHost(){
     	},
     	success:function(){    		
     		alert("提交成功!");
-    		$("#wip-host-modal").modal("hide");
+    		$("#wip-modal-host").modal("hide");
     		listHost();
     	},
     	error:function(err){
@@ -351,7 +351,7 @@ function modifyHost(){
     	}
     };
 
-    $("#wip-host-modal-form").ajaxForm(options);
+    $("#wip-modal-form-host").ajaxForm(options);
 }
 
 function listHost(orderby="level"){
@@ -360,7 +360,7 @@ function listHost(orderby="level"){
 		return;
 	}
 	//如果没有重新选择project，则不刷新host list
-	if(current.getHost()){
+	if(current.getHost() && orderby == "level"){
 		if(current.getHost().project_id == current.getProject().id) {
 			return
 		}
@@ -390,7 +390,7 @@ function clickHost(){
 		return
 	}
 	function addHostDetailItem(name, value){
-		$("#wip-vul-comment-list").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
 	}
 
 	var id = $(this).attr('id').substring(12);
@@ -426,7 +426,7 @@ function refreshHost(){
 * Description: 漏洞相关操作，增、删、该，显示漏洞列表，显示漏洞详情
 ******************************************************************************************************/
 function addVul(){
-	 $("#wip-vul-modal").modal("show");
+	 $("#wip-modal-vul").modal("show");
 	 var options = {
     	type:"POST",
     	url:"addvul",
@@ -436,7 +436,7 @@ function addVul(){
     		//参数校验
     		if (!current.getHost()) {
     			alert("请先选择host!");
-    			$("#wip-vul-modal").modal("hide");
+    			$("#wip-modal-vul").modal("hide");
     			return false;
     		}
     		var host_id = current.getHost().id;
@@ -444,7 +444,7 @@ function addVul(){
     	},
     	success:function(){   		
     		alert("提交成功!");
-    		$("#wip-vul-modal").modal("hide");
+    		$("#wip-modal-vul").modal("hide");
     		listVul();
     	},
     	error:function(err){
@@ -452,7 +452,7 @@ function addVul(){
     	}
     };
 
-    $("#wip-vul-modal-form").ajaxForm(options);
+    $("#wip-modal-form-vul").ajaxForm(options);
 }
 
 function deleteVul(){
@@ -478,14 +478,14 @@ function modifyVul(){
 		alert("请先选择Vul!");
 		return
 	}
-	$("#wip-vul-modal").modal("show");
-	$("#wip-vul-modal-form-id").val(current.getVul().id);
-	$("#wip-vul-modal-form-name").val(current.getVul().name);
-	$("#wip-vul-modal-form-url").val(current.getVul().url);
-	$("#wip-vul-modal-form-info").val(current.getVul().info);
-	$("#wip-vul-modal-form-type").val(current.getVul().type);
-	$("#wip-vul-modal-form-level").val(current.getVul().level);
-	$("#wip-vul-modal-form-description").val(current.getVul().description);
+	$("#wip-modal-vul").modal("show");
+	$("#wip-modal-form-vul-id").val(current.getVul().id);
+	$("#wip-modal-form-vul-name").val(current.getVul().name);
+	$("#wip-modal-form-vul-url").val(current.getVul().url);
+	$("#wip-modal-form-vul-info").val(current.getVul().info);
+	$("#wip-modal-form-vul-type").val(current.getVul().type);
+	$("#wip-modal-form-vul-level").val(current.getVul().level);
+	$("#wip-modal-form-vul-description").val(current.getVul().description);
 	
 	var options = {
     	type:"POST",
@@ -494,7 +494,7 @@ function modifyVul(){
     	},
     	success:function(){    		
     		alert("提交成功!");
-    		$("#wip-vul-modal").modal("hide");
+    		$("#wip-modal-vul").modal("hide");
     		listVul();
     	},
     	error:function(err){
@@ -502,7 +502,7 @@ function modifyVul(){
     	}
     };
 
-    $("#wip-vul-modal-form").ajaxForm(options);
+    $("#wip-modal-form-vul").ajaxForm(options);
 }
 
 function listVul(orderby="level"){
@@ -534,7 +534,7 @@ function clickVul(){
 		return
 	}
 	function addVulDetailItem(name, value){
-		$("#wip-vul-comment-detail").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		$("#wip-vul-comment-detail").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
 	}
 
 	var id = $(this).attr('id').substring(11);
@@ -571,7 +571,7 @@ function refreshVul(){
 ******************************************************************************************************/
 
 function addComment(){
-    $("#wip-comment-modal").modal("show");
+    $("#wip-modal-comment").modal("show");
     var options = {
         type:"POST",
         url:"addcomment",
@@ -581,7 +581,7 @@ function addComment(){
             //参数校验
             if (!current.getHost()) {
                 alert("请先选择host!");
-                $("#wip-comment-modal").modal("hide");
+                $("#wip-modal-comment").modal("hide");
                 return false;
             }
             var host_id = current.getHost().id;
@@ -589,7 +589,7 @@ function addComment(){
         },
         success:function(){             
             alert("提交成功!");
-            $("#wip-comment-modal").modal("hide");
+            $("#wip-modal-comment").modal("hide");
             listComment();
         },
         error:function(err){
@@ -597,7 +597,7 @@ function addComment(){
         }
     };
 
-    $("#wip-comment-modal-form").ajaxForm(options);
+    $("#wip-modal-form-comment").ajaxForm(options);
 }
 
 function deleteComment(){
@@ -623,14 +623,14 @@ function modifyComment(){
         alert("请先选择Comment!");
         return
     }
-    $("#wip-comment-modal").modal("show");
-    $("#wip-comment-modal-form-id").val(current.getComment().id);
-    $("#wip-comment-modal-form-name").val(current.getComment().name);
-    $("#wip-comment-modal-form-url").val(current.getComment().url);
-    $("#wip-comment-modal-form-info").val(current.getComment().info);        
-    $("#wip-comment-modal-form-level").val(current.getComment().level);
-    $("#wip-comment-modal-form-type").val(current.getComment().attachment);
-    $("#wip-comment-modal-form-description").val(current.getComment().description);
+    $("#wip-modal-comment").modal("show");
+    $("#wip-modal-form-comment-id").val(current.getComment().id);
+    $("#wip-modal-form-comment-name").val(current.getComment().name);
+    $("#wip-modal-form-comment-url").val(current.getComment().url);
+    $("#wip-modal-form-comment-info").val(current.getComment().info);        
+    $("#wip-modal-form-comment-level").val(current.getComment().level);
+    $("#wip-modal-form-comment-type").val(current.getComment().attachment);
+    $("#wip-modal-form-comment-description").val(current.getComment().description);
         
     var options = {
         type:"POST",
@@ -639,7 +639,7 @@ function modifyComment(){
         },
         success:function(){             
             alert("提交成功!");
-            $("#wip-comment-modal").modal("hide");
+            $("#wip-modal-comment").modal("hide");
             listComment();
         },
         error:function(err){
@@ -647,7 +647,7 @@ function modifyComment(){
         }
     };
 
-    $("#wip-comment-modal-form").ajaxForm(options);
+    $("#wip-modal-form-comment").ajaxForm(options);
 }
 
 function listComment(orderby="level"){
@@ -679,7 +679,7 @@ function clickComment(){
         return
     }
     function addCommentDetailItem(name, value){
-        $("#wip-vul-comment-detail").append($("<a></a>").addClass("list-group-item").attr("href","#").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+        $("#wip-vul-comment-detail").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
     }
 
     var id = $(this).attr('id').substring(15);
@@ -697,7 +697,6 @@ function clickComment(){
         addCommentDetailItem("等级", levelList[result.level]);
         addCommentDetailItem("URL地址", result.url);
         addCommentDetailItem("详情", result.info);                
-        //addCommentDetailItem("附件", result.attachment);
         addCommentDetailItem("描述", result.description);
         attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), result.attachment)
         attachmentItem.attr("href","static/attachment/"+result.attachment)
@@ -712,7 +711,7 @@ function refreshComment(){
 }
 
 function addAttachment(){
-	$("#wip-attachment-modal").modal("show");
+	$("#wip-modal-attachment").modal("show");
     var options = {
         type:"POST",
         url:"addattachment",
@@ -722,7 +721,7 @@ function addAttachment(){
             //参数校验
             if (!current.getHost()) {
                 alert("请先选择host!");
-                $("#wip-attachment-modal").modal("hide");
+                $("#wip-modal-attachment").modal("hide");
                 return false;
             }
             var host_id = current.getHost().id;
@@ -730,14 +729,14 @@ function addAttachment(){
         },
         success:function(){             
             alert("提交成功!");
-            $("#wip-attachment-modal").modal("hide");
+            $("#wip-modal-attachment").modal("hide");
         },
         error:function(err){
             alert("提交失败!");
         }
     };
 
-    $("#wip-attachment-modal-form").ajaxForm(options);
+    $("#wip-modal-form-attachment").ajaxForm(options);
 }
 
 /******************************************************************************************************
@@ -750,25 +749,25 @@ function listCurrent(){
 	$("#wip-autotask-current-list").empty();
 	if(current.getProject()) {
 		var projectItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("项目："+current.getProject().name);
-		projectItem.attr("id", "wip-task-current-project");
+		projectItem.attr("id", "wip-autotask-current-project");
 		projectItem.click(listProjectTask);
 		$("#wip-autotask-current-list").append(projectItem);
 	}
 	if(current.getHost()) {
 		var hostItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("Host："+current.getHost().ip+" | "+current.getHost().url);
-		hostItem.attr("id", "wip-task-current-host")
+		hostItem.attr("id", "wip-autotask-current-host")
 		hostItem.click(listHostTask);
 		$("#wip-autotask-current-list").append(hostItem);
 	}
 	if(current.getVul()) {
 		var vulItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("漏洞："+current.getVul().name);
-		vulItem.attr("id", "wip-task-current-vul")
+		vulItem.attr("id", "wip-autotask-current-vul")
 		vulItem.click(listVulTask);
 		$("#wip-autotask-current-list").append(vulItem);
 	}
 	if(current.getComment()) {
 		var commentItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("备注："+current.getComment().name);
-		commentItem.attr("id", "wip-task-current-comment")
+		commentItem.attr("id", "wip-autotask-current-comment")
 		commentItem.click(listCommentTask);
 		$("#wip-autotask-current-list").append(commentItem);
 	}
@@ -776,17 +775,29 @@ function listCurrent(){
 
 function listProjectTask(){
 	$("#wip-autotask-current-project").addClass("active");
+	$("#wip-autotask-current-host").removeClass("active");
+	$("#wip-autotask-current-vul").removeClass("active");
+	$("#wip-autotask-current-comment").removeClass("active");
 }
 
 function listHostTask(){
+	$("#wip-autotask-current-project").removeClass("active");
 	$("#wip-autotask-current-host").addClass("active");
+	$("#wip-autotask-current-vul").removeClass("active");
+	$("#wip-autotask-current-comment").removeClass("active");
 }
 
 function listVulTask(){
+	$("#wip-autotask-current-project").removeClass("active");
+	$("#wip-autotask-current-host").removeClass("active");
 	$("#wip-autotask-current-vul").addClass("active");
+	$("#wip-autotask-current-comment").removeClass("active");
 }
 
 function listCommentTask(){
+	$("#wip-autotask-current-project").removeClass("active");
+	$("#wip-autotask-current-host").removeClass("active");
+	$("#wip-autotask-current-vul").removeClass("active");
 	$("#wip-autotask-current-comment").addClass("active");
 }
 
