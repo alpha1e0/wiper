@@ -40,7 +40,8 @@ def startServer():
 		"/getcommentdetail","CommentDetail",
 		"/deletecomment","CommentDelete",
 		"/modifycomment","CommentModify",
-		"/addattachment","AttachmentAdd")
+		"/addattachment","AttachmentAdd",
+		"/gettaskstatus","TaskStatus")
 
 	app = web.application(urls, globals())
 
@@ -355,9 +356,20 @@ class CommentDelete:
 	def GET(self):
 		param = web.input()
 		#此处需要校验参数
+
+		queryCmd = "select attachment from comment where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		result = dbcon.find(queryCmd)
+		if not result:
+			raise web.internalerror("Query comment detail failed!")
+
+		attachment = result[0][0]
+		print attachment
+		if attachment != "":
+			if os.path.exists("static/attachment/"+attachment):
+				os.remove("static/attachment/"+attachment)
 		
 		sqlCmd = "delete from comment where id={0}".format(param.id.strip())
-		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
 			raise web.internalerror("Delete comment failed!")
 
@@ -379,6 +391,8 @@ class CommentModify:
 		return True
 
 
+#=================================处理attachment表相关的代码=========================================
+
 class AttachmentAdd:
 	def POST(self):
 		param = web.input(attachment={})
@@ -398,7 +412,7 @@ class AttachmentAdd:
 			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
 
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format("attachment_"+fileName,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
+			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
 
 		try:
 			fd = open("static/attachment/"+fileName, "wb")
@@ -416,4 +430,8 @@ class AttachmentAdd:
 
 		return True
 
+#=================================处理autotask表相关的代码=========================================
 
+class TaskStatus:
+	def GET(self):
+		return True

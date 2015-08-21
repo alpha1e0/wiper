@@ -182,7 +182,8 @@
                         </div>
                         <hr />
                         <div id="wip-autotask-task-list">
-                            <div class="list-group-item">
+                            <hr />
+                            <div class="list-group-item" id="wip-autotask-task-zonetrans" hidden>
                                 <h4><span class="label label-info">域传送漏洞检测利用:</span></h4>
                                 <form class="form-inline" id="wip-form-autotask-zonetrans">
                                     <div class="form-group">
@@ -195,7 +196,7 @@
                                     <button type="submit" class="btn btn-default">开始</button>
                                 </form>
                             </div>
-                            <div class="list-group-item">
+                            <div class="list-group-item" id="wip-autotask-task-googlehacking" hidden>
                                 <h4><span class="label label-info">Google Hacking:</span></h4>
                                 <form class="form-inline" id="wip-form-autotask-googlehacking">
                                     <div class="form-group">
@@ -208,7 +209,7 @@
                                     <button type="submit" class="btn btn-default">开始</button>
                                 </form>
                             </div>
-                            <div class="list-group-item">
+                            <div class="list-group-item" id="wip-autotask-task-dnsbrute" hidden>
                                 <h4><span class="label label-info">DNS爆破:</span></h4>
                                 <form class="form-inline" id="wip-form-autotask-dnsbrute-dict">
                                     <div class="form-group">
@@ -229,7 +230,7 @@
                                     <button type="submit" class="btn btn-default">开始爆破</button>
                                 </form>
                             </div>
-                            <div class="list-group-item">
+                            <div class="list-group-item" id="wip-autotask-task-subnetscan" hidden>
                                 <h4><span class="label label-info">C段扫描:</span></h4>
                                 <form class="form-inline" id="wip-form-autotask-subnetscan">
                                     <div class="form-group">
@@ -510,7 +511,7 @@
                             <div class="form-group" hidden>
                                 <label for="wip-modal-form-comment-attach" class="col-sm-2 control-label">附件:</label>
                                 <div class="col-sm-10">
-                                    <input id="wip-modal-form-comment-attach" name="attachment" type="text" value="attachment_place_holder">
+                                    <input id="wip-modal-form-comment-attach" name="attachment" type="text" value="">
                                 </div>
                             </div>
                             <label class="checkbox-inline">
