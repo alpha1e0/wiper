@@ -101,6 +101,8 @@ Current.prototype.setComment = function(comment){
 Current.prototype.getComment = function(){
 	return this.comment;
 }
+Current.prototype.record = function(){}
+Current.prototype.changed = function(){}
 
 /******************************************************************************************************
 * Date: 2015-8-6
@@ -844,11 +846,20 @@ function getTaskStatus(){
 }
 
 function listTaskResult(){
-//	$.getJSON(url, function(result){
-//        $.each(result, function(i, value){
-//            addCommentItem(value.id, value.name);
-//        });
-//    });
-	alert("task result");
+	function addTaskItem(id, url, ip, source){
+		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-autotask-task-reuslt"+id);
+		sourceSpan = $("<span></span>").text("来源："+source);
+		urlA = $("<a></a>").text(url).attr("href","http://"+url);
+		ipA = $("<a></a>").text(ip).attr("href","http://"+ip);
+		allDiv.append(sourceSpan,urlA,ipA);
+		$("#wip-autotask-task-result-list").append(allDiv);
+	}
+
+	$("#wip-autotask-task-result-list").empty()
+	$.getJSON("/gettaskresult?id+"current.getProject().id, function(result){
+        $.each(result, function(i, value){
+            addTaskItem(value.id, value.url, value.ip, value.source);
+        });
+    });
 }
 

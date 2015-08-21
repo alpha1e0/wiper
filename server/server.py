@@ -41,7 +41,8 @@ def startServer():
 		"/deletecomment","CommentDelete",
 		"/modifycomment","CommentModify",
 		"/addattachment","AttachmentAdd",
-		"/gettaskstatus","TaskStatus")
+		"/gettaskstatus","TaskStatus",
+		"/gettaskresult","TaskResultList")
 
 	app = web.application(urls, globals())
 
@@ -434,4 +435,28 @@ class AttachmentAdd:
 
 class TaskStatus:
 	def GET(self):
+		param = web.input()
+
+		sqlCmd = "select * from tmp_task_result_byhost where project_id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		if not sqlCmd.find(sqlCmd):
+			raise web.notfound()
+
 		return True
+
+class TaskResultList:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+		param = web.input()
+
+		sqlCmd = "select id,url,ip,source from tmp_task_result_byhost where id={0}".format(param.id.strip())
+		dbcon = DBManage()
+		result = dbcon.find(sqlCmd)
+		if not result:
+			raise web.internalerror('Query task result failed!')
+
+		columnList = ("id","url","ip","source")
+		result = map(lambda x:zip(columnList, x), result)
+		result = map(lambda x:dict(x), result)
+
+		return json.dumps(result)
