@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-*- coding: UTF-8 -*-
 
 '''
 Information probing tool for penetration test

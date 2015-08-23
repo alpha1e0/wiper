@@ -42,7 +42,9 @@ def startServer():
 		"/modifycomment","CommentModify",
 		"/addattachment","AttachmentAdd",
 		"/gettaskstatus","TaskStatus",
-		"/gettaskresult","TaskResultList")
+		"/gettaskresult","TaskResultList",
+		"/getdictlist","DictList",
+		"/startdnsbrute","DnsbruteTask")
 
 	app = web.application(urls, globals())
 
@@ -436,6 +438,7 @@ class AttachmentAdd:
 class TaskStatus:
 	def GET(self):
 		param = web.input()
+		#此处需要校验参数
 
 		sqlCmd = "select * from tmp_task_result_byhost where project_id={0}".format(param.id.strip())
 		dbcon = DBManage()
@@ -444,10 +447,12 @@ class TaskStatus:
 
 		return True
 
+
 class TaskResultList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 		param = web.input()
+		#此处需要校验参数
 
 		sqlCmd = "select id,url,ip,source from tmp_task_result_byhost where id={0}".format(param.id.strip())
 		dbcon = DBManage()
@@ -460,3 +465,27 @@ class TaskResultList:
 		result = map(lambda x:dict(x), result)
 
 		return json.dumps(result)
+
+
+class DictList:
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		result = os.listdir(os.path.join("plugin","wordlist","dnsbrute"))
+
+		return json.dumps(result)
+
+
+class DnsbruteTask:
+	def POST(self):
+		param = web.data()
+		#此处需要校验参数
+
+		paramList = map(lambda x:x.split('='), param.split('&'))
+		fileList = filter(lambda x:x[0]=='dictlist', paramList)
+		fileList = map(lambda x:x[1], fileList)
+		url = filter(lambda x:x[0]=='url', paramList)[0][1]
+
+
+		return True
+

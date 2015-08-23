@@ -37,7 +37,7 @@
                 <!-- tab project -->
                 <div id="wip-tab-project" class="tab-pane row-fluid active">
                     <div class="col-md-3">
-                        <div id="wip-button-project-group">
+                        <div>
                             <div class="btn-group">
                                 <button id="wip-button-project-refresh" type="button" class="btn btn-primary">O</button>
                             </div>
@@ -53,7 +53,7 @@
                     </div>
 
                     <div class="col-md-9">
-                        <div id="wip-button-project-group">
+                        <div>
                             <div class="btn-group">
                                 <button id="wip-button-project-modify" type="button" class="btn btn-success">修改该项目</button>
                             </div>
@@ -73,7 +73,7 @@
                 <div id="wip-tab-project-detail" class="tab-pane row-fluid">
                     <!-- site information-->                
                     <div class="col-md-3">
-                        <div id="wip-button-host-group">
+                        <div>
                             <div class="btn-group">
                                 <button id="wip-button-host-refresh" type="button" class="btn btn-primary">O</button>
                             </div>
@@ -102,7 +102,7 @@
                     </div>
                     <!-- port information-->  
                     <div class="col-md-3">
-                        <div id="wip-button-host-group">
+                        <div>
                             <div class="btn-group">
                                 <button id="wip-button-vul-refresh" type="button" class="btn btn-primary">O</button>
                             </div>
@@ -211,7 +211,7 @@
                             </div>
                             <div class="list-group-item" id="wip-autotask-task-dnsbrute" hidden>
                                 <h4><span class="label label-info">DNS爆破:</span></h4>
-                                <form class="form-inline" id="wip-form-autotask-dnsbrute-dict">
+                                <form class="form-inline" id="wip-form-autotask-dnsbrute-dictadd">
                                     <div class="form-group">
                                         <!--<label class="sr-only" for="wip-form-autotask-dnsbrute-url">选择字典文件：</label>-->
                                         <input type="file" name="dictfile">
@@ -219,14 +219,19 @@
                                     <button type="submit" class="btn btn-default">上传字典</button>
                                 </form>
                                 <hr />
-                                <form class="form-inline" id="wip-form-autotask-dnsbrute">
+                                <form class="form" id="wip-form-autotask-dnsbrute-start">
                                     <div class="form-group">
                                         <label class="control-label">选择字典:</label>
-                                        <select class="form-control" name="type" >
+                                        <select id="wip-form-autotask-dnsbrute-dictselect" class="form-control" name="dictlist" multiple="multiple">
                                             <option value="1">溢出漏洞溢出漏洞溢出漏洞</option>
                                             <option value="2">注入漏洞</option>
                                         </select>
-                                    </div>
+                                        <label class="sr-only" for="wip-form-autotask-dnsbrute-url">URL</label>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">http://</span>
+                                            <input type="text" name="url" class="form-control" id="wip-form-autotask-dnsbrute-url" placeholder="ddd.com">
+                                        </div>
+                                    </div>                                    
                                     <button type="submit" class="btn btn-default">开始爆破</button>
                                 </form>
                             </div>
@@ -247,7 +252,7 @@
                     </div>
                     <div class="col-md-5">
                         <div class="btn-group">
-                            <button id="wip-autotask-button-show-current" type="button" class="btn btn-success">任务结果</button>
+                            <button id="wip-autotask-button-show-taskresult" type="button" class="btn btn-success">任务结果</button>
                         </div>
                         <hr />
                         <div id="wip-autotask-task-result-list">

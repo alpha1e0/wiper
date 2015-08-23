@@ -788,24 +788,43 @@ function listProjectTask(){
 
 	getTaskStatus();
 
+	//zonetrans任务相关dom操作、事件绑定
 	$("#wip-autotask-task-zonetrans").show();
+
+	//googlehacking任务相关dom操作、事件绑定
 	$("#wip-autotask-task-googlehacking").show();
+	
+	//dnsbrute任务相关dom操作、事件绑定
 	$("#wip-autotask-task-dnsbrute").show();
-	$("#wip-autotask-task-subnetscan").show();
+	$("#wip-form-autotask-dnsbrute-dictselect").empty()
+	$.getJSON("/getdictlist", function(result){
+        $.each(result, function(i, value){
+            $("#wip-form-autotask-dnsbrute-dictselect").append($("<option></option>").val(value).text(value));
+        });
+    });
+    var options = {
+        type:"POST",
+        url:"startdnsbrute",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+        },
+        success:function(){             
+            alert("提交成功!");
+        },
+        error:function(err){
+            alert("提交失败!");
+        }
+    };
+    $("#wip-form-autotask-dnsbrute-start").ajaxForm(options);
+
+    //subnetscan任务相关dom操作、事件绑定
+    $("#wip-autotask-task-subnetscan").show();
 }
 
 function listHostTask(){
-	$("#wip-autotask-current-project").removeClass("active");
-	$("#wip-autotask-current-host").addClass("active");
-	$("#wip-autotask-current-vul").removeClass("active");
-	$("#wip-autotask-current-comment").removeClass("active");
-
-	getTaskStatus();
-
-	$("#wip-autotask-task-zonetrans").show();
-	$("#wip-autotask-task-googlehacking").show();
-	$("#wip-autotask-task-dnsbrute").show();
-	$("#wip-autotask-task-subnetscan").show();
+	listProjectTask();
 }
 
 function listVulTask(){
@@ -856,7 +875,7 @@ function listTaskResult(){
 	}
 
 	$("#wip-autotask-task-result-list").empty()
-	$.getJSON("/gettaskresult?id+"current.getProject().id, function(result){
+	$.getJSON("/gettaskresult?id="+current.getProject().id, function(result){
         $.each(result, function(i, value){
             addTaskItem(value.id, value.url, value.ip, value.source);
         });
