@@ -61,6 +61,7 @@ create table tmp_task_result_byhost (
 	id integer not null auto_increment, 
 	url varchar(100), 
 	ip varchar(50), 
+	level integer,
 	source varchar(50),
 	project_id integer not null,
 	primary key (id),

@@ -20,12 +20,20 @@ def initLog():
     critical, error, warning, info, debug, notset
     '''
     log = logging.getLogger('wip')
-    log.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(os.path.join('log', 'wiplog.log'))
-    fh.setLevel(logging.DEBUG)
+    #log.setLevel(logging.DEBUG)
+
+    streamHD = logging.StreamHandler()
+    streamHD.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
+    streamHD.setFormatter(formatter)
+
+    fileHD = logging.FileHandler(os.path.join('log', 'wiplog.log'))
+    fileHD.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
-    fh.setFormatter(formatter)
-    log.addHandler(fh)
+    fileHD.setFormatter(formatter)
+
+    log.addHandler(streamHD)
+    log.addHandler(fileHD)
 
     return log
 

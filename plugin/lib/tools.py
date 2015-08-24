@@ -15,3 +15,18 @@ def readList(fileName):
 			for line in fd:
 				if line[0]!="#" and line!="":
 					yield line.strip()
+
+
+class HostScanner:
+	'''
+	Scanner module, include hostscan, portscan, httpscan
+	'''
+
+	def hostScan(self):
+		pass
+
+	def portScan(self):
+		pass
+
+	def httpScan(self):
+		pass

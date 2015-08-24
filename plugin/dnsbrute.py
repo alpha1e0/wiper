@@ -40,18 +40,29 @@ class DnsBrute(multiprocessing.Process):
 			return False
 		return urlip
 
-	def bruteSubDomain(self, dict):
-		for line in readList(dict):
-			domain = line + "." + self.domain
-			urlip = self.checkDomain(domain)
-			if urlip:
-				self.result.append(urlip)
+	def bruteSubDomain(self):
+		for dict in self.dictlis:
+			for line in readList(dict):
+				domain = line + "." + self.domain
+				urlip = self.checkDomain(domain)
+				if urlip:
+					self.result.append(urlip)
 
-	def bruteTopDomain(self, dict):
-		for line in readList(dict):
-			domain = self.partDomain + "." + line
-			urlip = self.checkDomain(domain)
-			if urlip:
-				self.result.append(urlip)
+	def bruteTopDomain(self):
+		for dict in self.dictlist:
+			for line in readList(dict):
+				domain = self.partDomain + "." + line
+				urlip = self.checkDomain(domain)
+				if urlip:
+					self.result.append(urlip)
 
-	#def record
+	def saveResult(self):
+		dbcon = DBManage()
+
+		sqlCmd = "insert into tmp_task_result_byhost(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
+
+		for i in self.result:
+			sqlCmd.format(i[0],i[1],4,"dnsbrute",self.project_id)
+			dbcon.sql(sqlCmd)
+
+
