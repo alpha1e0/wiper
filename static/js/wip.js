@@ -290,7 +290,7 @@ function addHost(){
     			return false;
     		}
     		var project_id = current.getProject().id;
-    		formData[8] = {'name':'project_id', 'value':project_id}
+    		formData[9] = {'name':'project_id', 'value':project_id}
     	},
     	success:function(){   		
     		alert("提交成功!");
@@ -332,6 +332,7 @@ function modifyHost(){
 	$("#wip-modal-form-host-id").val(current.getHost().id);
 	$("#wip-modal-form-host-url").val(current.getHost().url);
 	$("#wip-modal-form-host-ip").val(current.getHost().ip);
+	$("#wip-modal-form-host-title").val(current.getHost().title);
 	$("#wip-modal-form-host-level").val(current.getHost().level);
 	$("#wip-modal-form-host-os").val(current.getHost().os);
 	$("#wip-modal-form-host-server_info").val(current.getHost().server_info);
@@ -408,6 +409,7 @@ function clickHost(){
 		current.setHost(result);
 		addHostDetailItem("URL地址", result.url);
 		addHostDetailItem("IP地址", result.ip);
+		addHostDetailItem("Title", result.title);
 		addHostDetailItem("等级", levelList[result.level-1]);
 		addHostDetailItem("OS信息", result.os);
 		addHostDetailItem("Server信息", result.server_info);

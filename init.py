@@ -14,6 +14,8 @@ import logging
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+def Enum(**enums):
+    return type('Enum', (), enums)
 
 def initLog():
     '''

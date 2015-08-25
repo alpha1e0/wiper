@@ -68,8 +68,8 @@ class ProjectList:
 		if not result:
 			raise web.internalerror('Query project failed!')
 
-		result = map(lambda x:zip(("id","name"),x), result)
-		result = map(lambda x:dict(x), result)
+		result = [zip(("id","name"),x) for x in result]
+		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
@@ -149,8 +149,8 @@ class HostList:
 		if not result:
 			raise web.internalerror('Query host failed!')
 
-		result = map(lambda x:zip(("id","url","ip"),x), result)
-		result = map(lambda x:dict(x), result)
+		result = [zip(("id","url","ip"),x) for x in result]
+		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
@@ -169,7 +169,7 @@ class HostDetail:
 			raise web.internalerror("Query host detail failed!")
 
 		result = list(result[0])
-		nameList = ('id','url','ip','level','os','server_info','middleware','description','project_id')
+		nameList = ('id','url','ip','title','level','os','server_info','middleware','description','project_id')
 
 		return json.dumps(dict(zip(nameList,result)))
 
@@ -179,8 +179,8 @@ class HostAdd:
 		param = web.input()
 		#此处需要校验参数
 		
-		sqlCmd = "insert into host(url,ip,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}','{7}')".format(param.url.strip(),param.ip.strip(),param.level.strip(),\
+		sqlCmd = "insert into host(url,ip,title,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
+			,'{2}','{3}','{4}','{5}','{6}','{7}','{8}')".format(param.url.strip(),param.ip.strip(),param.title.strip(),param.level.strip(),\
 			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.project_id.strip())
 
 		dbcon = DBManage()
@@ -208,8 +208,8 @@ class HostModify:
 		param = web.input()
 		#此处需要校验参数
 		
-		sqlCmd = "update host set url='{0}',ip='{1}',level='{2}',os='{3}',server_info='{4}',middleware='{5}',description='{6}' \
-			where id={7}".format(param.url.strip(),param.ip.strip(),param.level.strip(),param.os.strip(),param.serverinfo.strip(),\
+		sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}' \
+			where id={8}".format(param.url.strip(),param.ip.strip(),param.title.strip(),param.level.strip(),param.os.strip(),param.serverinfo.strip(),\
 			param.middleware.strip(),param.description.strip(),param.id.strip())
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
@@ -231,8 +231,8 @@ class VulList:
 		if not result:
 			raise web.internalerror('Query vul failed!')
 
-		result = map(lambda x:zip(("id","name"),x), result)
-		result = map(lambda x:dict(x), result)
+		result = [zip(("id","name"),x) for x in result]
+		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
@@ -314,8 +314,8 @@ class CommentList:
 		if not result:
 			raise web.internalerror('Query comment failed!')
 
-		result = map(lambda x:zip(("id","name"),x), result)
-		result = map(lambda x:dict(x), result)
+		result = [zip(("id","name"),x) for x in result]
+		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
@@ -461,8 +461,8 @@ class TaskResultList:
 			raise web.internalerror('Query task result failed!')
 
 		columnList = ("id","url","ip","source")
-		result = map(lambda x:zip(columnList, x), result)
-		result = map(lambda x:dict(x), result)
+		result = [zip(columnList, x) for x in result]
+		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
@@ -481,11 +481,14 @@ class DnsbruteTask:
 		param = web.data()
 		#此处需要校验参数
 
-		paramList = map(lambda x:x.split('='), param.split('&'))
-		fileList = filter(lambda x:x[0]=='dictlist', paramList)
-		fileList = map(lambda x:x[1], fileList)
-		url = filter(lambda x:x[0]=='url', paramList)[0][1]
+		#paramList = map(lambda x:x.split('='), param.split('&'))
+		#fileList = filter(lambda x:x[0]=='dictlist', paramList)
+		#fileList = map(lambda x:x[1], fileList)
+		#url = filter(lambda x:x[0]=='url', paramList)[0][1]
 
+		paramList = [x.split('=') for x in param.split('&')]
+		fileList = [x[1] for x in paramList if x[0]=='dictlist']
+		url = [x[1] for x in paramList if x[0]=='url'][0]
 
 		return True
 

@@ -18,6 +18,7 @@ create table host (
 	id integer not null auto_increment, 
 	url varchar(100), 
 	ip varchar(50), 
+	title varchar(200),
 	level integer, 
 	os varchar(150), 
 	server_info varchar(150),
@@ -65,5 +66,5 @@ create table tmp_task_result_byhost (
 	source varchar(50),
 	project_id integer not null,
 	primary key (id),
-	constraint project_id_host foreign key (project_id) references project (id)
+	constraint project_id_tmp foreign key (project_id) references project (id)
 ) engine=InnoDB  default charset=utf8;

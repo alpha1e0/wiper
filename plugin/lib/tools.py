@@ -9,6 +9,10 @@ See the file COPYING for copying detail
 
 import os
 
+from init import Enum
+
+LEVEL = Enum(info=4,common=3,important=2,critical=1)
+
 def readList(fileName):
 	if os.path.exists(fileName):
 		with open(fileName, "r") as fd:
@@ -21,12 +25,18 @@ class HostScanner:
 	'''
 	Scanner module, include hostscan, portscan, httpscan
 	'''
-
-	def hostScan(self):
+	@staticmethod
+	def hostScan():
 		pass
 
-	def portScan(self):
+	@staticmethod
+	def portScan():
 		pass
 
-	def httpScan(self):
+	@staticmethod
+	def httpScan():
 		pass
+
+	@staticmethod
+	def getHttpHosts(hostList):
+		return hostList
