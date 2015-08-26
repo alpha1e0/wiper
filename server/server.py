@@ -44,6 +44,7 @@ def startServer():
 		"/addattachment","AttachmentAdd",
 		"/gettaskstatus","TaskStatus",
 		"/gettaskresult","TaskResultList",
+		"/adddict","DictAdd",
 		"/getdictlist","DictListEnum",
 		"/startdnsbrute","DnsbruteTask")
 
@@ -415,21 +416,24 @@ class AttachmentAdd:
 		else:
 			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
 
+		fileNameFull = os.path.join("static","attachment",fileName)
+
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
 			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
 
 		try:
-			fd = open("static/attachment/"+fileName, "wb")
+			#fd = open("static/attachment/"+fileName, "wb")
+			fd = open(fileNameFull, "wb")
 			fd.write(param['attachment'].value)
-		except Exception as msg:
+		except IOError as msg:
 			raise web.internalerror('Add attachment failed!')
 		finally:
 			fd.close()
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
-			if os.path.exists("static/attachment/"+fileName):
-				os.remove("static/attachment/"+fileName)
+			if os.path.exists(fileNameFull):
+				os.remove(fileNameFull)
 			raise web.internalerror('Add attachment comment failed!')
 
 		return True
@@ -438,16 +442,16 @@ class AttachmentAdd:
 
 class TaskStatus:
 	def GET(self):
+		web.header('Content-Type', 'application/json')
 		param = web.input()
 		#此处需要校验参数
 
 		sqlCmd = "select * from tmp_task_result_byhost where project_id={0}".format(param.id.strip())
 		dbcon = DBManage()
 		if not sqlCmd.find(sqlCmd):
-			#raise web.notfound("no task result!")
-			raise web.internalerror('no task result!')
-
-		return True
+			return json.dumps({"status":0})
+		else:
+			return json.dumps({"status":1})
 
 
 class TaskResultList:
@@ -468,6 +472,18 @@ class TaskResultList:
 
 		return json.dumps(result)
 
+class DictAdd:
+	def POST(self):
+		param = web.input(dictfile={})
+
+		fileName = param['dictfile'].filename.strip()
+		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)
+
+		try:
+			fd = open(fileNameFull, "w")
+			fd.write(param['dictfile'].value)
+		except IOError as msg:
+			raise web.internalerror('Add attachment failed!')
 
 class DictListEnum:
 	def GET(self):

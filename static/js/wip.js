@@ -736,39 +736,6 @@ function addAttachment(){
 * Author: alphp1e0
 * Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
 ******************************************************************************************************/
-/*
-function listCurrent(){
-	$("#wip-autotask-current-list").empty();
-	if(current.getProject()) {
-		var projectItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("项目："+current.getProject().name);
-		projectItem.attr("id", "wip-autotask-current-project");
-		projectItem.click(listProjectTask);
-		$("#wip-autotask-current-list").append(projectItem);
-	}
-	if(current.getHost()) {
-		var hostItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("Host："+current.getHost().ip+" | "+current.getHost().url);
-		hostItem.attr("id", "wip-autotask-current-host")
-		hostItem.click(listHostTask);
-		$("#wip-autotask-current-list").append(hostItem);
-	}
-	if(current.getVul()) {
-		var vulItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("漏洞："+current.getVul().name);
-		vulItem.attr("id", "wip-autotask-current-vul")
-		vulItem.click(listVulTask);
-		$("#wip-autotask-current-list").append(vulItem);
-	}
-	if(current.getComment()) {
-		var commentItem = $("<a></a>").addClass("list-group-item").attr("href","#").text("备注："+current.getComment().name);
-		commentItem.attr("id", "wip-autotask-current-comment")
-		commentItem.click(listCommentTask);
-		$("#wip-autotask-current-list").append(commentItem);
-	}
-
-	$("#wip-autotask-task-zonetrans").hide();
-	$("#wip-autotask-task-googlehacking").hide();
-	$("#wip-autotask-task-dnsbrute").hide();
-	$("#wip-autotask-task-subnetscan").hide();
-}*/
 
 function configTasks(){
 	configZonetransTask();
@@ -783,6 +750,23 @@ function configZonetransTask(){}
 function configGooglehackingTask(){}
 
 function configDnsbruteTask(){
+    var options = {
+        type:"POST",
+        url:"adddict",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+        },
+        success:function(){             
+            alert("上传成功!");
+        },
+        error:function(err){
+            alert("上传失败!");
+        }
+    };
+    $("#wip-form-autotask-dnsbrute-dictadd").ajaxForm(options);	
+
 	$("#wip-form-autotask-dnsbrute-dictselect").empty()
 	$.getJSON("/getdictlist", function(result){
         $.each(result, function(i, value){
@@ -820,15 +804,12 @@ function getTaskStatus(){
 	if(!current.getProject()){
 		return false;
 	}
-	alert(1)
-	$.get("/gettaskstatus?id="+current.getProject().id, function(data,status){
-        if(status!="success") {
-        	alert(2)
+	$.getJSON("/gettaskstatus?id="+current.getProject().id, function(result){
+        if(result.status==0){
         	$("#wip-autotask-button-show-taskresult").text("无任务完成结果");
-            return false;
-        }
-        alert(3)
-        $("#wip-autotask-button-show-taskresult").text("有任务完成结果，单击查看").click(listTaskResult);        
+        }else{
+        	$("#wip-autotask-button-show-taskresult").text("有任务完成，单击查看").click(listTaskResult);
+        }        
     });    
 }
 
