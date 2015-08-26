@@ -14,6 +14,7 @@ import web
 import json
 
 from dbman.dbmanage import DBManage
+from plugin.dnsbrute import DnsBrute
 from init import log
 
 
@@ -43,7 +44,7 @@ def startServer():
 		"/addattachment","AttachmentAdd",
 		"/gettaskstatus","TaskStatus",
 		"/gettaskresult","TaskResultList",
-		"/getdictlist","DictList",
+		"/getdictlist","DictListEnum",
 		"/startdnsbrute","DnsbruteTask")
 
 	app = web.application(urls, globals())
@@ -143,7 +144,7 @@ class HostList:
 		param = web.input()
 		#此处需要校验参数
 		
-		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.project_id.strip(),param.orderby.strip())
+		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid.strip(),param.orderby.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
@@ -181,7 +182,7 @@ class HostAdd:
 		
 		sqlCmd = "insert into host(url,ip,title,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
 			,'{2}','{3}','{4}','{5}','{6}','{7}','{8}')".format(param.url.strip(),param.ip.strip(),param.title.strip(),param.level.strip(),\
-			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.project_id.strip())
+			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.projectid.strip())
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
@@ -225,7 +226,7 @@ class VulList:
 
 		param = web.input()#此处需要校验参数
 		
-		sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.host_id.strip(),param.orderby.strip())
+		sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.hostid.strip(),param.orderby.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
@@ -263,7 +264,7 @@ class VulAdd:
 		
 		sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
 			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),
-			param.level.strip(),param.description.strip(),param.host_id.strip())
+			param.level.strip(),param.description.strip(),param.hostid.strip())
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
@@ -308,7 +309,7 @@ class CommentList:
 		param = web.input()
 		#此处需要校验参数
 		
-		sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.host_id.strip(),param.orderby.strip())
+		sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.hostid.strip(),param.orderby.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
@@ -346,7 +347,7 @@ class CommentAdd:
 		
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
 			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),
-			param.level.strip(),param.attachment.strip(),param.description.strip(),param.host_id.strip())
+			param.level.strip(),param.attachment.strip(),param.description.strip(),param.hostid.strip())
 
 		dbcon = DBManage()
 		if not dbcon.sql(sqlCmd):
@@ -401,7 +402,7 @@ class AttachmentAdd:
 		param = web.input(attachment={})
 		#此处需要校验参数
 			
-		hostID = param.host_id.strip()
+		hostID = param.hostid.strip()
 		attachName = param.name.strip()
 		attachFilename = param['attachment'].filename.strip()
 
@@ -415,7 +416,7 @@ class AttachmentAdd:
 			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
 
 		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,param.host_id.strip())
+			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
 
 		try:
 			fd = open("static/attachment/"+fileName, "wb")
@@ -443,7 +444,8 @@ class TaskStatus:
 		sqlCmd = "select * from tmp_task_result_byhost where project_id={0}".format(param.id.strip())
 		dbcon = DBManage()
 		if not sqlCmd.find(sqlCmd):
-			raise web.notfound()
+			#raise web.notfound("no task result!")
+			raise web.internalerror('no task result!')
 
 		return True
 
@@ -460,14 +462,14 @@ class TaskResultList:
 		if not result:
 			raise web.internalerror('Query task result failed!')
 
-		columnList = ("id","url","ip","source")
+		columnList = ("id","url","ip","level","source")
 		result = [zip(columnList, x) for x in result]
 		result = [dict(x) for x in result]
 
 		return json.dumps(result)
 
 
-class DictList:
+class DictListEnum:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
@@ -480,15 +482,17 @@ class DnsbruteTask:
 	def POST(self):
 		param = web.data()
 		#此处需要校验参数
-
 		#paramList = map(lambda x:x.split('='), param.split('&'))
 		#fileList = filter(lambda x:x[0]=='dictlist', paramList)
 		#fileList = map(lambda x:x[1], fileList)
 		#url = filter(lambda x:x[0]=='url', paramList)[0][1]
-
 		paramList = [x.split('=') for x in param.split('&')]
 		fileList = [x[1] for x in paramList if x[0]=='dictlist']
 		url = [x[1] for x in paramList if x[0]=='url'][0]
+		projectID = [x[1] for x in paramList if x[0]=='projectid'][0]
+
+		dnsbrute = DnsBrute(url,projectID,fileList)
+		dnsbrute.start()
 
 		return True
 

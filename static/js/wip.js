@@ -143,7 +143,7 @@ $(document).ready(function() {
     $("#wip-button-attachment-add").click(addAttachment);
 
     //绑定与auto task相关操作的事件
-    $("#wip-tab-button-autotask").click(listCurrent);
+    $("#wip-tab-button-autotask").click(configTasks);
 });
 
 /******************************************************************************************************
@@ -182,13 +182,10 @@ function deleteProject(){
 		return
 	}
 	$.get("/deleteproject?id="+current.getProject().id, function(data,status){
-		if(status!="success") {
-			alert("删除失败！");
-		}
-	});
-	listProject();
-	$("#wip-project-detail").empty();
-	current.setProject(null);
+		listProject();
+		$("#wip-project-detail").empty();
+		current.setProject(null);
+	});	
 }
 
 function modifyProject(){
@@ -290,7 +287,7 @@ function addHost(){
     			return false;
     		}
     		var project_id = current.getProject().id;
-    		formData[9] = {'name':'project_id', 'value':project_id}
+    		formData.push({'name':'projectid', 'value':project_id});
     	},
     	success:function(){   		
     		alert("提交成功!");
@@ -314,13 +311,10 @@ function deleteHost(){
 		return
 	}
 	$.get("/deletehost?id="+current.getHost().id, function(data,status){
-		if(status!="success") {
-			alert("删除失败！");
-		}
-	});
-	listHost();
-	$("#wip-vul-comment-list").empty();
-	current.setHost(null);
+		listHost();
+		$("#wip-vul-comment-list").empty();
+		current.setHost(null);
+	});	
 }
 
 function modifyHost(){
@@ -379,7 +373,7 @@ function listHost(orderby="level"){
 	current.initHost();
 	$("#wip-host-list").empty();
 	$("#wip-vul-comment-list").empty();
-	var url = "/listhost?project_id=" + current.getProject().id + "&orderby=" + orderby;
+	var url = "/listhost?projectid=" + current.getProject().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
 			addHostItem(value.id, value.url, value.ip);
@@ -444,7 +438,7 @@ function addVul(){
     			return false;
     		}
     		var host_id = current.getHost().id;
-    		formData[7] = {'name':'host_id', 'value':host_id}
+    		formData.push({'name':'hostid', 'value':host_id});
     	},
     	success:function(){   		
     		alert("提交成功!");
@@ -468,13 +462,10 @@ function deleteVul(){
 		return
 	}
 	$.get("/deletevul?id="+current.getVul().id, function(data,status){
-		if(status!="success") {
-			alert("删除失败！");
-		}
-	});
-	listVul();
-	$("#wip-vul-comment-list").empty();
-	current.setVul(null);
+		listVul();
+		$("#wip-vul-comment-list").empty();
+		current.setVul(null);
+	});	
 }
 
 function modifyVul(){
@@ -524,7 +515,7 @@ function listVul(orderby="level"){
 	current.initVul();
 	$("#wip-vul-comment-list").empty();
 	$("#wip-vul-comment-detail").empty();
-	var url = "/listvul?host_id=" + current.getHost().id + "&orderby=" + orderby;
+	var url = "/listvul?hostid=" + current.getHost().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
 			addVulItem(value.id, value.name);
@@ -589,7 +580,7 @@ function addComment(){
                 return false;
             }
             var host_id = current.getHost().id;
-            formData[7] = {'name':'host_id', 'value':host_id}
+            formData.push({'name':'hostid', 'value':host_id});
         },
         success:function(){             
             alert("提交成功!");
@@ -613,13 +604,10 @@ function deleteComment(){
         return
     }
     $.get("/deletecomment?id="+current.getComment().id, function(data,status){
-        if(status!="success") {
-            alert("删除失败！");
-        }
-    });
-    listComment();
-    $("#wip-vul-comment-list").empty();
-    current.setComment(null);
+        listComment();
+    	$("#wip-vul-comment-list").empty();
+    	current.setComment(null);
+    });    
 }
 
 function modifyComment(){
@@ -669,7 +657,7 @@ function listComment(orderby="level"){
     current.initComment();
     $("#wip-vul-comment-list").empty();
     $("#wip-vul-comment-detail").empty();
-    var url = "/listcomment?host_id=" + current.getHost().id + "&orderby=" + orderby;
+    var url = "/listcomment?hostid=" + current.getHost().id + "&orderby=" + orderby;
     $.getJSON(url, function(result){
         $.each(result, function(i, value){
             addCommentItem(value.id, value.name);
@@ -729,7 +717,7 @@ function addAttachment(){
                 return false;
             }
             var host_id = current.getHost().id;
-            formData[2] = {'name':'host_id', 'value':host_id}
+            formData.push({'name':'hostid', 'value':host_id});
         },
         success:function(){             
             alert("提交成功!");
@@ -748,7 +736,7 @@ function addAttachment(){
 * Author: alphp1e0
 * Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
 ******************************************************************************************************/
-
+/*
 function listCurrent(){
 	$("#wip-autotask-current-list").empty();
 	if(current.getProject()) {
@@ -780,24 +768,21 @@ function listCurrent(){
 	$("#wip-autotask-task-googlehacking").hide();
 	$("#wip-autotask-task-dnsbrute").hide();
 	$("#wip-autotask-task-subnetscan").hide();
+}*/
+
+function configTasks(){
+	configZonetransTask();
+	configGooglehackingTask();
+	configDnsbruteTask();
+	configSubnetscanTask();
+	getTaskStatus();
 }
 
-function listProjectTask(){
-	$("#wip-autotask-current-project").addClass("active");
-	$("#wip-autotask-current-host").removeClass("active");
-	$("#wip-autotask-current-vul").removeClass("active");
-	$("#wip-autotask-current-comment").removeClass("active");
+function configZonetransTask(){}
 
-	getTaskStatus();
+function configGooglehackingTask(){}
 
-	//zonetrans任务相关dom操作、事件绑定
-	$("#wip-autotask-task-zonetrans").show();
-
-	//googlehacking任务相关dom操作、事件绑定
-	$("#wip-autotask-task-googlehacking").show();
-	
-	//dnsbrute任务相关dom操作、事件绑定
-	$("#wip-autotask-task-dnsbrute").show();
+function configDnsbruteTask(){
 	$("#wip-form-autotask-dnsbrute-dictselect").empty()
 	$.getJSON("/getdictlist", function(result){
         $.each(result, function(i, value){
@@ -811,6 +796,12 @@ function listProjectTask(){
         },
         beforeSubmit:function(formData, jqForm, opt){
             //参数校验
+            if (!current.getProject()) {
+    			alert("请先选择project!");
+    			return false;
+    		}
+    		var project_id = current.getProject().id;
+    		formData.push({'name':'projectid', 'value':project_id});
         },
         success:function(){             
             alert("提交成功!");
@@ -820,56 +811,32 @@ function listProjectTask(){
         }
     };
     $("#wip-form-autotask-dnsbrute-start").ajaxForm(options);
-
-    //subnetscan任务相关dom操作、事件绑定
-    $("#wip-autotask-task-subnetscan").show();
 }
 
-function listHostTask(){
-	listProjectTask();
-}
+function configSubnetscanTask(){}
 
-function listVulTask(){
-	$("#wip-autotask-current-project").removeClass("active");
-	$("#wip-autotask-current-host").removeClass("active");
-	$("#wip-autotask-current-vul").addClass("active");
-	$("#wip-autotask-current-comment").removeClass("active");
-
-	$("#wip-autotask-task-zonetrans").hide();
-	$("#wip-autotask-task-googlehacking").hide();
-	$("#wip-autotask-task-dnsbrute").hide();
-	$("#wip-autotask-task-subnetscan").hide();
-}
-
-function listCommentTask(){
-	$("#wip-autotask-current-project").removeClass("active");
-	$("#wip-autotask-current-host").removeClass("active");
-	$("#wip-autotask-current-vul").removeClass("active");
-	$("#wip-autotask-current-comment").addClass("active");
-
-	$("#wip-autotask-task-zonetrans").hide();
-	$("#wip-autotask-task-googlehacking").hide();
-	$("#wip-autotask-task-dnsbrute").hide();
-	$("#wip-autotask-task-subnetscan").hide();
-}
 
 function getTaskStatus(){
-	$("#wip-autotask-task-status").remove();
 	if(!current.getProject()){
 		return false;
 	}
+	alert(1)
 	$.get("/gettaskstatus?id="+current.getProject().id, function(data,status){
         if(status!="success") {
+        	alert(2)
+        	$("#wip-autotask-button-show-taskresult").text("无任务完成结果");
             return false;
         }
-        $("#wip-autotask-task-list").prepend($("<a></a>").attr("id","wip-autotask-task-status").addClass("list-group-item").attr("href","#").click(listTaskResult).text("有任务结果，单击查看"));
+        alert(3)
+        $("#wip-autotask-button-show-taskresult").text("有任务完成结果，单击查看").click(listTaskResult);        
     });    
 }
 
 function listTaskResult(){
-	function addTaskItem(id, url, ip, source){
+	function addTaskItem(id, url, ip, level, source){
+		levelList = ["关键","重要","一般","提示"];
 		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-autotask-task-reuslt"+id);
-		sourceSpan = $("<span></span>").text("来源："+source);
+		sourceSpan = $("<span></span>").text("来源："+source+" | "+"等级："+levelList[level-1]);
 		urlA = $("<a></a>").text(url).attr("href","http://"+url);
 		ipA = $("<a></a>").text(ip).attr("href","http://"+ip);
 		allDiv.append(sourceSpan,urlA,ipA);
@@ -879,7 +846,7 @@ function listTaskResult(){
 	$("#wip-autotask-task-result-list").empty()
 	$.getJSON("/gettaskresult?id="+current.getProject().id, function(result){
         $.each(result, function(i, value){
-            addTaskItem(value.id, value.url, value.ip, value.source);
+            addTaskItem(value.id, value.url, value.ip, value.level, value.source);
         });
     });
 }
