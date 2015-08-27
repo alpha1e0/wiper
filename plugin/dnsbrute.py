@@ -25,10 +25,10 @@ class DnsBrute(multiprocessing.Process):
 	'''
 	def __init__(self, url, projectID, dictlist):
 		multiprocessing.Process.__init__(self)
-
+		print "init here"
 		self.domain = url.strip()
 		self.projectID = projectID
-		self.dictlist = dictlist
+		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",f) for f in dictlist]
 		self.result = []
 		#partDoman示例：aaa.com partDomain为aaa，aaa.com.cn partDomain为aaa
 		pos = self.domain.rfind(".com.cn")
@@ -37,6 +37,8 @@ class DnsBrute(multiprocessing.Process):
 		#去掉domain前面的www
 		pos = self.domain.find("www.")
 		self.domain = self.domain if pos==-1 else self.domain[pos+4:]
+
+		print self.dictlist, self.projectID, self.domain, self.partDomain
 
 
 	def checkDomain(self, domain):
@@ -51,14 +53,16 @@ class DnsBrute(multiprocessing.Process):
 		for dlist in self.dictlist:
 			for line in readList(dlist):
 				domain = line + "." + self.domain
+				print domain
 				ip = self.checkDomain(domain)
 				if ip:
 					self.result.append([ip,domain,LEVEL.info])
 
 	def bruteTopDomain(self):
-		dlist = os.path.join("wordlist","toplevel.txt")
+		dlist = os.path.join("plugin","wordlist","toplevel.txt")
 		for line in readList(dlist):
 			domain = self.partDomain + "." + line
+			print domain
 			ip = self.checkDomain(domain)
 			if ip:
 				self.result.append([ip,domain,LEVEL.info])
@@ -66,10 +70,11 @@ class DnsBrute(multiprocessing.Process):
 	def saveResult(self):
 		dbcon = DBManage()
 
-		sqlCmd = "insert into tmp_task_result_byhost(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
+		sqlCmdP = "insert into tmp_task_result_byhost(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
 
 		for i in self.result:
-			sqlCmd.format(i[0],i[1],i[2],"dnsbrute",self.project_id)
+			sqlCmd = sqlCmdP.format(i[1],i[0],i[2],"dnsbrute",self.projectID)
+			print sqlCmd
 			dbcon.sql(sqlCmd)
 
 	def run(self):

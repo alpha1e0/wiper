@@ -42,7 +42,6 @@ def startServer():
 		"/deletecomment","CommentDelete",
 		"/modifycomment","CommentModify",
 		"/addattachment","AttachmentAdd",
-		"/gettaskstatus","TaskStatus",
 		"/gettaskresult","TaskResultList",
 		"/adddict","DictAdd",
 		"/getdictlist","DictListEnum",
@@ -440,27 +439,13 @@ class AttachmentAdd:
 
 #=================================处理autotask表相关的代码=========================================
 
-class TaskStatus:
-	def GET(self):
-		web.header('Content-Type', 'application/json')
-		param = web.input()
-		#此处需要校验参数
-
-		sqlCmd = "select * from tmp_task_result_byhost where project_id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		if not sqlCmd.find(sqlCmd):
-			return json.dumps({"status":0})
-		else:
-			return json.dumps({"status":1})
-
-
 class TaskResultList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 		param = web.input()
 		#此处需要校验参数
 
-		sqlCmd = "select id,url,ip,source from tmp_task_result_byhost where id={0}".format(param.id.strip())
+		sqlCmd = "select id,url,ip,level,source from tmp_task_result_byhost where project_id={0}".format(param.projectid.strip())
 		dbcon = DBManage()
 		result = dbcon.find(sqlCmd)
 		if not result:
@@ -497,18 +482,17 @@ class DictListEnum:
 class DnsbruteTask:
 	def POST(self):
 		param = web.data()
-		#此处需要校验参数
-		#paramList = map(lambda x:x.split('='), param.split('&'))
-		#fileList = filter(lambda x:x[0]=='dictlist', paramList)
-		#fileList = map(lambda x:x[1], fileList)
-		#url = filter(lambda x:x[0]=='url', paramList)[0][1]
+		
 		paramList = [x.split('=') for x in param.split('&')]
 		fileList = [x[1] for x in paramList if x[0]=='dictlist']
 		url = [x[1] for x in paramList if x[0]=='url'][0]
 		projectID = [x[1] for x in paramList if x[0]=='projectid'][0]
 
-		dnsbrute = DnsBrute(url,projectID,fileList)
-		dnsbrute.start()
+		if url and projectID and fileList:
+			dnsbrute = DnsBrute(url,projectID,fileList)
+			dnsbrute.start()
+		else:
+			raise web.internalerror('Missing argument!')
 
 		return True
 

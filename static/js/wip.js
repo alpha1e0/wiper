@@ -144,6 +144,7 @@ $(document).ready(function() {
 
     //绑定与auto task相关操作的事件
     $("#wip-tab-button-autotask").click(configTasks);
+    $("#wip-autotask-button-show-taskresult").click(listTaskResult);
 });
 
 /******************************************************************************************************
@@ -742,7 +743,8 @@ function configTasks(){
 	configGooglehackingTask();
 	configDnsbruteTask();
 	configSubnetscanTask();
-	getTaskStatus();
+	//getTaskStatus();
+	listTaskResult();
 }
 
 function configZonetransTask(){}
@@ -799,33 +801,22 @@ function configDnsbruteTask(){
 
 function configSubnetscanTask(){}
 
-
-function getTaskStatus(){
+function listTaskResult(){
 	if(!current.getProject()){
 		return false;
 	}
-	$.getJSON("/gettaskstatus?id="+current.getProject().id, function(result){
-        if(result.status==0){
-        	$("#wip-autotask-button-show-taskresult").text("无任务完成结果");
-        }else{
-        	$("#wip-autotask-button-show-taskresult").text("有任务完成，单击查看").click(listTaskResult);
-        }        
-    });    
-}
-
-function listTaskResult(){
 	function addTaskItem(id, url, ip, level, source){
 		levelList = ["关键","重要","一般","提示"];
 		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-autotask-task-reuslt"+id);
 		sourceSpan = $("<span></span>").text("来源："+source+" | "+"等级："+levelList[level-1]);
-		urlA = $("<a></a>").text(url).attr("href","http://"+url);
-		ipA = $("<a></a>").text(ip).attr("href","http://"+ip);
+		urlA = $("<a></a>").text(" | URL: "+url).attr("href","http://"+url);
+		ipA = $("<a></a>").text(" | IP: "+ip).attr("href","http://"+ip);
 		allDiv.append(sourceSpan,urlA,ipA);
 		$("#wip-autotask-task-result-list").append(allDiv);
 	}
 
 	$("#wip-autotask-task-result-list").empty()
-	$.getJSON("/gettaskresult?id="+current.getProject().id, function(result){
+	$.getJSON("/gettaskresult?projectid="+current.getProject().id, function(result){
         $.each(result, function(i, value){
             addTaskItem(value.id, value.url, value.ip, value.level, value.source);
         });
