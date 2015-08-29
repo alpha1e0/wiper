@@ -1,5 +1,0 @@
-#configuration of database
-[db]
-db_host = localhost
-db_user = root
-db_password = 86@shiyan

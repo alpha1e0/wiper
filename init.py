@@ -10,6 +10,7 @@ See the file COPYING for copying detail
 import os
 import sys
 import logging
+import ConfigParser
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -40,6 +41,20 @@ def initLog():
     return log
 
 
+class Conf:
+    def __init__(self):
+        cf = ConfigParser.ConfigParser()
+        try:
+            cf.read(os.path.join("dbman","db.confg"))
+            self.dbhost = cf.get("db", "db_host")
+            self.dbuser = cf.get("db", "db_user")
+            self.dbpassword = cf.get("db", "db_password")
+            self.dbname = cf.get("db", "db_name")
+        except ConfigParser.Error as msg:
+            log.Error("Read configure file failed, reason:{0}!".format(msg))
+            exit(1)
+
+
 if not os.path.exists("log"):
     os.mkdir("log")
 
@@ -48,5 +63,7 @@ if not os.path.exists("static/attachment"):
 
 
 log = initLog()
+conf = Conf()
+conf.log = log
 
 

@@ -1,6 +1,6 @@
 wip.sublime-project
 wip.sublime-workspace
 *.pyc
-/dbman/db.config
+app.config
 /log/*
 /static/attachment/*

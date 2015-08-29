@@ -10,10 +10,10 @@ See the file COPYING for copying detail
 import os
 import sys
 import time
-import ConfigParser
 import MySQLdb as mdb
 
 from init import log
+from init import conf
 
 
 class DBManage(object):
@@ -21,30 +21,28 @@ class DBManage(object):
     Manage the information database
     '''
 
-    def __init__(self,retry=3):
+    def __init__(self,dbhost=None,dbuser=None,dbpassword=None,dbname=None,retry=3):
         self.con = None
         self.cur = None
         self.retry = retry+1
 
-        cf = ConfigParser.ConfigParser()
-        try:
-            cf.read("dbman/db.config")
-            dbhost = cf.get("db", "db_host")
-            dbuser = cf.get("db", "db_user")
-            dbpassword = cf.get("db", "db_password")
-        except:
-            log.Error("Open configure file failed!")
-            exit(1)
+        self.dbhost = dbhost if dbhost else conf.dbhost
+        self.dbuser = dbuser if dbuser else conf.dbuser
+        self.dbpassword = dbpassword if dbpassword else conf.dbpassword
+        self.dbname = dbname if dbname else conf.dbname
 
-        self.connect(dbhost, dbuser, dbpassword, self.retry)
+        self.connect()
 
 
-    def connect(self, dbhost, dbuser, dbpassword, retry):
+    def connect(self):
+        '''
+        Connect to database, if failed retrys
+        '''
         success = 1
         for i in range(1,self.retry):
             success = 1
             try:
-                self.con = mdb.connect(host=dbhost, user=dbuser, passwd=dbpassword, db='wip', charset='utf8')                
+                self.con = mdb.connect(host=self.dbhost, user=self.dbuser, passwd=self.dbpassword, db=self.dbname, charset='utf8')                
             except mdb.Error as msg:
                 if msg[0] == 2002: 
                     success = 0

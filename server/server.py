@@ -48,8 +48,9 @@ def startServer():
 		"/startdnsbrute","DnsbruteTask")
 
 	app = web.application(urls, globals())
-
 	app.run()
+
+# ================================参数检查操作=========================================
 
 
 class Index:
@@ -404,7 +405,8 @@ class AttachmentAdd:
 			
 		hostID = param.hostid.strip()
 		attachName = param.name.strip()
-		attachFilename = param['attachment'].filename.strip()
+		#attachFilename = param['attachment'].filename.strip()
+		attachFilename = param.attachment.filename.strip()
 
 		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
 		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
@@ -421,9 +423,9 @@ class AttachmentAdd:
 			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
 
 		try:
-			#fd = open("static/attachment/"+fileName, "wb")
 			fd = open(fileNameFull, "wb")
-			fd.write(param['attachment'].value)
+			#fd.write(param['attachment'].value)
+			fd.write(param.attachment.value)
 		except IOError as msg:
 			raise web.internalerror('Add attachment failed!')
 		finally:
@@ -461,12 +463,14 @@ class DictAdd:
 	def POST(self):
 		param = web.input(dictfile={})
 
-		fileName = param['dictfile'].filename.strip()
-		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)
+		#fileName = param['dictfile'].filename.strip()
+		fileName = param.dictfile.filename.strip()
+		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)#
 
 		try:
 			fd = open(fileNameFull, "w")
-			fd.write(param['dictfile'].value)
+			#fd.write(param['dictfile'].value)
+			fd.write(param.dictfile.value)
 		except IOError as msg:
 			raise web.internalerror('Add attachment failed!')
 

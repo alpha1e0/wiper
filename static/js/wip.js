@@ -692,7 +692,7 @@ function clickComment(){
         addCommentDetailItem("详情", result.info);                
         addCommentDetailItem("描述", result.description);
         attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), result.attachment)
-        attachmentItem.attr("href","static/attachment/"+result.attachment)
+        attachmentItem.attr("href","static/attachment/"+result.attachment).attr("target","_blank");
         $("#wip-vul-comment-detail").append(attachmentItem);
     });
 }
@@ -803,14 +803,15 @@ function configSubnetscanTask(){}
 
 function listTaskResult(){
 	if(!current.getProject()){
+		$("#wip-autotask-task-result-list").empty()
 		return false;
 	}
 	function addTaskItem(id, url, ip, level, source){
 		levelList = ["关键","重要","一般","提示"];
 		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-autotask-task-reuslt"+id);
 		sourceSpan = $("<span></span>").text("来源："+source+" | "+"等级："+levelList[level-1]);
-		urlA = $("<a></a>").text(" | URL: "+url).attr("href","http://"+url);
-		ipA = $("<a></a>").text(" | IP: "+ip).attr("href","http://"+ip);
+		urlA = $("<a></a>").text(" | URL: "+url).attr("href","http://"+url).attr("target","url_"+id);
+		ipA = $("<a></a>").text(" | IP: "+ip).attr("href","http://"+ip).attr("target","ip_"+id);
 		allDiv.append(sourceSpan,urlA,ipA);
 		$("#wip-autotask-task-result-list").append(allDiv);
 	}

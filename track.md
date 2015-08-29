@@ -15,4 +15,27 @@
 
 * mysql删除不存在的记录会返回成功，这样如何确定删除记录成功？
 
-* url,ip,附件在新窗口打开，使用window.open()
+
+
+---
+
+1、参数验证
+
+2、去掉http://字符串
+
+3、完善功能：
+
+	C段扫描、
+	域传送、
+	googlehacking、
+	http ping（需要能够区分http、https），自动获取网站title
+	ping工具
+
+4、工具自动填充参数
+
+
+---
+
+上下文管理器实现参数检测
+
+上下文管理器实现数据库查询，增加sqlexec、sqlquery上下文管理器，with sqlexec(sqlcmd) as result: if result: do something

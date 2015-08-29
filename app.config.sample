@@ -1,0 +1,5 @@
+#configuration file, plese change the file name to "app.config".
+[db]
+db_host = localhost
+db_user = root
+db_password = 86@shiyan
