@@ -12,6 +12,7 @@ import os
 import time
 import web
 import json
+import re
 
 from dbman.dbmanage import DBManage
 from plugin.dnsbrute import DnsBrute
@@ -50,8 +51,62 @@ def startServer():
 	app = web.application(urls, globals())
 	app.run()
 
-# ================================参数检查操作=========================================
+# =========================================参数检查操作=========================================
 
+
+class ParamCheck:
+	'''
+	Description : Check param.
+	Usage : ParamCheck(param, optinos)
+	Parameters: 
+		options: 
+			descript the param
+				((name,type,range),(name,type,range))
+			example:
+				(("ip","t_ip",""),
+			 	 ("url","t_url",""),
+			 	 ("level","t_int","1-5000"),
+			 	 ("title","t_string","1-100"))
+			type:
+				ip, url, email, string, int
+			range:
+				int: the number range
+				string: the length range
+				if null, means everything
+		param:
+			the parameters
+	'''
+	def __init__(self,originParam,options):
+		self.originParam = originParam
+		self.options = options
+		self.param = {}
+
+		ipPattern = re.compile(r"^((?:(2[0-4]\d)|(25[0-5])|([01]?\d\d?))\.){3}(?:(2[0-4]\d)|(255[0-5])|([01]?\d\d?))$")
+		urlPattern = re.compile(r"^(http(s)?//\:)?(?:[0-9a-zA-Z_-!=:]+\.)+(?:[0-9a-zA-Z_-!=:]+\.)", re.IGNORECASE)
+		emailPattern = re.compile(r"^(?:[0-9a-zA-Z_-!=:.%+])+@(?:[0-9a-zA-Z_-!=:]+\.)+(?:[0-9a-zA-Z_-!=:]+\.)", re.IGNORECASE)
+
+	def checkParam(self,option):
+		try:
+			value = self.originParam[option[0]]
+		except KeyError:
+			return False
+
+		if option[1] == ip:
+
+
+	def getParam(self,option):
+		try:
+			result = self.originParam[option[0]]
+		except KeyError:
+			result = ""
+
+		return result
+
+	def setParam(self,key,value):
+		self.param[key] = value
+
+
+# ================================================主页=========================================
 
 class Index:
 	def GET(self):

@@ -12,8 +12,10 @@ import sys
 import logging
 import ConfigParser
 
+
 reload(sys)
 sys.setdefaultencoding("utf-8")
+
 
 def Enum(**enums):
     return type('Enum', (), enums)
@@ -23,7 +25,6 @@ def initLog():
     critical, error, warning, info, debug, notset
     '''
     log = logging.getLogger('wip')
-    #log.setLevel(logging.DEBUG)
 
     streamHD = logging.StreamHandler()
     streamHD.setLevel(logging.DEBUG)
@@ -40,7 +41,6 @@ def initLog():
 
     return log
 
-log = initLog()
 
 class Conf:
     def __init__(self):
@@ -59,13 +59,10 @@ class Conf:
 if not os.path.exists("log"):
     os.mkdir("log")
 
-#if not os.path.exists("static/attachment"):
-#    os.mkdir("static/attachment")
-
 if not os.path.exists(os.path.join("static","attachment")):
     os.mkdir(os.path.join("static","attachment"))
 
-
+log = initLog()
 conf = Conf()
 conf.log = log
 
