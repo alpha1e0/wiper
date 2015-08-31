@@ -81,9 +81,10 @@ class ParamCheck:
 		self.options = options
 		self.param = {}
 
-		ipPattern = re.compile(r"^((?:(2[0-4]\d)|(25[0-5])|([01]?\d\d?))\.){3}(?:(2[0-4]\d)|(255[0-5])|([01]?\d\d?))$")
-		urlPattern = re.compile(r"^(http(s)?//\:)?(?:[0-9a-zA-Z_-!=:]+\.)+(?:[0-9a-zA-Z_-!=:]+\.)", re.IGNORECASE)
-		emailPattern = re.compile(r"^(?:[0-9a-zA-Z_-!=:.%+])+@(?:[0-9a-zA-Z_-!=:]+\.)+(?:[0-9a-zA-Z_-!=:]+\.)", re.IGNORECASE)
+		#ipPattern = re.compile(r"^((?:(2[0-4]\d)|(25[0-5])|([01]?\d\d?))\.){3}(?:(2[0-4]\d)|(255[0-5])|([01]?\d\d?))$")
+		ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:255[0-5])|(?:[01]?\d\d?)))$")
+		urlPattern = re.compile(r"^(?:http(s)?\://)?((?:[-0-9a-zA-Z_~!=:]+\.)+(?:[-0-9a-zA-Z_~!=:]+))", re.IGNORECASE)
+		emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))", re.IGNORECASE)
 
 	def checkParam(self,option):
 		try:
@@ -91,7 +92,25 @@ class ParamCheck:
 		except KeyError:
 			return False
 
-		if option[1] == ip:
+		if option[1] == "ip":
+			try:
+				result = self.originParam[option[0]]
+			except KeyError:
+				self.param['errorMsg'] = "Missing parameter {0}!".format(option[0])
+				return False
+			if not result and not option[2]:
+				self.param[option[0]] = result
+				self.param['errorMsg'] = ""
+			else:
+				match = ipPattern.match(result)
+				if not match:
+					self.errorMsg = "Parameter {0} error!".format(option[0])
+					return False
+				self.param[option[0]] = match.group()
+				self.param['errorMsg'] = ""
+		elif opton[1] == "url":
+			pass
+
 
 
 	def getParam(self,option):
