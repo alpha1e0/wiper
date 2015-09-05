@@ -4,7 +4,7 @@ use wip;
 
 
 create table project (
-	id integer not null auto_increment, 
+	id integer not null auto_increment,
 	name varchar(100) not null unique,
 	url varchar(100), 
 	ip varchar(50), 
@@ -16,9 +16,9 @@ create table project (
 
 create table host (
 	id integer not null auto_increment, 
+	title varchar(200) not null unique,
 	url varchar(100), 
-	ip varchar(50), 
-	title varchar(200),
+	ip varchar(50),
 	level integer, 
 	os varchar(150), 
 	server_info varchar(150),
@@ -32,7 +32,7 @@ create table host (
 
 create table vul (
 	id integer not null auto_increment, 
-	name varchar(50), 
+	name varchar(100), 
 	url varchar(4096),
 	info varchar(1024), 
 	type integer, 
@@ -50,7 +50,7 @@ create table comment (
 	url varchar(4096),
 	info varchar(1024), 
 	level integer, 
-	attachment varchar(100),
+	attachment varchar(200),
 	description text, 
 	host_id integer not null, 
 	primary key (id),
@@ -58,13 +58,17 @@ create table comment (
 ) engine=InnoDB  default charset=utf8;
 
 
-create table tmp_task_result_byhost (
-	id integer not null auto_increment, 
+create table tmp_host (
+	id integer not null auto_increment,
+	title varchar(200) not null unique,
 	url varchar(100), 
 	ip varchar(50), 
 	level integer,
-	source varchar(50),
+	os varchar(150), 
+	server_info varchar(150),
+	middleware varchar(200),
 	project_id integer not null,
+	source varchar(50),
 	primary key (id),
 	constraint project_id_tmp foreign key (project_id) references project (id)
 ) engine=InnoDB  default charset=utf8;

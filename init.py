@@ -25,6 +25,7 @@ def initLog():
     critical, error, warning, info, debug, notset
     '''
     log = logging.getLogger('wip')
+    log.setLevel(logging.DEBUG)
 
     streamHD = logging.StreamHandler()
     streamHD.setLevel(logging.DEBUG)

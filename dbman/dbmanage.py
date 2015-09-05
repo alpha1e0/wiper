@@ -18,7 +18,7 @@ from init import conf
 
 class DBManage(object):
     '''
-    Manage the information database
+    Manage the information database.
     '''
 
     def __init__(self,dbhost=None,dbuser=None,dbpassword=None,dbname=None,retry=3):
@@ -38,16 +38,23 @@ class DBManage(object):
         '''
         Connect to database, if failed retrys
         '''
-        success = 1
+        success = True
         for i in range(1,self.retry):
-            success = 1
+            success = True
             try:
                 self.con = mdb.connect(host=self.dbhost, user=self.dbuser, passwd=self.dbpassword, db=self.dbname, charset='utf8')                
-            except mdb.Error as msg:
-                if msg[0] == 2002: 
-                    success = 0
+            except mdb.OperationalError as msg:
+                #Could not connect the server, retrys
+                if msg[0] == 2003: 
+                    success = False
                     time.sleep(i*2)
                     continue
+                elif msg[0] == 1045:
+                    log.error("Connect database error, user or password error, please check configure file!")
+                    exit(1045)
+                elif msg[0] == 1049:
+                    log.error("Connect database error, database not exists, please check configure file!")
+                    exit(1049)
             break
 
         if not success:
@@ -55,39 +62,99 @@ class DBManage(object):
             exit(1)
 
         self.cur = self.con.cursor()
-
         return True
 
 
     def sql(self, sqlcmd):
+        '''
+        Execute SQL command.
+        '''
         try:
             self.cur.execute(sqlcmd)
             self.con.commit()
-        except mdb.Error as msg:
-            if msg[0] == 2002:
-                self.connect(dbhost, dbuser, dbpassword, 1)
-                self.cur.execute(sqlcmd)
-                self.con.commit()
+        except mdb.OperationalError as msg:
+            # if lost connection, retry one time
+            if msg[0] == 2013:
+                try:
+                    self.connect()
+                    self.cur.execute(sqlcmd)
+                    self.con.commit()
+                except mdb.OperationalError as msg:
+                    log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
+                    return ((False, msg), False)
             else:
                 log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
-                return False
+                return ((False, msg), False)
+        except mdb.MySQLError as msg:
+            log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
+            return ((False, msg), False)
         
-        return True
+        return ((True, ""), True)
 
 
     def find(self, sqlcmd):
+        '''
+        Query database.
+        '''
         try:
             self.cur.execute(sqlcmd)
-        except mdb.Error as msg:
-            if msg[0] == 2002:
-                self.connect(dbhost, dbuser, dbpassword, 1)
-                self.cur.execute(sqlcmd)
-                self.con.commit()
-            else:
+        except mdb.OperationalError as msg:
+            # if lost connection, retry one time
+            if msg[0] == 2013:
+                try:
+                    self.connect()
+                    self.cur.execute(sqlcmd)
+                    self.con.commit()
+                except mdb.OperationalError as msg:
+                    log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
+                    return ((False, msg), False)
+            else: 
                 log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
-                return False
+                return ((False, msg), False)
+        except mdb.MySQLError as msg:
+            log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
+            return ((False, msg), False)
             
-        return self.cur.fetchall()
+        return ((True, ""), self.cur.fetchall())
+
+
+    def close(self):
+        if self.con:
+            self.con.close()
+
+
+class SQLQuery:
+    '''
+    Query database.
+    Usage: 'with SQLQuery(sqlCmd) as result: pass'
+    '''
+    def __init__(self, sqlCmd):
+        self.sqlCmd = sqlCmd
+        self.db = DBManage()
+
+    def __enter__(self):
+        return self.db.find(self.sqlCmd)
+
+    def __exit__(self, *unuse):
+        if self.db:
+            self.db.close()
+
+class SQLExec:
+    '''
+    Execute SQL command.
+    Usage: 'with SQLExec(sqlCmd) as result:pass'
+    '''
+    def __init__(self, sqlCmd):
+        self.sqlCmd = sqlCmd
+        self.db = DBManage()
+
+    def __enter__(self):
+        return self.db.sql(self.sqlCmd)
+
+    def __exit__(self, *unuse):
+        if self.db:
+            self.db.close()
+
 
 
 

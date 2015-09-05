@@ -11,11 +11,9 @@ import sys
 import os
 import time
 import web
-import json
-import re
 
-from server import libs
-from dbman.dbmanage import DBManage
+import core
+from dbman.dbmanage import DBManage,SQLQuery,SQLExec
 from plugin.dnsbrute import DnsBrute
 from init import log
 
@@ -67,76 +65,96 @@ class ProjectList:
 		web.header('Content-Type', 'application/json')
 
 		sqlCmd = "select id,name from project order by 1"
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror('Query project failed!')
-
-		result = [zip(("id","name"),x) for x in result]
-		result = [dict(x) for x in result]
-
-		return json.dumps(result)
+		with SQLQuery(sqlCmd) as (status,result):
+			if not status[0]:
+				raise web.internalerror("Query project failed, reason: {0}.".format(status[1]))
+			return core.queryResultToJson(result, ("id","name"))
 
 
 class ProjectDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 
-		sqlCmd = "select * from project where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror("Query project detail failed!")
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		result = list(result[0])
-		result[5] = result[5].strftime("%Y-%m-%d %H:%M:%S")
-		nameList = ('id','name','url','ip','whois','ctime','description')
-
-		return json.dumps(dict(zip(nameList,result)))
+			sqlCmd = "select * from project where id={0}".format(param.id)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))
+				
+				if result:
+					result = list(result)
+					result[0] = list(result[0])
+					result[0][5] = result[0][5].strftime("%Y-%m-%d %H:%M:%S")
+				nameList = ('id','name','url','ip','whois','ctime','description')
+				return core.queryResultToJson(result, nameList)
 
 
 class ProjectAdd:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
-		
-		sqlCmd = "insert into project(name, url, ip, whois, description) values('{0}', '{1}', '{2}', '{3}', '{4}')".format(\
-			param.name.strip(), param.url.strip(), param.ip.strip(), param.whois.strip(), param.description.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Add project failed!')
-		
-		return True
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("ip","ip",""),
+			("whois","text",""),
+			("description","text","")
+		)
+
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+
+			sqlCmd = "insert into project(name, url, ip, whois, description) values('{0}', '{1}', '{2}', '{3}', '{4}')".format(\
+				param.name, param.url, param.ip, param.whois, param.description)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))			
+				return True
 
 
 class ProjectDelete:
 	def GET(self):
-		param = web.input()
-		#此处需要校验参数
-		
-		sqlCmd = "delete from project where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror("Delete project failed!")
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 
-		return True
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+		
+			sqlCmd = "delete from project where id={0}".format(param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Delete project failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class ProjectModify:
 	def POST(self):
-		#此处需要校验参数
-		
-		param = web.input()
-		sqlCmd = "update project set name='{0}',url='{1}',ip='{2}',whois='{3}',description='{4}' where id={5}".format(\
-			param.name.strip(), param.url.strip(), param.ip.strip(), param.whois.strip(), param.description.strip(), param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Modify project failed!')
-		
-		return True
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("ip","ip",""),
+			("whois","text",""),
+			("description","text",""),
+			("id","integer","0-0")
+		)
+
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))		
+			sqlCmd = "update project set name='{0}',url='{1}',ip='{2}',whois='{3}',description='{4}' where id={5}".format(\
+				param.name, param.url, param.ip, param.whois, param.description, param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Modify project failed, reason: {0}.".format(status[1]))
+				return True
 
 #=================================处理host表相关的代码=========================================
 
@@ -144,82 +162,111 @@ class HostList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("projectid","integer","0-0"),
+			("orderby","string","1-20")
+		)
+
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
-		sqlCmd = "select id,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid.strip(),param.orderby.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror('Query host failed!')
-
-		result = [zip(("id","url","ip"),x) for x in result]
-		result = [dict(x) for x in result]
-
-		return json.dumps(result)
+			sqlCmd = "select id,title,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid,param.orderby)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query host failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ("id","title","url","ip"))
 
 
 class HostDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 		
-		sqlCmd = "select * from host where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror("Query host detail failed!")
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		result = list(result[0])
-		nameList = ('id','url','ip','title','level','os','server_info','middleware','description','project_id')
-
-		return json.dumps(dict(zip(nameList,result)))
+			sqlCmd = "select * from host where id={0}".format(param.id)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query host detail failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ('id','title','url','ip','level','os','server_info','middleware','description','project_id'))
 
 
 class HostAdd:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("url","url",""),
+			("ip","ip",""),
+			("title","string","1-200"),
+			("level","integer","1-4"),
+			("os","string","1-150"),
+			("serverinfo","string","1-150"),
+			("middleware","string","1-200"),
+			("description","text",""),
+			("projectid","integer","0-0")
+		)
 		
-		sqlCmd = "insert into host(url,ip,title,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}','{7}','{8}')".format(param.url.strip(),param.ip.strip(),param.title.strip(),param.level.strip(),\
-			param.os.strip(),param.serverinfo.strip(),param.middleware.strip(),param.description.strip(),param.projectid.strip())
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Add host failed!')
-
-		return True
+			sqlCmd = "insert into host(url,ip,title,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
+				,'{2}','{3}','{4}','{5}','{6}','{7}','{8}')".format(param.url,param.ip,param.title,param.level,\
+				param.os,param.serverinfo,param.middleware,param.description,param.projectid)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Add host detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class HostDelete:
 	def GET(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 		
-		sqlCmd = "delete from host where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror("Delete host failed!")
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		return True
+			sqlCmd = "delete from host where id={0}".format(param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Delete host detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class HostModify:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("url","url",""),
+			("ip","ip",""),
+			("title","string","1-200"),
+			("level","integer","1-4"),
+			("os","string","1-150"),
+			("serverinfo","string","1-150"),
+			("middleware","string","1-200"),
+			("description","text",""),
+			("id","integer","0-0")
+		)
 		
-		sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}' \
-			where id={8}".format(param.url.strip(),param.ip.strip(),param.title.strip(),param.level.strip(),param.os.strip(),param.serverinfo.strip(),\
-			param.middleware.strip(),param.description.strip(),param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Modify host failed!')
-		
-		return True
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+
+			sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}' \
+				where id={8}".format(param.url,param.ip,param.title,param.level,param.os,param.serverinfo,param.middleware,param.description,param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Modify host detail failed, reason: {0}.".format(status[1]))
+				return True
+
 
 #=================================处理vul表相关的代码=========================================
 
@@ -227,81 +274,106 @@ class VulList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("hostid","integer","0-0"),
+			("orderby","string","1-20")
+		)
 		
-		sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.hostid.strip(),param.orderby.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror('Query vul failed!')
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		result = [zip(("id","name"),x) for x in result]
-		result = [dict(x) for x in result]
-
-		return json.dumps(result)
+			sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.hostid,param.orderby)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query vul failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ("id","name"))
 
 
 class VulDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
+
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
-		sqlCmd = "select * from vul where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror("Query vul detail failed!")
-
-		result = list(result[0])
-		nameList = ('id','name','url','info','type','level','description','host_id')
-
-		return json.dumps(dict(zip(nameList,result)))
+			sqlCmd = "select * from vul where id={0}".format(param.id)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query vul detail failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ('id','name','url','info','type','level','description','host_id'))
 
 
 class VulAdd:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("info","string","0-1024"),
+			("type","integer","1-100"),
+			("level","integer","1-4"),
+			("description","text",""),
+			("hostid","integer","0-0")
+		)
 		
-		sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),
-			param.level.strip(),param.description.strip(),param.hostid.strip())
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Add vul failed!')
-
-		return True
+			sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
+				,'{2}','{3}','{4}','{5}','{6}')".format(param.name,param.url,param.info,param.type,param.level,param.description,param.hostid)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Add vul detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class VulDelete:
 	def GET(self):
-		param = web.input()
-		#此处需要校验参数
-		
-		sqlCmd = "delete from vul where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror("Delete vul failed!")
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 
-		return True
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+
+			sqlCmd = "delete from vul where id={0}".format(param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Delete vul detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class VulModify:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("info","string","0-1024"),
+			("type","integer","1-100"),
+			("level","integer","1-4"),
+			("description","text",""),
+			("id","integer","0-0")
+		)
 		
-		sqlCmd = "update vul set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}' \
-			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.type.strip(),param.level.strip(),
-			param.description.strip(),param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Modify vul failed!')
-		
-		return True
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+			
+			sqlCmd = "update vul set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}'\
+				where id={6}".format(param.name,param.url,param.info,param.type,param.level,param.description,param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Modify vul detail failed, reason: {0}.".format(status[1]))
+				return True
+
 
 #=================================处理comment表相关的代码=========================================
 
@@ -309,172 +381,234 @@ class CommentList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
-		
-		sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.hostid.strip(),param.orderby.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror('Query comment failed!')
+		originParam = web.input()
+		options = (
+			("hostid","integer","0-0"),
+			("orderby","string","1-20")
+		)
 
-		result = [zip(("id","name"),x) for x in result]
-		result = [dict(x) for x in result]
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		return json.dumps(result)
+			sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.hostid,param.orderby)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query comment failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ("id","name"))
 
 
 class CommentDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
+
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
-		sqlCmd = "select * from comment where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror("Query comment detail failed!")
-
-		result = list(result[0])
-		nameList = ('id','name','url','info','level','attachment','description','host_id')
-
-		return json.dumps(dict(zip(nameList,result)))
+			sqlCmd = "select * from comment where id={0}".format(param.id)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ('id','name','url','info','level','attachment','description','host_id'))
 
 
 class CommentAdd:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("info","string","0-1024"),
+			("level","integer","1-4"),
+			("attachment","string","0-200"),
+			("description","text",""),
+			("hostid","integer","0-0")
+		)
 		
-		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(param.name.strip(),param.url.strip(),param.info.strip(),
-			param.level.strip(),param.attachment.strip(),param.description.strip(),param.hostid.strip())
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Add comment failed!')
-
-		return True
+			sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+				,'{2}','{3}','{4}','{5}','{6}')".format(param.name,param.url,param.info,param.level,param.attachment,param.description,param.hostid)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Add comment detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class CommentDelete:
 	def GET(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (("id","integer","0-0"),)
 
-		queryCmd = "select attachment from comment where id={0}".format(param.id.strip())
-		dbcon = DBManage()
-		result = dbcon.find(queryCmd)
-		if not result:
-			raise web.internalerror("Query comment detail failed!")
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		attachment = result[0][0]
-		print attachment
-		if attachment != "":
-			if os.path.exists("static/attachment/"+attachment):
-				os.remove("static/attachment/"+attachment)
+			sqlCmd = "select attachment from comment where id={0}".format(param.id)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
+				attachment = result[0][0]
+				#print attachment
+				if attachment != "":
+					if os.path.exists(os.path.join("static","attachment",attachment)):
+						os.remove(os.path.join("static","attachment",attachment))
 		
-		sqlCmd = "delete from comment where id={0}".format(param.id.strip())
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror("Delete comment failed!")
-
-		return True
+			sqlCmd = "delete from comment where id={0}".format(param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Delete comment detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 class CommentModify:
 	def POST(self):
-		param = web.input()
-		#此处需要校验参数
+		originParam = web.input()
+		options = (
+			("name","string","1-100"),
+			("url","url",""),
+			("info","string","0-1024"),
+			("level","integer","1-4"),
+			("attachment","string","0-200"),
+			("description","text",""),
+			("id","integer","0-0")
+		)
 		
-		sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',level='{3}',attachment='{4}',description='{5}' \
-			where id={6}".format(param.name.strip(),param.url.strip(),param.info.strip(),param.level.strip(),
-			param.attachment.strip(),param.description.strip(),param.id.strip())
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			raise web.internalerror('Modify comment failed!')
-		
-		return True
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+
+			sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',level='{3}',attachment='{4}',description='{5}' \
+				where id={6}".format(param.name,param.url,param.info,param.level,param.attachment,param.description,param.id)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Modify comment detail failed, reason: {0}.".format(status[1]))
+				return True
 
 
 #=================================处理attachment表相关的代码=========================================
 
 class AttachmentAdd:
 	def POST(self):
-		param = web.input(attachment={})
-		#此处需要校验参数
+		originParam = web.input(attachment={})
+		originParam["filename"] = originParam.attachment.filename
+		originParam["value"] = originParam.attachment.value
+
+		options = (
+			("hostid","integer","0-0"),
+			("filename","string","1-200"),
+			("name","string","1-200"),
+			("value","text","")
+		)
 			
-		hostID = param.hostid.strip()
-		attachName = param.name.strip()
-		#attachFilename = param['attachment'].filename.strip()
-		attachFilename = param.attachment.filename.strip()
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
-		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
+			hostID = param.hostid
+			attachName = param.name
+			attachFilename = param.filename
+			fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
+			fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
+			if attachName != "":
+				attachType = os.path.splitext(attachFilename)[-1]
+				fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
+			else:
+				fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
+			fileNameFull = os.path.join("static","attachment",fileName)
 
-		if attachName != "":
-			attachType = os.path.splitext(attachFilename)[-1]
-			fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
-		else:
-			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
+			sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+				,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
 
-		fileNameFull = os.path.join("static","attachment",fileName)
+			try:
+				fd = open(fileNameFull, "wb")
+				#fd.write(param['attachment'].value)
+				fd.write(param.value)
+			except IOError as msg:
+				raise web.internalerror('Write attachment file failed!')
+			finally:
+				fd.close()
 
-		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
+			with SQLExec(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Add attachment comment failed, reason: {0}.".format(status[1]))
+				return True
 
-		try:
-			fd = open(fileNameFull, "wb")
-			#fd.write(param['attachment'].value)
-			fd.write(param.attachment.value)
-		except IOError as msg:
-			raise web.internalerror('Add attachment failed!')
-		finally:
-			fd.close()
+#		hostID = param.hostid
+#		attachName = param.name
+#		#attachFilename = param['attachment'].filename
+#		attachFilename = param.attachment.filename#
 
-		dbcon = DBManage()
-		if not dbcon.sql(sqlCmd):
-			if os.path.exists(fileNameFull):
-				os.remove(fileNameFull)
-			raise web.internalerror('Add attachment comment failed!')
+#		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
+#		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)#
 
-		return True
+#		if attachName != "":
+#			attachType = os.path.splitext(attachFilename)[-1]
+#			fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
+#		else:
+#			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)#
+
+#		fileNameFull = os.path.join("static","attachment",fileName)#
+
+#		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
+#			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)#
+
+#		try:
+#			fd = open(fileNameFull, "wb")
+#			#fd.write(param['attachment'].value)
+#			fd.write(param.attachment.value)
+#		except IOError as msg:
+#			raise web.internalerror('Add attachment failed!')
+#		finally:
+#			fd.close()#
+
+#		dbcon = DBManage()
+#		if not dbcon.sql(sqlCmd):
+#			if os.path.exists(fileNameFull):
+#				os.remove(fileNameFull)
+#			raise web.internalerror('Add attachment comment failed!')#
+
+#		return True
 
 #=================================处理autotask表相关的代码=========================================
 
 class TaskResultList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
-		param = web.input()
-		#此处需要校验参数
 
-		sqlCmd = "select id,url,ip,level,source from tmp_task_result_byhost where project_id={0}".format(param.projectid.strip())
-		dbcon = DBManage()
-		result = dbcon.find(sqlCmd)
-		if not result:
-			raise web.internalerror('Query task result failed!')
+		originParam = web.input()
+		options = (("projectid","integer","0-0"),)
 
-		columnList = ("id","url","ip","level","source")
-		result = [zip(columnList, x) for x in result]
-		result = [dict(x) for x in result]
+		with core.ParamCheck(originParam, options) as (status,param):
+			if not status[0]:
+				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-		return json.dumps(result)
+			sqlCmd = "select id,url,ip,level,source from tmp_host where project_id={0}".format(param.projectid)
+			with SQLQuery(sqlCmd) as (status,result):
+				if not status[0]:
+					raise web.internalerror("Query task result failed, reason: {0}.".format(status[1]))
+				return core.queryResultToJson(result, ("id","url","ip","level","source"))
+
 
 class DictAdd:
 	def POST(self):
-		param = web.input(dictfile={})
+		originParam = web.input(dictfile={})
 
-		#fileName = param['dictfile'].filename.strip()
-		fileName = param.dictfile.filename.strip()
-		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)#
+		fileName = param.dictfile.filename
+		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)
 
 		try:
 			fd = open(fileNameFull, "w")
-			#fd.write(param['dictfile'].value)
 			fd.write(param.dictfile.value)
 		except IOError as msg:
-			raise web.internalerror('Add attachment failed!')
+			raise web.internalerror('Write dictfile failed!')
+
 
 class DictListEnum:
 	def GET(self):
@@ -498,7 +632,7 @@ class DnsbruteTask:
 			dnsbrute = DnsBrute(url,projectID,fileList)
 			dnsbrute.start()
 		else:
-			raise web.internalerror('Missing argument!')
+			raise web.internalerror('Dns bruteforce task missing parameter!')
 
 		return True
 

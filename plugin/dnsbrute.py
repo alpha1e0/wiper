@@ -12,7 +12,7 @@ import socket
 import multiprocessing
 
 from plugin.lib.tools import readList
-from plugin.lib.tools import HostScanner
+from plugin.hostscan import HostScan
 from init import log
 from init import Enum
 from dbman.dbmanage import DBManage
@@ -21,11 +21,11 @@ LEVEL = Enum(info=4,common=3,important=2,critical=1)
 
 class DnsBrute(multiprocessing.Process):
 	'''
-	使用字典爆破子域名
+	Use wordlist to bruteforce subdomain.
 	'''
 	def __init__(self, url, projectID, dictlist):
 		multiprocessing.Process.__init__(self)
-		print "init here"
+		log.debug("init here")
 		self.domain = url.strip()
 		self.projectID = projectID
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",f) for f in dictlist]
@@ -38,7 +38,7 @@ class DnsBrute(multiprocessing.Process):
 		pos = self.domain.find("www.")
 		self.domain = self.domain if pos==-1 else self.domain[pos+4:]
 
-		print self.dictlist, self.projectID, self.domain, self.partDomain
+		log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
 
 
 	def checkDomain(self, domain):
@@ -49,33 +49,37 @@ class DnsBrute(multiprocessing.Process):
 			return False
 		return ip
 
+
 	def bruteSubDomain(self):
 		for dlist in self.dictlist:
 			for line in readList(dlist):
 				domain = line + "." + self.domain
-				print domain
+				log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:
-					self.result.append([ip,domain,LEVEL.info])
+					self.result.append(["",domain,ip,LEVEL.info,"","",""])
+
 
 	def bruteTopDomain(self):
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
 		for line in readList(dlist):
 			domain = self.partDomain + "." + line
-			print domain
+			log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
-				self.result.append([ip,domain,LEVEL.info])
+				self.result.append(["",domain,ip,LEVEL.info,"","",""])
+
 
 	def saveResult(self):
 		dbcon = DBManage()
 
-		sqlCmdP = "insert into tmp_task_result_byhost(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
+		sqlCmdP = "insert into tmp_host(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
 
 		for i in self.result:
-			sqlCmd = sqlCmdP.format(i[1],i[0],i[2],"dnsbrute",self.projectID)
-			print sqlCmd
+			sqlCmd = sqlCmdP.format(i[1],i[2],i[3],"dnsbrute",self.projectID)
+			log.debug(sqlCmd)
 			dbcon.sql(sqlCmd)
+
 
 	def run(self):
 		self.bruteTopDomain()

@@ -71,7 +71,7 @@ Current.prototype.setHost = function(host){
 	if(!host){
 		$("#wip-title-host").text("[host]");
 	} else {
-		$("#wip-title-host").text("["+host.ip+' | '+host.url+"]");
+		$("#wip-title-host").text("["+host.title+"]");
 	}
 	this.setVul(null);
 	this.setComment(null);
@@ -128,6 +128,7 @@ $(document).ready(function() {
     $("#wip-button-host-urlsort").click(function(){listHost("url");});
 
     //绑定与vul、comment相关操作的事件
+    //$("#wip-button-host-list").click(clickHost);
     $("#wip-button-vul-list").click(function(){listVul();});
     $("#wip-button-comment-list").click(function(){listComment();});
     $("#wip-button-vul-refresh").click(refreshHost);
@@ -166,8 +167,8 @@ function addProject(){
     		$("#wip-modal-project").modal("hide");
     		listProject();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
     //$('#wip-modal-form-project').submit(function(){$(this).ajaxSubmit(options);return false;});  
@@ -214,8 +215,8 @@ function modifyProject(){
     		$("#wip-modal-project").modal("hide");
     		listProject();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
 
@@ -251,13 +252,13 @@ function clickProject(){
 
 	$("#wip-project-detail").empty();
 	$.getJSON("/getprojectdetail?id="+id, function(result){
-		current.setProject(result);
-		addProjectDetailItem("项目名称", result.name);
-		addProjectDetailItem("URL地址", result.url);
-		addProjectDetailItem("IP地址", result.ip);
-		addProjectDetailItem("Whois信息", result.whois);
-		addProjectDetailItem("创建时间", result.ctime);
-		addProjectDetailItem("描述信息", result.description);
+		current.setProject(result[0]);
+		addProjectDetailItem("项目名称", result[0].name);
+		addProjectDetailItem("URL地址", result[0].url);
+		addProjectDetailItem("IP地址", result[0].ip);
+		addProjectDetailItem("Whois信息", result[0].whois);
+		addProjectDetailItem("创建时间", result[0].ctime);
+		addProjectDetailItem("描述信息", result[0].description);
 	});
 }
 
@@ -295,8 +296,8 @@ function addHost(){
     		$("#wip-modal-host").modal("hide");
     		listHost();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
 
@@ -344,8 +345,8 @@ function modifyHost(){
     		$("#wip-modal-host").modal("hide");
     		listHost();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
 
@@ -401,15 +402,15 @@ function clickHost(){
 	$("#wip-vul-comment-detail").empty();
 	levelList = ["关键","重要","一般","提示"];
 	$.getJSON("/gethostdetail?id="+id, function(result){
-		current.setHost(result);
-		addHostDetailItem("URL地址", result.url);
-		addHostDetailItem("IP地址", result.ip);
-		addHostDetailItem("Title", result.title);
-		addHostDetailItem("等级", levelList[result.level-1]);
-		addHostDetailItem("OS信息", result.os);
-		addHostDetailItem("Server信息", result.server_info);
-		addHostDetailItem("中间件", result.middleware);
-		addHostDetailItem("描述", result.description);
+		current.setHost(result[0]);
+		addHostDetailItem("Title", result[0].title);
+		addHostDetailItem("URL地址", result[0].url);
+		addHostDetailItem("IP地址", result[0].ip);
+		addHostDetailItem("等级", levelList[result[0].level-1]);
+		addHostDetailItem("OS信息", result[0].os);
+		addHostDetailItem("Server信息", result[0].server_info);
+		addHostDetailItem("中间件", result[0].middleware);
+		addHostDetailItem("描述", result[0].description);
 	});
 }
 
@@ -446,8 +447,8 @@ function addVul(){
     		$("#wip-modal-vul").modal("hide");
     		listVul();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
 
@@ -456,10 +457,10 @@ function addVul(){
 
 function deleteVul(){
 	if(!current.getVul()) {
-		alert("请先选择Vul!");
+		alert("请先选择漏洞!");
 		return
 	}
-	if(confirm("是否删除当前Vul？") == false){
+	if(confirm("是否删除当前漏洞？") == false){
 		return
 	}
 	$.get("/deletevul?id="+current.getVul().id, function(data,status){
@@ -471,7 +472,7 @@ function deleteVul(){
 
 function modifyVul(){
 	if(!current.getVul()) {
-		alert("请先选择Vul!");
+		alert("请先选择漏洞!");
 		return
 	}
 	$("#wip-modal-vul").modal("show");
@@ -493,8 +494,8 @@ function modifyVul(){
     		$("#wip-modal-vul").modal("hide");
     		listVul();
     	},
-    	error:function(err){
-    	 	alert("提交失败!");
+    	error:function(xhr, status, error){
+    	 	alert("提交失败，失败原因："+xhr.responseText);
     	}
     };
 
@@ -543,13 +544,13 @@ function clickVul(){
 	levelList = ["关键","重要","一般","提示"];
 	typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
 	$.getJSON("/getvuldetail?id="+id, function(result){
-		current.setVul(result);
-		addVulDetailItem("名称", result.name);
-		addVulDetailItem("等级", levelList[result.level-1]);
-		addVulDetailItem("URL地址", result.url);
-		addVulDetailItem("详情", result.info);
-		addVulDetailItem("类型", typeList[result.type-1]);		
-		addVulDetailItem("描述", result.description);
+		current.setVul(result[0]);
+		addVulDetailItem("名称", result[0].name);
+		addVulDetailItem("等级", levelList[result[0].level-1]);
+		addVulDetailItem("URL地址", result[0].url);
+		addVulDetailItem("详情", result[0].info);
+		addVulDetailItem("类型", typeList[result[0].type-1]);		
+		addVulDetailItem("描述", result[0].description);
 	});
 }
 
@@ -588,8 +589,8 @@ function addComment(){
             $("#wip-modal-comment").modal("hide");
             listComment();
         },
-        error:function(err){
-            alert("提交失败!");
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
         }
     };
 
@@ -598,7 +599,7 @@ function addComment(){
 
 function deleteComment(){
     if(!current.getComment()) {
-        alert("请先选择Comment!");
+        alert("请先选择注释!");
         return
     }
     if(confirm("是否删除当前Comment？") == false){
@@ -613,7 +614,7 @@ function deleteComment(){
 
 function modifyComment(){
     if(!current.getComment()) {
-        alert("请先选择Comment!");
+        alert("请先选择注释!");
         return
     }
     $("#wip-modal-comment").modal("show");
@@ -635,8 +636,8 @@ function modifyComment(){
             $("#wip-modal-comment").modal("hide");
             listComment();
         },
-        error:function(err){
-            alert("提交失败!");
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
         }
     };
 
@@ -685,14 +686,14 @@ function clickComment(){
     levelList = ["关键","重要","一般","提示"];
     typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
     $.getJSON("/getcommentdetail?id="+id, function(result){
-        current.setComment(result);
-        addCommentDetailItem("名称", result.name);
-        addCommentDetailItem("等级", levelList[result.level]);
-        addCommentDetailItem("URL地址", result.url);
-        addCommentDetailItem("详情", result.info);                
-        addCommentDetailItem("描述", result.description);
-        attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), result.attachment)
-        attachmentItem.attr("href","static/attachment/"+result.attachment).attr("target","_blank");
+        current.setComment(result[0]);
+        addCommentDetailItem("名称", result[0].name);
+        addCommentDetailItem("等级", levelList[result[0].level-1]);
+        addCommentDetailItem("URL地址", result[0].url);
+        addCommentDetailItem("详情", result[0].info);                
+        addCommentDetailItem("描述", result[0].description);
+        attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), result[0].attachment)
+        attachmentItem.attr("href","static/attachment/"+result[0].attachment).attr("target","_blank");
         $("#wip-vul-comment-detail").append(attachmentItem);
     });
 }
@@ -724,8 +725,8 @@ function addAttachment(){
             alert("提交成功!");
             $("#wip-modal-attachment").modal("hide");
         },
-        error:function(err){
-            alert("提交失败!");
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
         }
     };
 
@@ -763,7 +764,7 @@ function configDnsbruteTask(){
         success:function(){             
             alert("上传成功!");
         },
-        error:function(err){
+        error:function(xhr, status, error){
             alert("上传失败!");
         }
     };
@@ -792,8 +793,8 @@ function configDnsbruteTask(){
         success:function(){             
             alert("提交成功!");
         },
-        error:function(err){
-            alert("提交失败!");
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
         }
     };
     $("#wip-form-autotask-dnsbrute-start").ajaxForm(options);
