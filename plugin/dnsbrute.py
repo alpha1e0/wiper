@@ -10,6 +10,7 @@ See the file COPYING for copying detail
 import os
 import socket
 import multiprocessing
+import re
 
 from plugin.lib.tools import readList
 from plugin.hostscan import HostScan
@@ -26,7 +27,8 @@ class DnsBrute(multiprocessing.Process):
 	def __init__(self, url, projectID, dictlist):
 		multiprocessing.Process.__init__(self)
 		log.debug("init here")
-		self.domain = url.strip()
+		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_~!=:]+\.)+(?:[-0-9a-zA-Z_~!=:]+))")
+		self.domain = urlPattern.match(url.strip()).group()
 		self.projectID = projectID
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",f) for f in dictlist]
 		self.result = []
@@ -57,7 +59,7 @@ class DnsBrute(multiprocessing.Process):
 				log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:
-					self.result.append(["",domain,ip,LEVEL.info,"","",""])
+					self.result.append(["",domain,ip,"",LEVEL.info,"","",""])
 
 
 	def bruteTopDomain(self):
@@ -67,16 +69,16 @@ class DnsBrute(multiprocessing.Process):
 			log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
-				self.result.append(["",domain,ip,LEVEL.info,"","",""])
+				self.result.append(["",domain,ip,"",LEVEL.info,"","",""])
 
 
 	def saveResult(self):
 		dbcon = DBManage()
 
-		sqlCmdP = "insert into tmp_host(url,ip,level,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
+		sqlCmdP = "insert into tmp_host(title,url,ip,protocol,level,os,server_info,middleware,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
 
 		for i in self.result:
-			sqlCmd = sqlCmdP.format(i[1],i[2],i[3],"dnsbrute",self.projectID)
+			sqlCmd = sqlCmdP.format(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],"dnsbrute",self.projectID)
 			log.debug(sqlCmd)
 			dbcon.sql(sqlCmd)
 

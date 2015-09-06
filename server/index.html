@@ -325,49 +325,59 @@
                     <div class="modal-body">
                         <form class="form-horizontal" id="wip-modal-form-host">
                             <div class="form-group" hidden>
-                                <label for="wip-modal-host-id" class="col-md-2 control-label">ID:</label>
+                                <label for="wip-modal-form-host-id" class="col-md-2 control-label">ID:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-id" name="id" type="text" class="form-control" placeholder="">
                                 </div>
                             </div>
                             <div class="form-group has-error">
-                                <label for="wip-modal-host-url" class="col-md-2 control-label">URL:</label>
+                                <label for="wip-modal-form-host-url" class="col-md-2 control-label">URL:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-url" name="url" type="text" class="form-control" placeholder="xxx.com">
                                 </div>
                             </div>
                             <div class="form-group has-error">
-                                <label for="wip-modal-host-ip" class="col-md-2 control-label">IP地址:</label>
+                                <label for="wip-modal-form-host-ip" class="col-md-2 control-label">IP地址:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-ip" name="ip" type="text" class="form-control" placeholder="10.1.15.163">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-modal-host-title" class="col-md-2 control-label">Title:</label>
+                                <label for="wip-modal-form-host-title" class="col-md-2 control-label">Title:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-title" name="title" type="text" class="form-control" placeholder="xxx网站">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-modal-host-os" class="col-md-2 control-label">OS信息:</label>
+                                <label for="wip-modal-form-host-protocol" class="col-md-2 control-label">协议类型:</label>
+                                <div class="col-md-10">
+                                    <select class="form-control" name="protocol" >
+                                        <option value="1">http</option>
+                                        <option value="2">https</option>
+                                        <option value="3">ftp</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="wip-modal-form-host-os" class="col-md-2 control-label">OS信息:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-os" name="os" type="text" class="form-control" placeholder="windows server 2008">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-modal-host-server" class="col-md-2 control-label">服务信息:</label>
+                                <label for="wip-modal-form-host-server" class="col-md-2 control-label">服务信息:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-server_info" name="serverinfo" type="text" class="form-control" placeholder="Apache 2.6.3">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-modal-host-frame" class="col-md-2 control-label">中间件:</label>
+                                <label for="wip-modal-form-host-frame" class="col-md-2 control-label">中间件:</label>
                                 <div class="col-md-10">
                                     <input id="wip-modal-form-host-middleware" name="middleware" type="text" class="form-control" placeholder="java struts">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="wip-modal-host-description" class="col-md-2 control-label">描述:</label>
+                                <label for="wip-modal-form-host-description" class="col-md-2 control-label">描述:</label>
                                 <div class="col-md-10">
                                     <textarea id="wip-modal-form-host-description" name="description" class="form-control" rows="3"></textarea>
                                 </div>

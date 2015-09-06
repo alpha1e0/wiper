@@ -128,7 +128,7 @@ $(document).ready(function() {
     $("#wip-button-host-urlsort").click(function(){listHost("url");});
 
     //绑定与vul、comment相关操作的事件
-    //$("#wip-button-host-list").click(clickHost);
+    $("#wip-button-host-list").click(listHostDetail);
     $("#wip-button-vul-list").click(function(){listVul();});
     $("#wip-button-comment-list").click(function(){listComment();});
     $("#wip-button-vul-refresh").click(refreshHost);
@@ -383,13 +383,52 @@ function listHost(orderby="level"){
 	});
 }
 
+function listHostDetail(){
+	var host = current.getHost()
+	if(!host) {
+		alert("请先选择Host!");
+		return
+	}
+
+	function addHostDetailItem(name, value, type=0){
+		if(type==0){
+			$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		} else {
+			var typeList = ["http","https","ftp"];
+			var url = typeList[type-1]+"://"+value;
+			var a = $("<a></a>").attr("href", url).attr("target","_blank").text(url);
+			$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), a));
+		}		
+	}
+
+	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
+	levelList = ["关键","重要","一般","提示"];
+
+	addHostDetailItem("Title", host.title);
+	addHostDetailItem("URL地址", host.url, host.protocol);
+	addHostDetailItem("IP地址", host.ip, host.protocol);
+	addHostDetailItem("等级", levelList[host.level-1]);
+	addHostDetailItem("OS信息", host.os);
+	addHostDetailItem("Server信息", host.server_info);
+	addHostDetailItem("中间件", host.middleware);
+	addHostDetailItem("描述", host.description);
+}
+
 function clickHost(){
 	if(!current.getProject()) {
 		alert("请先选择project!");
 		return
 	}
-	function addHostDetailItem(name, value){
-		$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+	function addHostDetailItem(name, value, type=0){
+		if(type==0){
+			$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value));
+		} else {
+			var typeList = ["http","https","ftp"];
+			var url = typeList[type-1]+"://"+value;
+			var a = $("<a></a>").attr("href", url).attr("target","_blank").text(url);
+			$("#wip-vul-comment-list").append($("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), a));
+		}		
 	}
 
 	var id = $(this).attr('id').substring(12);
@@ -404,8 +443,8 @@ function clickHost(){
 	$.getJSON("/gethostdetail?id="+id, function(result){
 		current.setHost(result[0]);
 		addHostDetailItem("Title", result[0].title);
-		addHostDetailItem("URL地址", result[0].url);
-		addHostDetailItem("IP地址", result[0].ip);
+		addHostDetailItem("URL地址", result[0].url, result[0].protocol);
+		addHostDetailItem("IP地址", result[0].ip, result[0].protocol);
 		addHostDetailItem("等级", levelList[result[0].level-1]);
 		addHostDetailItem("OS信息", result[0].os);
 		addHostDetailItem("Server信息", result[0].server_info);

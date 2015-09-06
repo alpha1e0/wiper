@@ -194,7 +194,7 @@ class HostDetail:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query host detail failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ('id','title','url','ip','level','os','server_info','middleware','description','project_id'))
+				return core.queryResultToJson(result, ('id','title','url','ip','protocol','level','os','server_info','middleware','description','project_id'))
 
 
 class HostAdd:
@@ -204,10 +204,11 @@ class HostAdd:
 			("url","url",""),
 			("ip","ip",""),
 			("title","string","1-200"),
+			("protocol","integer","1-20"),
 			("level","integer","1-4"),
-			("os","string","1-150"),
-			("serverinfo","string","1-150"),
-			("middleware","string","1-200"),
+			("os","string","0-150"),
+			("serverinfo","string","0-150"),
+			("middleware","string","0-200"),
 			("description","text",""),
 			("projectid","integer","0-0")
 		)
@@ -216,8 +217,8 @@ class HostAdd:
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-			sqlCmd = "insert into host(url,ip,title,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
-				,'{2}','{3}','{4}','{5}','{6}','{7}','{8}')".format(param.url,param.ip,param.title,param.level,\
+			sqlCmd = "insert into host(url,ip,title,protocol,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
+				,'{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}')".format(param.url,param.ip,param.title,param.protocol,param.level,\
 				param.os,param.serverinfo,param.middleware,param.description,param.projectid)
 			with SQLExec(sqlCmd) as (status,result):
 				if not status[0]:
@@ -248,10 +249,11 @@ class HostModify:
 			("url","url",""),
 			("ip","ip",""),
 			("title","string","1-200"),
+			("protocol","integer","1-20"),
 			("level","integer","1-4"),
-			("os","string","1-150"),
-			("serverinfo","string","1-150"),
-			("middleware","string","1-200"),
+			("os","string","0-150"),
+			("serverinfo","string","0-150"),
+			("middleware","string","0-200"),
 			("description","text",""),
 			("id","integer","0-0")
 		)
@@ -260,8 +262,8 @@ class HostModify:
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-			sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}' \
-				where id={8}".format(param.url,param.ip,param.title,param.level,param.os,param.serverinfo,param.middleware,param.description,param.id)
+			sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}',protocol='{8}' \
+				where id={9}".format(param.url,param.ip,param.title,param.level,param.os,param.serverinfo,param.middleware,param.description,param.protocol,param.id)
 			with SQLExec(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Modify host detail failed, reason: {0}.".format(status[1]))

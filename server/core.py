@@ -65,9 +65,9 @@ class ParamCheck:
 		self.param = {}
 		self.status = (True,"")
 
-		self.ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?)))$")
-		self.urlPattern = re.compile(r"^(?:http(s)?\://)?((?:[-0-9a-zA-Z_~!=:]+\.)+(?:[-0-9a-zA-Z_~!=:]+))", re.IGNORECASE)
-		self.emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))$", re.IGNORECASE)
+		self.ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))(?:\:\d+)?)$")
+		self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_~!=]+\.)+(?:[-0-9a-zA-Z_~!=]+)(?:\:\d+)?)")
+		self.emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))$")
 
 
 	def checkParam(self,option):
@@ -88,7 +88,7 @@ class ParamCheck:
 				if not match:
 					self.status = (False, "IP parameter '{0}' formate error!".format(option[0]))
 					return False
-				self.param[option[0]] = match.group()
+				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
 		elif option[1] == "url":
 			try:
@@ -104,7 +104,7 @@ class ParamCheck:
 				if not match:
 					self.status = (False, "URL parameter '{0}' formate error!".format(option[0]))
 					return False
-				self.param[option[0]] = match.groups()[1]
+				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
 		elif option[1] == "email":
 			try:
@@ -120,7 +120,7 @@ class ParamCheck:
 				if not match:
 					self.status = (False, "Email parameter '{0}' formate error!".format(option[0]))
 					return False
-				self.param[option[0]] = match.group()
+				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
 		elif option[1] == "string":
 			try:
