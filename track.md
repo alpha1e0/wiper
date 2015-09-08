@@ -13,15 +13,20 @@
 	C段扫描、
 	域传送、
 	googlehacking、
-	http ping（需要能够区分http、https），自动获取网站title
+	http 指纹检测：区分http、https，自动获取网站title、判断服务器类型、操作系统类型、中间件检测、
 	获取host操作系统、web服务器等信息
+
+	备份、打包文件检测
+	fckedit、ewebedit等检测
+	CMS检测
+	CMS hacking
 
 2、客户端参数校验
 
 3、数据库相关
 
 	数据库使用脚本创建
-	支持sqlite数据库
+	** 支持sqlite数据库
 
 4、安装脚本编写
 	
