@@ -1,5 +1,8 @@
 #configuration file, plese change the file name to "app.config".
 [db]
+db_type = mysql
 db_host = localhost
+db_port = 3306
 db_user = root
-db_password = 86@shiyan
+db_password = pass
+db_name = wip

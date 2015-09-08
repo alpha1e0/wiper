@@ -10,6 +10,8 @@ See the file COPYING for copying detail
 import sys
 import os
 import time
+import json
+
 import web
 
 import core
@@ -578,7 +580,7 @@ class AttachmentAdd:
 
 #		return True
 
-#=================================处理autotask表相关的代码=========================================
+#=================================处理domainseek表相关的代码=========================================
 
 class TaskResultList:
 	def GET(self):

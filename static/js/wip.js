@@ -144,8 +144,8 @@ $(document).ready(function() {
     $("#wip-button-attachment-add").click(addAttachment);
 
     //绑定与auto task相关操作的事件
-    $("#wip-tab-button-autotask").click(configTasks);
-    $("#wip-autotask-button-show-taskresult").click(listTaskResult);
+    $("#wip-tab-button-domainseek").click(configTasks);
+    $("#wip-domainseek-button-show-taskresult").click(listTaskResult);
 });
 
 /******************************************************************************************************
@@ -807,12 +807,12 @@ function configDnsbruteTask(){
             alert("上传失败!");
         }
     };
-    $("#wip-form-autotask-dnsbrute-dictadd").ajaxForm(options);	
+    $("#wip-form-domainseek-dnsbrute-dictadd").ajaxForm(options);	
 
-	$("#wip-form-autotask-dnsbrute-dictselect").empty()
+	$("#wip-form-domainseek-dnsbrute-dictselect").empty()
 	$.getJSON("/getdictlist", function(result){
         $.each(result, function(i, value){
-            $("#wip-form-autotask-dnsbrute-dictselect").append($("<option></option>").val(value).text(value));
+            $("#wip-form-domainseek-dnsbrute-dictselect").append($("<option></option>").val(value).text(value));
         });
     });
     var options = {
@@ -836,27 +836,27 @@ function configDnsbruteTask(){
             alert("提交失败，失败原因："+xhr.responseText);
         }
     };
-    $("#wip-form-autotask-dnsbrute-start").ajaxForm(options);
+    $("#wip-form-domainseek-dnsbrute-start").ajaxForm(options);
 }
 
 function configSubnetscanTask(){}
 
 function listTaskResult(){
 	if(!current.getProject()){
-		$("#wip-autotask-task-result-list").empty()
+		$("#wip-domainseek-task-result-list").empty()
 		return false;
 	}
 	function addTaskItem(id, url, ip, level, source){
 		levelList = ["关键","重要","一般","提示"];
-		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-autotask-task-reuslt"+id);
+		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-domainseek-task-reuslt"+id);
 		sourceSpan = $("<span></span>").text("来源："+source+" | "+"等级："+levelList[level-1]);
 		urlA = $("<a></a>").text(" | URL: "+url).attr("href","http://"+url).attr("target","url_"+id);
 		ipA = $("<a></a>").text(" | IP: "+ip).attr("href","http://"+ip).attr("target","ip_"+id);
 		allDiv.append(sourceSpan,urlA,ipA);
-		$("#wip-autotask-task-result-list").append(allDiv);
+		$("#wip-domainseek-task-result-list").append(allDiv);
 	}
 
-	$("#wip-autotask-task-result-list").empty()
+	$("#wip-domainseek-task-result-list").empty()
 	$.getJSON("/gettaskresult?projectid="+current.getProject().id, function(result){
         $.each(result, function(i, value){
             addTaskItem(value.id, value.url, value.ip, value.level, value.source);

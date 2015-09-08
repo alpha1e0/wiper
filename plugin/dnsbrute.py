@@ -15,10 +15,8 @@ import re
 from plugin.lib.tools import readList
 from plugin.hostscan import HostScan
 from init import log
-from init import Enum
 from dbman.dbmanage import DBManage
 
-LEVEL = Enum(info=4,common=3,important=2,critical=1)
 
 class DnsBrute(multiprocessing.Process):
 	'''
@@ -59,7 +57,7 @@ class DnsBrute(multiprocessing.Process):
 				log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:
-					self.result.append(["",domain,ip,"",LEVEL.info,"","",""])
+					self.result.append(["",domain,ip,"","","","",""])
 
 
 	def bruteTopDomain(self):
@@ -69,7 +67,7 @@ class DnsBrute(multiprocessing.Process):
 			log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
-				self.result.append(["",domain,ip,"",LEVEL.info,"","",""])
+				self.result.append(["",domain,ip,"","","","",""])
 
 
 	def saveResult(self):

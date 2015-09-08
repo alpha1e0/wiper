@@ -49,6 +49,7 @@ class Conf:
         try:
             cf.read(os.path.join("app.config"))
             self.dbhost = cf.get("db", "db_host")
+            self.dbport = cf.get("db", "db_port")
             self.dbuser = cf.get("db", "db_user")
             self.dbpassword = cf.get("db", "db_password")
             self.dbname = cf.get("db", "db_name")

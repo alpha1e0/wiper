@@ -18,9 +18,10 @@
             <nav class="navbar navbar-inverse">
                 <div id="navbar" class="navbar-collapse collapse">
                   <ul class="nav navbar-nav">
-                    <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目</a></li>
+                    <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目列表</a></li>
                     <li><a href="#wip-tab-project-detail" id="wip-tab-button-detail" data-toggle="tab">项目详情</a></li>
-                    <li><a href="#wip-tab-auto-task" id="wip-tab-button-autotask" data-toggle="tab">自动化</a></li>
+                    <li><a href="#wip-tab-auto-task" id="wip-tab-button-domainseek" data-toggle="tab">子域收集</a></li>
+                    <li><a href="#wip-tab-auto-task" id="wip-tab-button-vulscan" data-toggle="tab">弱点扫描</a></li>
                     <form class="navbar-form navbar-left" role="search">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Search">
@@ -171,70 +172,70 @@
                 <div id="wip-tab-auto-task" class="tab-pane row-fluid">
                     <div class="col-md-5">
                         <div class="btn-group">
-                            <button id="wip-autotask-button-show-task" type="button" class="btn btn-success">可用功能</button>
+                            <button id="wip-domainseek-button-show-task" type="button" class="btn btn-success">可用功能</button>
                         </div>
                         <hr />
-                        <div id="wip-autotask-task-list">
-                            <div class="list-group-item" id="wip-autotask-task-zonetrans">
+                        <div id="wip-domainseek-task-list">
+                            <div class="list-group-item" id="wip-domainseek-task-zonetrans">
                                 <h4><span class="label label-info">域传送漏洞检测利用:</span></h4>
-                                <form class="form-inline" id="wip-form-autotask-zonetrans">
+                                <form class="form-inline" id="wip-form-domainseek-zonetrans">
                                     <div class="form-group" style="width:85%;">
-                                        <label class="sr-only" for="wip-form-autotask-zonetrans-url">URL</label>
+                                        <label class="sr-only" for="wip-form-domainseek-zonetrans-url">URL</label>
                                         <div class="input-group" style="width:100%;">
                                             <span class="input-group-addon" style="width:15%;">Domain:</span>
-                                            <input type="text" name="domain" class="form-control" id="wip-form-autotask-zonetrans-url" placeholder="ddd.com">
+                                            <input type="text" name="domain" class="form-control" id="wip-form-domainseek-zonetrans-url" placeholder="ddd.com">
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-default">开始</button>
                                 </form>
                             </div>
-                            <div class="list-group-item" id="wip-autotask-task-googlehacking">
+                            <div class="list-group-item" id="wip-domainseek-task-googlehacking">
                                 <h4><span class="label label-info">Google Hacking:</span></h4>
-                                <form class="form-inline" id="wip-form-autotask-googlehacking">
+                                <form class="form-inline" id="wip-form-domainseek-googlehacking">
                                     <div class="form-group" style="width:85%;">
-                                        <label class="sr-only" for="wip-form-autotask-googlehacking-url">URL</label>
+                                        <label class="sr-only" for="wip-form-domainseek-googlehacking-url">URL</label>
                                         <div class="input-group" style="width:100%;">
                                             <span class="input-group-addon" style="width:15%;">http://</span>
-                                            <input type="text" name="url" class="form-control" id="wip-form-autotask-googlehacking-url" placeholder="ddd.com">
+                                            <input type="text" name="url" class="form-control" id="wip-form-domainseek-googlehacking-url" placeholder="ddd.com">
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-default">开始</button>
                                 </form>
                             </div>
-                            <div class="list-group-item" id="wip-autotask-task-dnsbrute">
+                            <div class="list-group-item" id="wip-domainseek-task-dnsbrute">
                                 <h4><span class="label label-info">DNS爆破:</span></h4>
-                                <form class="form-inline" id="wip-form-autotask-dnsbrute-dictadd">
+                                <form class="form-inline" id="wip-form-domainseek-dnsbrute-dictadd">
                                     <div class="form-group">
-                                        <!--<label class="sr-only" for="wip-form-autotask-dnsbrute-url">选择字典文件：</label>-->
+                                        <!--<label class="sr-only" for="wip-form-domainseek-dnsbrute-url">选择字典文件：</label>-->
                                         <input type="file" name="dictfile">
                                     </div>
                                     <button type="submit" class="btn btn-default">上传字典</button>
                                 </form>
                                 <hr />
-                                <form class="form" id="wip-form-autotask-dnsbrute-start">
+                                <form class="form" id="wip-form-domainseek-dnsbrute-start">
                                     <div class="form-group">
                                         <label class="control-label">选择字典:</label>
-                                        <select id="wip-form-autotask-dnsbrute-dictselect" class="form-control" name="dictlist" multiple="multiple">
+                                        <select id="wip-form-domainseek-dnsbrute-dictselect" class="form-control" name="dictlist" multiple="multiple">
                                             <option value="1">溢出漏洞溢出漏洞溢出漏洞</option>
                                             <option value="2">注入漏洞</option>
                                         </select>
-                                        <label class="sr-only" for="wip-form-autotask-dnsbrute-url">URL</label>
+                                        <label class="sr-only" for="wip-form-domainseek-dnsbrute-url">URL</label>
                                         <div class="input-group">
                                             <span class="input-group-addon">http://</span>
-                                            <input type="text" name="url" class="form-control" id="wip-form-autotask-dnsbrute-url" placeholder="ddd.com">
+                                            <input type="text" name="url" class="form-control" id="wip-form-domainseek-dnsbrute-url" placeholder="ddd.com">
                                         </div>
                                     </div>                                    
                                     <button type="submit" class="btn btn-default">开始爆破</button>
                                 </form>
                             </div>
-                            <div class="list-group-item" id="wip-autotask-task-subnetscan">
+                            <div class="list-group-item" id="wip-domainseek-task-subnetscan">
                                 <h4><span class="label label-info">C段扫描:</span></h4>
-                                <form class="form-inline" id="wip-form-autotask-subnetscan">
+                                <form class="form-inline" id="wip-form-domainseek-subnetscan">
                                     <div class="form-group" style="width:80%;">
-                                        <label class="sr-only" for="wip-form-autotask-subnetscan-url">URL</label>
+                                        <label class="sr-only" for="wip-form-domainseek-subnetscan-url">URL</label>
                                         <div class="input-group" style="width:100%;">
                                             <span class="input-group-addon" style="width:10%;">IP:</span>
-                                            <input type="text" name="url" class="form-control" id="wip-form-autotask-subnetscan-url" placeholder="1.1.1.1">
+                                            <input type="text" name="url" class="form-control" id="wip-form-domainseek-subnetscan-url" placeholder="1.1.1.1">
                                         </div>
                                     </div>
                                     <button type="submit" class="btn btn-default">开始扫描</button>
@@ -244,10 +245,10 @@
                     </div>
                     <div class="col-md-6">
                         <div class="btn-group">
-                            <button id="wip-autotask-button-show-taskresult" type="button" class="btn btn-success">任务结果</button>
+                            <button id="wip-domainseek-button-show-taskresult" type="button" class="btn btn-success">任务结果</button>
                         </div>
                         <hr />
-                        <div id="wip-autotask-task-result-list">
+                        <div id="wip-domainseek-task-result-list">
                             <div class="list-group">
                             </div>
                         </div>
