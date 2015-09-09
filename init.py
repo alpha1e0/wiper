@@ -53,6 +53,9 @@ class Conf:
             self.dbuser = cf.get("db", "db_user")
             self.dbpassword = cf.get("db", "db_password")
             self.dbname = cf.get("db", "db_name")
+
+            self.dnsServers = [x.strip() for x in cf.get("dns", "servers").split()]
+            self.dnsTimeout = float(cf.get("dns", "timeout"))
         except ConfigParser.Error as msg:
             log.error("Read configure file failed, reason:{0}!".format(msg))
             exit(1)

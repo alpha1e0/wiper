@@ -44,7 +44,8 @@ mysqlCmdList.append('''create table host (
     server_info varchar(150),
     middleware varchar(200), 
     description text, 
-    project_id integer not null, 
+    project_id integer not null,
+    unique key ipurl (ip, url),
     primary key (id),
     constraint project_id_host foreign key (project_id) references project (id)
 ) engine=InnoDB  default charset=utf8;''')
