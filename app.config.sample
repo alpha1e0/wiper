@@ -9,4 +9,4 @@ db_name = wip
 
 [dns]
 servers = 223.5.5.5 8.8.4.4
-timeout = 3
+timeout = 4
