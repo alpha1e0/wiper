@@ -25,19 +25,19 @@ def stripSlashes(str):
 def queryResultStripSlashes(qureryList):
 	for line in qureryList:
 		for index,value in enumerate(line):
-			if type(value) == str:
-				line[index] = stripSlashes(value)
+			if type(value[1]) == str:
+				line[index] = (value[0],stripSlashes(value[1]))
 	return qureryList
 
-def queryResultToJson(queryResult,nameList):
+def queryResultToJson(queryResult):
 	result = queryResultStripSlashes(queryResult)
-	result = [zip(nameList,line) for line in result]
+	#result = [zip(nameList,line) for line in result]
 	result = [dict(line) for line in result]
 
 	return json.dumps(result)
 
 
-class ParamCheck:
+class ParamCheck(object):
 	'''
 	Description : Check param.
 	Usage : ParamCheck(param, optinos)

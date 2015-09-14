@@ -25,7 +25,7 @@ def readList(fileName):
 					yield line.strip()
 
 
-class DnsResolver:
+class DnsResolver(object):
 	'''
 	Dns operation
 	'''

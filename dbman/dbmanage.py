@@ -296,8 +296,11 @@ class DBManage(object):
         except mdb.MySQLError as msg:
             log.error("Execute sql cmmmand {0} failed, reason is {1}".format(sqlcmd, msg))
             return ((False, msg), False)
+
+        nameList = [x[0] for x in self.cur.description]
+        result = [zip(nameList,x) for x in self.cur.fetchall()]
             
-        return ((True, ""), self.cur.fetchall())
+        return ((True, ""), result)
 
 
     def close(self):

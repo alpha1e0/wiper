@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 
 
-class HostScan:
+class HostScan(object):
 	'''
 	Scanner module, include hostscan, portscan, httpscan
 	'''

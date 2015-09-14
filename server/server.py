@@ -14,7 +14,7 @@ import json
 
 import web
 
-import core
+import lib
 from dbman.dbmanage import DBManage,SQLQuery,SQLExec
 from plugin.dnsbrute import DnsBrute
 from init import log
@@ -57,7 +57,7 @@ def startServer():
 
 class Index:
 	def GET(self):
-		index = web.template.frender('server/index.html')
+		index = web.template.frender('server/view/index.html')
 
 		return index()
 
@@ -70,7 +70,7 @@ class ProjectList:
 		with SQLQuery(sqlCmd) as (status,result):
 			if not status[0]:
 				raise web.internalerror("Query project failed, reason: {0}.".format(status[1]))
-			return core.queryResultToJson(result, ("id","name"))
+			return lib.queryResultToJson(result)
 
 
 class ProjectDetail:
@@ -80,21 +80,20 @@ class ProjectDetail:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
 			sqlCmd = "select * from project where id={0}".format(param.id)
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
-					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))
-				
+					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))				
 				if result:
 					result = list(result)
 					result[0] = list(result[0])
-					result[0][5] = result[0][5].strftime("%Y-%m-%d %H:%M:%S")
-				nameList = ('id','name','url','ip','whois','ctime','description')
-				return core.queryResultToJson(result, nameList)
+					print result[0]
+					result[0][5] = (result[0][5][0], result[0][5][1].strftime("%Y-%m-%d %H:%M:%S"))				
+				return lib.queryResultToJson(result)
 
 
 class ProjectAdd:
@@ -108,7 +107,7 @@ class ProjectAdd:
 			("description","text","")
 		)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -125,7 +124,7 @@ class ProjectDelete:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
@@ -148,7 +147,7 @@ class ProjectModify:
 			("id","integer","0-0")
 		)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))		
 			sqlCmd = "update project set name='{0}',url='{1}',ip='{2}',whois='{3}',description='{4}' where id={5}".format(\
@@ -170,7 +169,7 @@ class HostList:
 			("orderby","string","1-20")
 		)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
@@ -178,7 +177,7 @@ class HostList:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query host failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ("id","title","url","ip"))
+				return lib.queryResultToJson(result)
 
 
 class HostDetail:
@@ -188,7 +187,7 @@ class HostDetail:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -196,7 +195,7 @@ class HostDetail:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query host detail failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ('id','title','url','ip','protocol','level','os','server_info','middleware','description','project_id'))
+				return lib.queryResultToJson(result)
 
 
 class HostAdd:
@@ -215,7 +214,7 @@ class HostAdd:
 			("projectid","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -233,7 +232,7 @@ class HostDelete:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -260,7 +259,7 @@ class HostModify:
 			("id","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -284,7 +283,7 @@ class VulList:
 			("orderby","string","1-20")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -292,7 +291,7 @@ class VulList:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query vul failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ("id","name"))
+				return lib.queryResultToJson(result)
 
 
 class VulDetail:
@@ -302,7 +301,7 @@ class VulDetail:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
@@ -310,7 +309,7 @@ class VulDetail:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query vul detail failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ('id','name','url','info','type','level','description','host_id'))
+				return lib.queryResultToJson(result)
 
 
 class VulAdd:
@@ -326,7 +325,7 @@ class VulAdd:
 			("hostid","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -343,7 +342,7 @@ class VulDelete:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -367,7 +366,7 @@ class VulModify:
 			("id","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 			
@@ -391,7 +390,7 @@ class CommentList:
 			("orderby","string","1-20")
 		)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -399,7 +398,7 @@ class CommentList:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query comment failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ("id","name"))
+				return lib.queryResultToJson(result)
 
 
 class CommentDetail:
@@ -409,7 +408,7 @@ class CommentDetail:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 		
@@ -417,7 +416,7 @@ class CommentDetail:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ('id','name','url','info','level','attachment','description','host_id'))
+				return lib.queryResultToJson(result)
 
 
 class CommentAdd:
@@ -433,7 +432,7 @@ class CommentAdd:
 			("hostid","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -450,7 +449,7 @@ class CommentDelete:
 		originParam = web.input()
 		options = (("id","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -484,7 +483,7 @@ class CommentModify:
 			("id","integer","0-0")
 		)
 		
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -511,7 +510,7 @@ class AttachmentAdd:
 			("value","text","")
 		)
 			
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -589,7 +588,7 @@ class TaskResultList:
 		originParam = web.input()
 		options = (("projectid","integer","0-0"),)
 
-		with core.ParamCheck(originParam, options) as (status,param):
+		with lib.ParamCheck(originParam, options) as (status,param):
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
@@ -597,7 +596,7 @@ class TaskResultList:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query task result failed, reason: {0}.".format(status[1]))
-				return core.queryResultToJson(result, ("id","url","ip","level","source"))
+				return lib.queryResultToJson(result)
 
 
 class DictAdd:
