@@ -17,17 +17,11 @@ import dns.exception
 from init import conf
 
 
-def readList(fileName):
-	if os.path.exists(fileName):
-		with open(fileName, "r") as fd:
-			for line in fd:
-				if line[0]!="#" and line!="":
-					yield line.strip()
-
 
 class DnsResolver(object):
 	'''
-	Dns operation
+	Dns operation.
+	The records format is [domain, value, type]
 	'''
 	def __init__(self, domain):
 		self.domain = domain
@@ -144,5 +138,7 @@ class DnsResolver(object):
 			self.records += self.getRecords(t)
 
 		self.records += self.getZoneRecords()
+
+		return self.records
 
 

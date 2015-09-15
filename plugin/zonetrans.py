@@ -10,10 +10,19 @@ See the file COPYING for copying detail
 import multiprocessing
 
 from init import log
-from dbman.dbmanage import DBManage
+from plugin.lib.dnsresolve import DnsResolver
 
 
 class ZoneTrans(multiprocessing.Process):
 	'''
 	Find and use DNS zone transfer vulnerability.
 	'''
+
+	def __init__(self, domain, projectID):
+		multiprocessing.Process.__init__(self)
+
+		self.domain = domain
+		self.projectID = projectID
+
+	def run(self):
+		pass

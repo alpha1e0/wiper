@@ -12,10 +12,11 @@ import socket
 import multiprocessing
 import re
 
-from plugin.lib.tools import readList
-from plugin.hostscan import HostScan
+from plugin.lib.dictparse import readDict
+from plugin.lib.httpidentify import HTTPIdentify
+from plugin.lib.datasave import DataSaver
 from init import log
-from dbman.dbmanage import DBManage
+
 
 
 class DnsBrute(multiprocessing.Process):
@@ -24,9 +25,9 @@ class DnsBrute(multiprocessing.Process):
 	'''
 	def __init__(self, url, projectID, dictlist):
 		multiprocessing.Process.__init__(self)
-		log.debug("init here")
+		#log.debug("init here")
 		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_~!=:]+\.)+(?:[-0-9a-zA-Z_~!=:]+))")
-		self.domain = urlPattern.match(url.strip()).group()
+		self.domain = urlPattern.match(url.strip()).groups()[0]
 		self.projectID = projectID
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",f) for f in dictlist]
 		self.result = []
@@ -38,7 +39,7 @@ class DnsBrute(multiprocessing.Process):
 		pos = self.domain.find("www.")
 		self.domain = self.domain if pos==-1 else self.domain[pos+4:]
 
-		log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
+		#log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
 
 
 	def checkDomain(self, domain):
@@ -52,40 +53,33 @@ class DnsBrute(multiprocessing.Process):
 
 	def bruteSubDomain(self):
 		for dlist in self.dictlist:
-			for line in readList(dlist):
+			for line in readDict(dlist):
 				domain = line + "." + self.domain
 				log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:
-					self.result.append(["",domain,ip,"","","","",""])
+					self.result.append([domain,ip])
 
 
 	def bruteTopDomain(self):
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
-		for line in readList(dlist):
+		for line in readDict(dlist):
 			domain = self.partDomain + "." + line
 			log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
-				self.result.append(["",domain,ip,"","","","",""])
-
-
-	def saveResult(self):
-		dbcon = DBManage()
-
-		sqlCmdP = "insert into tmp_host(title,url,ip,protocol,level,os,server_info,middleware,source,project_id) values('{0}', '{1}', '{2}', '{3}', '{4}')"
-
-		for i in self.result:
-			sqlCmd = sqlCmdP.format(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],"dnsbrute",self.projectID)
-			log.debug(sqlCmd)
-			dbcon.sql(sqlCmd)
+				self.result.append([domain,ip])
 
 
 	def run(self):
 		self.bruteTopDomain()
 		self.bruteSubDomain()
-		self.result = HostScanner.getHttpHosts(self.result)
-		self.saveResult()
+
+		httpI = HTTPIdentify()
+		hosts = httpI.identify(self.result)
+
+		dataSaver = DataSaver()
+		dataSaver.saveHosts(hosts,self.projectID)
 
 
 

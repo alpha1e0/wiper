@@ -145,58 +145,6 @@ def resetDatabase(dbname, dbhost, dbuser, dbpass, dbport=3306, dbtype="mysql"):
 
 
 
-
-def createDatabase(dbname, dbhost, dbuser, dbpass, dbport=3306, dbtype="mysql"):
-    if dbtype == "mysql":
-        try:
-            con = mdb.connect(host=dbhost, user=dbuser, passwd=dbpassword, port=dbport, charset='utf8')
-            cur = con.cursor()
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-        try:
-            cur.execute(mysqlCmdList[1].format(dbname))
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-        con.select_db(dbname)
-
-        try:
-            for cmd in mysqlCmdList[2:]:
-                cur.execute(cmd)
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-def resetDatabase(dbname, dbhost, dbuser, dbpass, dbport=3306, dbtype="mysql"):
-    if dbtype == "mysql":
-        try:
-            con = mdb.connect(host=dbhost, user=dbuser, passwd=dbpassword, port=dbport, charset='utf8')
-            cur = con.cursor()
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-        try:
-            cur.execute(mysqlCmdList[0].format(dbname))
-            cur.execute(mysqlCmdList[1].format(dbname))
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-        con.select_db(dbname)
-
-        try:
-            for cmd in mysqlCmdList[2:]:
-                cur.execute(cmd)
-        except mdb.Error as msg:
-            print msg
-            exit(1)
-
-
-
 class DBManage(object):
     '''
     Manage the information database.
@@ -306,6 +254,12 @@ class DBManage(object):
     def close(self):
         if self.con:
             self.con.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.close()
 
 
 class SQLQuery:

@@ -543,41 +543,6 @@ class AttachmentAdd:
 					raise web.internalerror("Add attachment comment failed, reason: {0}.".format(status[1]))
 				return True
 
-#		hostID = param.hostid
-#		attachName = param.name
-#		#attachFilename = param['attachment'].filename
-#		attachFilename = param.attachment.filename#
-
-#		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
-#		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)#
-
-#		if attachName != "":
-#			attachType = os.path.splitext(attachFilename)[-1]
-#			fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
-#		else:
-#			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)#
-
-#		fileNameFull = os.path.join("static","attachment",fileName)#
-
-#		sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-#			,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)#
-
-#		try:
-#			fd = open(fileNameFull, "wb")
-#			#fd.write(param['attachment'].value)
-#			fd.write(param.attachment.value)
-#		except IOError as msg:
-#			raise web.internalerror('Add attachment failed!')
-#		finally:
-#			fd.close()#
-
-#		dbcon = DBManage()
-#		if not dbcon.sql(sqlCmd):
-#			if os.path.exists(fileNameFull):
-#				os.remove(fileNameFull)
-#			raise web.internalerror('Add attachment comment failed!')#
-
-#		return True
 
 #=================================处理domainseek表相关的代码=========================================
 

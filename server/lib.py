@@ -86,7 +86,7 @@ class ParamCheck(object):
 			else:
 				match = self.ipPattern.match(value)
 				if not match:
-					self.status = (False, "IP parameter '{0}' formate error!".format(option[0]))
+					self.status = (False, "IP parameter '{0}' format error!".format(option[0]))
 					return False
 				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
@@ -102,7 +102,7 @@ class ParamCheck(object):
 			else:
 				match = self.urlPattern.match(value)
 				if not match:
-					self.status = (False, "URL parameter '{0}' formate error!".format(option[0]))
+					self.status = (False, "URL parameter '{0}' format error!".format(option[0]))
 					return False
 				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
@@ -118,7 +118,7 @@ class ParamCheck(object):
 			else:
 				match = self.emailPattern.match(value)
 				if not match:
-					self.status = (False, "Email parameter '{0}' formate error!".format(option[0]))
+					self.status = (False, "Email parameter '{0}' format error!".format(option[0]))
 					return False
 				self.param[option[0]] = match.groups()[0]
 				self.status = (True, "")
@@ -132,7 +132,7 @@ class ParamCheck(object):
 				try:
 					l,g=[int(x) for x in option[2].split("-")]
 				except ValueError:
-					self.status = (False, "Option string-range formate error '{0}'!".format(option[2]))
+					self.status = (False, "Option string-range format error '{0}'!".format(option[2]))
 					return False
 				if len(value)>g or len(value)<l:
 					self.status = (False, "String parameter '{0}' out of range!".format(option[0]))
@@ -150,7 +150,7 @@ class ParamCheck(object):
 				return False
 			except ValueError:
 				if self.originParam[option[0]]:
-					self.status = (False, "Integer parameter '{0}' formate error!".format(option[0]))
+					self.status = (False, "Integer parameter '{0}' format error!".format(option[0]))
 					return False
 				elif option[2]:
 					self.status = (False, "Integer parameter '{0}' must not null!".format(option[0]))
@@ -163,7 +163,7 @@ class ParamCheck(object):
 				try:
 					l,g=[int(x) for x in option[2].split("-")]
 				except ValueError:
-					self.status = (False, "Option integer-range formate error '{0}'!".format(option[2]))
+					self.status = (False, "Option integer-range format error '{0}'!".format(option[2]))
 					return False
 				if l == g == 0:
 					self.param[option[0]] = str(value)
