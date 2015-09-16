@@ -8,13 +8,13 @@ See the file COPYING for copying detail
 
 
 import init
-import server.server 
-#from server.server import startServer
+
+from controller.controller import startServer
 
 
 
 if __name__ == "__main__":
-    server.server.startServer()
+    startServer()
 
 
 

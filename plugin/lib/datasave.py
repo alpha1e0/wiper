@@ -8,7 +8,7 @@ See the file COPYING for copying detail
 '''
 
 
-from dbman.dbmanage import DBManage
+from modal.dbmanage import DBManage
 
 class DataSaver(object):
 	'''

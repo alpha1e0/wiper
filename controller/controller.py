@@ -15,7 +15,7 @@ import json
 import web
 
 import lib
-from dbman.dbmanage import DBManage,SQLQuery,SQLExec
+from modal.dbmanage import DBManage,SQLQuery,SQLExec
 from plugin.dnsbrute import DnsBrute
 from init import log
 
@@ -23,6 +23,7 @@ from init import log
 def startServer():
 	urls = (
 		"/", "Index",
+		"/view/(.+)", "View",
 		"/addproject", "ProjectAdd",
 		"/listproject", "ProjectList",
 		"/getprojectdetail", "ProjectDetail",
@@ -57,9 +58,23 @@ def startServer():
 
 class Index:
 	def GET(self):
-		index = web.template.frender('server/view/index.html')
+		raise web.seeother('/view/project-list')
 
-		return index()
+
+class View:
+	def GET(self, page):
+		render = web.template.render('view')
+
+		if page == "project-list":
+			return render.projectlist()
+		elif page == "project-detail":
+			return render.projectdetail()
+		elif page == "subdomain-task":
+			return render.subdomaintask()
+		elif page == "subnet-task":
+			return render.subnettask()
+		else:
+			raise web.notfound("page not found!")
 
 # ================================处理project表相关的代码=========================================
 class ProjectList:
