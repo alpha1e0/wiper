@@ -3,6 +3,22 @@
 
 * windows系统 static/attachment/汉字识别问题，webpy解析url存在问题，当URL中有中文时，webpy没有进行utf-8之类的解码；导致附件名称不能有中文
 
+---
+
+## 备注
+
+客户端全局信息用HTML storage存储
+server改为controller，另外将view单独放到根目录
+	不同tab，对应/view/xxx，对应class View
+编写model部分
+自动化模块前端、后端整改
+	子域扫描模块，包括域传送、dnsbrute、google hacking、http识别；页面整改成类似扫描器，分一键扫描和高级设置
+	C段扫描模块，单独一个tab页面，自动聚合IP、手动添加IP，http识别；页面整改，两个框加入/删除按钮
+datasave模块整改，需要支持多进程并发访问
+init中log整改，扫描进程拥有自己的私有log
+
+
+
 
 ---
 
@@ -35,7 +51,6 @@
 
 5、其他
 	
-**host中url、ip点击打开网页**
 
 	不同level，标记不同颜色
 	添加”显示host信息“按钮
