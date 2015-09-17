@@ -23,7 +23,6 @@ from init import log
 def startServer():
 	urls = (
 		"/", "Index",
-		"/view/(.+)", "View",
 		"/addproject", "ProjectAdd",
 		"/listproject", "ProjectList",
 		"/getprojectdetail", "ProjectDetail",
@@ -58,23 +57,10 @@ def startServer():
 
 class Index:
 	def GET(self):
-		raise web.seeother('/view/projectlist')
-
-
-class View:
-	def GET(self, page):
 		render = web.template.render('view')
+		
+		return render.index()
 
-		if page == "projectlist":
-			return render.projectlist()
-		elif page == "projectdetail":
-			return render.projectdetail()
-		elif page == "subdomaintask":
-			return render.subdomaintask()
-		elif page == "subnettask":
-			return render.subnettask()
-		else:
-			raise web.notfound("Page not found!")
 
 # ================================处理project表相关的代码=========================================
 class ProjectList:
