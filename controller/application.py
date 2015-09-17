@@ -58,23 +58,23 @@ def startServer():
 
 class Index:
 	def GET(self):
-		raise web.seeother('/view/project-list')
+		raise web.seeother('/view/projectlist')
 
 
 class View:
 	def GET(self, page):
 		render = web.template.render('view')
 
-		if page == "project-list":
+		if page == "projectlist":
 			return render.projectlist()
-		elif page == "project-detail":
+		elif page == "projectdetail":
 			return render.projectdetail()
-		elif page == "subdomain-task":
+		elif page == "subdomaintask":
 			return render.subdomaintask()
-		elif page == "subnet-task":
+		elif page == "subnettask":
 			return render.subnettask()
 		else:
-			raise web.notfound("page not found!")
+			raise web.notfound("Page not found!")
 
 # ================================处理project表相关的代码=========================================
 class ProjectList:

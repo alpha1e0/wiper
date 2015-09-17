@@ -8,16 +8,9 @@ See the file COPYING for copying detail
 
 
 import init
-
-from controller.controller import startServer
+from controller.application import startServer
 
 
 
 if __name__ == "__main__":
     startServer()
-
-
-
-
-
-
