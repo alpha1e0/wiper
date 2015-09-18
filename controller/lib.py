@@ -24,15 +24,15 @@ def stripSlashes(str):
 
 def queryResultStripSlashes(qureryList):
 	for line in qureryList:
-		for index,value in enumerate(line):
-			if type(value[1]) == str:
-				line[index] = (value[0],stripSlashes(value[1]))
+		for key,value in line.items():
+			if type(value) == str:
+				line[key] = stripSlashes(value)
 	return qureryList
 
 def queryResultToJson(queryResult):
 	result = queryResultStripSlashes(queryResult)
 	#result = [zip(nameList,line) for line in result]
-	result = [dict(line) for line in result]
+	#result = [dict(line) for line in result]
 
 	return json.dumps(result)
 

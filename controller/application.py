@@ -90,10 +90,7 @@ class ProjectDetail:
 				if not status[0]:
 					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))				
 				if result:
-					result = list(result)
-					result[0] = list(result[0])
-					print result[0]
-					result[0][5] = (result[0][5][0], result[0][5][1].strftime("%Y-%m-%d %H:%M:%S"))				
+					result[0]['ctime'] = result[0]['ctime'].strftime("%Y-%m-%d %H:%M:%S")			
 				return lib.queryResultToJson(result)
 
 
@@ -458,9 +455,11 @@ class CommentDelete:
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
-				attachment = result[0][0]
+				#print result
+				attachment = result[0]['attachment']
 				#print attachment
 				if attachment != "":
+					log.debug(attachment)
 					if os.path.exists(os.path.join("static","attachment",attachment)):
 						os.remove(os.path.join("static","attachment",attachment))
 		

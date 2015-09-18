@@ -225,6 +225,7 @@ class DBManage(object):
     def find(self, sqlcmd):
         '''
         Query database.
+        Returns a list of qurery data with type dict. Such as [{'id':1,'name':'hah'},{'id':2,'name':'wa'}]
         '''
         try:
             self.cur.execute(sqlcmd)
@@ -246,7 +247,7 @@ class DBManage(object):
             return ((False, msg), False)
 
         nameList = [x[0] for x in self.cur.description]
-        result = [zip(nameList,x) for x in self.cur.fetchall()]
+        result = [dict(zip(nameList,x)) for x in self.cur.fetchall()]
             
         return ((True, ""), result)
 

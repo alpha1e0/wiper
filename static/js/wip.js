@@ -114,34 +114,34 @@ $(document).ready(function() {
     listProject();
     //绑定与project相关操作的事件
     $("#wip-button-project-add").click(addProject);
-    $("#wip-button-project-delete").click(deleteProject);
-    $("#wip-button-project-modify").click(modifyProject);
+    //$("#wip-button-project-delete").click(deleteProject);
+    //$("#wip-button-project-modify").click(modifyProject);
     $("#wip-button-project-refresh").click(refreshProject);
 
     //绑定与host相关操作的事件
     $("#wip-tab-button-detail").click(function(){listHost();});
     $("#wip-button-host-add").click(addHost);
-    $("#wip-button-host-delete").click(deleteHost);
-    $("#wip-button-host-modify").click(modifyHost);
+    //$("#wip-button-host-delete").click(deleteHost);
+    //$("#wip-button-host-modify").click(modifyHost);
     $("#wip-button-host-refresh").click(refreshHost);
     $("#wip-button-host-ipsort").click(function(){listHost("ip");});
     $("#wip-button-host-urlsort").click(function(){listHost("url");});
 
     //绑定与vul、comment相关操作的事件
-    $("#wip-button-host-list").click(listHostDetail);
+    $("#wip-button-host-detail").click(listHostDetail);
     $("#wip-button-vul-list").click(function(){listVul();});
     $("#wip-button-comment-list").click(function(){listComment();});
-    $("#wip-button-vul-refresh").click(refreshHost);
 
-    $("#wip-button-vul-add").click(addVul);
-    $("#wip-button-vul-delete").click(deleteVul);
-    $("#wip-button-vul-modify").click(modifyVul);
 
-    $("#wip-button-comment-add").click(addComment);
-    $("#wip-button-comment-delete").click(deleteComment);
-    $("#wip-button-comment-modify").click(modifyComment);
+    //$("#wip-button-vul-add").click(addVul);
+    //$("#wip-button-vul-delete").click(deleteVul);
+    //$("#wip-button-vul-modify").click(modifyVul);
 
-    $("#wip-button-attachment-add").click(addAttachment);
+    //$("#wip-button-comment-add").click(addComment);
+    //$("#wip-button-comment-delete").click(deleteComment);
+    //$("#wip-button-comment-modify").click(modifyComment);
+
+    //$("#wip-button-attachment-add").click(addAttachment);
 
     //绑定与auto task相关操作的事件
     $("#wip-tab-button-domainseek").click(configTasks);
@@ -153,6 +153,19 @@ $(document).ready(function() {
 * Author: alphp1e0
 * Description: project相关操作，增、删、改操作，显示项目列表、显示项目详情
 ******************************************************************************************************/
+
+function addProjectOperationButtern(){
+	modifyButton = $('<button id="wip-button-project-modify" type="button" class="btn btn-success" title="修改项目"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
+	modifyButton.click(modifyProject);
+	deleteButton = $('<button id="wip-button-project-delete" type="button" class="btn btn-warning" title="删除项目"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
+	deleteButton.click(deleteProject);
+	operation = $("<div></div").attr("id","wip-project-detail-operation").append(modifyButton," ",deleteButton);
+	$("#wip-project-detail").after(operation);
+}
+
+function removeProjectOperationButtern(){
+	$("#wip-project-detail-operation").remove();
+}
 
 function addProject(){
 	 $("#wip-modal-project").modal("show");
@@ -251,6 +264,7 @@ function clickProject(){
 	}
 
 	$("#wip-project-detail").empty();
+	removeProjectOperationButtern();
 	$.getJSON("/getprojectdetail?id="+id, function(result){
 		current.setProject(result[0]);
 		addProjectDetailItem("项目名称", result[0].name);
@@ -260,12 +274,14 @@ function clickProject(){
 		addProjectDetailItem("创建时间", result[0].ctime);
 		addProjectDetailItem("描述信息", result[0].description);
 	});
+	addProjectOperationButtern();
 }
 
 function refreshProject(){
 	current.initProject();
 	listProject();
 	$("#wip-project-detail").empty();
+	removeProjectOperationButtern();
 }
 
 /******************************************************************************************************
@@ -273,6 +289,19 @@ function refreshProject(){
 * Author: alphp1e0
 * Description: host相关的操作，增、删、该，显示host列表、显示host详情
 ******************************************************************************************************/
+
+function addHostOperationButtern(){
+	modifyButton = $('<button id="wip-button-host-modify" type="button" class="btn btn-success" title="修改Host"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
+	modifyButton.click(modifyHost);
+	deleteButton = $('<button id="wip-button-host-delete" type="button" class="btn btn-warning" title="删除Host"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
+	deleteButton.click(deleteHost);
+	operation = $("<div></div").attr("id","wip-host-detail-operation").append(modifyButton," ",deleteButton);
+	$("#wip-vul-comment-list").after(operation);
+}
+
+function removeHostOperationButtern(){
+	$("#wip-host-detail-operation").remove();
+}
 
 function addHost(){
 	 $("#wip-modal-host").modal("show");
@@ -403,6 +432,11 @@ function listHostDetail(){
 
 	$("#wip-vul-comment-list").empty();
 	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 	levelList = ["关键","重要","一般","提示"];
 
 	addHostDetailItem("Title", host.title);
@@ -413,6 +447,8 @@ function listHostDetail(){
 	addHostDetailItem("Server信息", host.server_info);
 	addHostDetailItem("中间件", host.middleware);
 	addHostDetailItem("描述", host.description);
+
+	addHostOperationButtern();
 }
 
 function clickHost(){
@@ -439,6 +475,11 @@ function clickHost(){
 
 	$("#wip-vul-comment-list").empty();
 	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();	
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 	levelList = ["关键","重要","一般","提示"];
 	$.getJSON("/gethostdetail?id="+id, function(result){
 		current.setHost(result[0]);
@@ -451,12 +492,20 @@ function clickHost(){
 		addHostDetailItem("中间件", result[0].middleware);
 		addHostDetailItem("描述", result[0].description);
 	});
+
+	addHostOperationButtern();
 }
 
 function refreshHost(){
 	current.initHost();
 	listHost();
 	$("#wip-vul-comment-list").empty();
+	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 }
 
 /******************************************************************************************************
@@ -464,6 +513,33 @@ function refreshHost(){
 * Author: alphp1e0
 * Description: 漏洞相关操作，增、删、该，显示漏洞列表，显示漏洞详情
 ******************************************************************************************************/
+
+function addVulListOperationButtern(){
+	addButton = $('<button id="wip-button-vul-add" type="button" class="btn btn-success" title="添加漏洞"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>')
+	addButton.click(addVul);
+	refreshButton = $('<button id="wip-button-vul-refresh" type="button" class="btn btn-success" title="刷新漏洞列表"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span></button>')
+	refreshButton.click(refreshVul);
+	operation = $("<div></div").attr("id","wip-vul-list-operation").append(refreshButton," ",addButton,$("<hr />"));
+	$("#wip-vul-comment-list").before(operation);
+}
+
+function removeVulListOperationButtern(){
+	$("#wip-vul-list-operation").remove();
+}
+
+function addVulOperationButtern(){
+	modifyButton = $('<button id="wip-button-vul-modify" type="button" class="btn btn-success" title="修改漏洞"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
+	modifyButton.click(modifyVul);
+	deleteButton = $('<button id="wip-button-vul-delete" type="button" class="btn btn-warning" title="删除漏洞"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
+	deleteButton.click(deleteVul);
+	operation = $("<div></div").attr("id","wip-vul-detail-operation").append(modifyButton," ",deleteButton);
+	$("#wip-vul-comment-detail").after(operation);
+}
+
+function removeVulOperationButtern(){
+	$("#wip-vul-detail-operation").remove();
+}
+
 function addVul(){
 	 $("#wip-modal-vul").modal("show");
 	 var options = {
@@ -556,12 +632,18 @@ function listVul(orderby="level"){
 	current.initVul();
 	$("#wip-vul-comment-list").empty();
 	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 	var url = "/listvul?hostid=" + current.getHost().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
 			addVulItem(value.id, value.name);
 		});
 	});
+	addVulListOperationButtern();
 }
 
 function clickVul(){
@@ -580,6 +662,10 @@ function clickVul(){
 	}
 
 	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 	levelList = ["关键","重要","一般","提示"];
 	typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
 	$.getJSON("/getvuldetail?id="+id, function(result){
@@ -591,6 +677,7 @@ function clickVul(){
 		addVulDetailItem("类型", typeList[result[0].type-1]);		
 		addVulDetailItem("描述", result[0].description);
 	});
+	addVulOperationButtern();
 }
 
 function refreshVul(){
@@ -598,6 +685,10 @@ function refreshVul(){
 	current.initComment();
 	listVul();
 	$("#wip-vul-comment-detail").empty();
+	removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
 }
 
 /******************************************************************************************************
@@ -605,6 +696,34 @@ function refreshVul(){
 * Author: alphp1e0
 * Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
 ******************************************************************************************************/
+
+function addCommentListOperationButtern(){
+	addButton = $('<button id="wip-button-comment-add" type="button" class="btn btn-success" title="添加备注"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>')
+	addButton.click(addComment);
+	refreshButton = $('<button id="wip-button-comment-refresh" type="button" class="btn btn-success" title="刷新备注列表"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span></button>')
+	refreshButton.click(refreshComment);
+	attachButton = $('<button id="wip-button-attachment-add" type="button" class="btn btn-success">添加附件</button>');
+	attachButton.click(addAttachment);
+	operation = $("<div></div").attr("id","wip-comment-list-operation").append(refreshButton, " ", addButton, " ", attachButton, $("<hr />"));
+	$("#wip-vul-comment-list").before(operation);
+}
+
+function removeCommentListOperationButtern(){
+	$("#wip-comment-list-operation").remove();
+}
+
+function addCommentOperationButtern(){
+	modifyButton = $('<button id="wip-button-comment-modify" type="button" class="btn btn-success" title="修改备注"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
+	modifyButton.click(modifyComment);
+	deleteButton = $('<button id="wip-button-comment-delete" type="button" class="btn btn-warning" title="删除备注"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
+	deleteButton.click(deleteComment);
+	operation = $("<div></div").attr("id","wip-comment-detail-operation").append(modifyButton," ",deleteButton);
+	$("#wip-vul-comment-detail").after(operation);
+}
+
+function removeCommentOperationButtern(){
+	$("#wip-comment-detail-operation").remove();
+}
 
 function addComment(){
     $("#wip-modal-comment").modal("show");
@@ -698,12 +817,18 @@ function listComment(orderby="level"){
     current.initComment();
     $("#wip-vul-comment-list").empty();
     $("#wip-vul-comment-detail").empty();
+    removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
+	removeCommentListOperationButtern();
     var url = "/listcomment?hostid=" + current.getHost().id + "&orderby=" + orderby;
     $.getJSON(url, function(result){
         $.each(result, function(i, value){
             addCommentItem(value.id, value.name);
         });
     });
+    addCommentListOperationButtern();
 }
 
 function clickComment(){
@@ -722,6 +847,10 @@ function clickComment(){
     }
 
     $("#wip-vul-comment-detail").empty();
+    removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
     levelList = ["关键","重要","一般","提示"];
     typeList = ["溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"]
     $.getJSON("/getcommentdetail?id="+id, function(result){
@@ -735,12 +864,17 @@ function clickComment(){
         attachmentItem.attr("href","static/attachment/"+result[0].attachment).attr("target","_blank");
         $("#wip-vul-comment-detail").append(attachmentItem);
     });
+    addCommentOperationButtern();
 }
 
 function refreshComment(){
     current.initComment();
     listComment();
     $("#wip-vul-comment-list").empty();
+    removeHostOperationButtern();
+	removeVulOperationButtern();
+	removeVulListOperationButtern();
+	removeCommentOperationButtern();
 }
 
 function addAttachment(){

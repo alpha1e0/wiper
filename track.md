@@ -7,9 +7,6 @@
 
 ## 备注
 
-客户端全局信息用HTML storage存储
-server改为controller，另外将view单独放到根目录
-	不同tab，对应/view/xxx，对应class View
 编写model部分
 自动化模块前端、后端整改
 	子域扫描模块，包括域传送、dnsbrute、google hacking、http识别；页面整改成类似扫描器，分一键扫描和高级设置
