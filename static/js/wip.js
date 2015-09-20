@@ -393,21 +393,23 @@ function listHost(orderby="level"){
 			return
 		}
 	}
-	function addHostItem(id, url, ip){
-		var b = $("<b></b>").text(ip+" | ")
-		var i = $("<i></i>").text(url)
-		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-host-id-"+id).attr("href","#").append(b,i);
+	function addHostItem(host){
+		var b = $("<b></b>").text(host.ip+" | ")
+		var i = $("<i></i>").text(host.url)
+		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-host-id-"+host.id).attr("href","#").append(b,i);
 		item.click(clickHost);
+		item.addClass(levelClass[host.level-1])
 		$("#wip-host-list").append(item);
 	}
 
 	current.initHost();
 	$("#wip-host-list").empty();
 	$("#wip-vul-comment-list").empty();
+	levelClass = ["list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"]
 	var url = "/listhost?projectid=" + current.getProject().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
-			addHostItem(value.id, value.url, value.ip);
+			addHostItem(value);
 		});
 	});
 }
@@ -623,9 +625,10 @@ function listVul(orderby="level"){
 		return;
 	}
 
-	function addVulItem(id, name){
-		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-vul-id-"+id).attr("href","#").text(name);
+	function addVulItem(vul){
+		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-vul-id-"+vul.id).attr("href","#").text(vul.name);
 		item.click(clickVul);
+		item.addClass(levelClass[vul.level-1]);
 		$("#wip-vul-comment-list").append(item);
 	}
 
@@ -637,10 +640,11 @@ function listVul(orderby="level"){
 	removeVulListOperationButtern();
 	removeCommentOperationButtern();
 	removeCommentListOperationButtern();
+	levelClass = ["list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"]
 	var url = "/listvul?hostid=" + current.getHost().id + "&orderby=" + orderby;
 	$.getJSON(url, function(result){
 		$.each(result, function(i, value){
-			addVulItem(value.id, value.name);
+			addVulItem(value);
 		});
 	});
 	addVulListOperationButtern();
@@ -808,9 +812,10 @@ function listComment(orderby="level"){
         return;
     }
 
-    function addCommentItem(id, name){
-        var item = $("<a></a>").addClass("list-group-item").attr("id","wip-comment-id-"+id).attr("href","#").text(name);
+    function addCommentItem(comment){
+        var item = $("<a></a>").addClass("list-group-item").attr("id","wip-comment-id-"+comment.id).attr("href","#").text(comment.name);
         item.click(clickComment);
+        item.addClass(levelClass[comment.level-1]);
         $("#wip-vul-comment-list").append(item);
     }
 
@@ -822,10 +827,11 @@ function listComment(orderby="level"){
 	removeVulListOperationButtern();
 	removeCommentOperationButtern();
 	removeCommentListOperationButtern();
+	levelClass = ["list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"]
     var url = "/listcomment?hostid=" + current.getHost().id + "&orderby=" + orderby;
     $.getJSON(url, function(result){
         $.each(result, function(i, value){
-            addCommentItem(value.id, value.name);
+            addCommentItem(value);
         });
     });
     addCommentListOperationButtern();

@@ -285,7 +285,7 @@ class VulList:
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-			sqlCmd = "select id,name from vul where host_id={0} order by {1}".format(param.hostid,param.orderby)
+			sqlCmd = "select id,name,level from vul where host_id={0} order by {1}".format(param.hostid,param.orderby)
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query vul failed, reason: {0}.".format(status[1]))
@@ -392,7 +392,7 @@ class CommentList:
 			if not status[0]:
 				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-			sqlCmd = "select id,name from comment where host_id={0} order by {1}".format(param.hostid,param.orderby)
+			sqlCmd = "select id,name,level from comment where host_id={0} order by {1}".format(param.hostid,param.orderby)
 			with SQLQuery(sqlCmd) as (status,result):
 				if not status[0]:
 					raise web.internalerror("Query comment failed, reason: {0}.".format(status[1]))
