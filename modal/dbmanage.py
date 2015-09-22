@@ -144,6 +144,12 @@ def resetDatabase(dbname, dbhost, dbuser, dbpass, dbport=3306, dbtype="mysql"):
             exit(1)
 
 
+def escapeString(strValue):
+    if isinstance(strValue, str):
+        return mdb.escape_string(strValue)
+    else:
+        return ""
+
 
 class DBManage(object):
     '''
