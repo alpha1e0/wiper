@@ -26,7 +26,7 @@ def queryResultStripSlashes(qureryList):
 	for line in qureryList:
 		for key,value in line.items():
 			#if type(value) == str:
-			if isinstance(a, str):
+			if isinstance(a, basestring):
 				line[key] = stripSlashes(value)
 	return qureryList
 

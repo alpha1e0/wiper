@@ -16,7 +16,7 @@ import json
 import web
 
 import lib
-from modal.dbmanage import DBManage,SQLQuery,SQLExec
+from model.dbmanage import DBManage,SQLQuery,SQLExec
 from plugin.dnsbrute import DnsBrute
 from init import log
 

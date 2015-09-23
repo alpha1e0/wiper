@@ -8,19 +8,19 @@ create table project (
 	name varchar(100) not null unique,
 	url varchar(100), 
 	ip varchar(50), 
-	whois text, 
 	ctime timestamp not null default CURRENT_TIMESTAMP,
+	whois text,
 	description text,
 	primary key (id)
 ) engine=InnoDB  default charset=utf8;
 
 create table host (
 	id integer not null auto_increment, 
-	title varchar(200) not null unique,
+	title varchar(100),
 	url varchar(100), 
 	ip varchar(50),
 	protocol integer not null,
-	level integer, 
+	level integer not null, 
 	os varchar(150), 
 	server_info varchar(150),
 	middleware varchar(200), 
@@ -34,7 +34,7 @@ create table host (
 
 create table vul (
 	id integer not null auto_increment, 
-	name varchar(100), 
+	name varchar(100) not null, 
 	url varchar(4096),
 	info varchar(1024), 
 	type integer, 
@@ -48,7 +48,7 @@ create table vul (
 
 create table comment (
 	id integer not null auto_increment, 
-	name varchar(100), 
+	name varchar(100) not null, 
 	url varchar(4096),
 	info varchar(1024), 
 	level integer, 
