@@ -16,7 +16,8 @@ import json
 import web
 
 import lib
-from model.dbmanage import DBManage,SQLQuery,SQLExec
+from model.model import Database, Project, Host, Vul, Comment
+from model.dbmanage import DBError
 from plugin.dnsbrute import DnsBrute
 from init import log
 
@@ -24,6 +25,7 @@ from init import log
 def startServer():
 	urls = (
 		"/", "Index",
+		"/install", "Install",
 		"/addproject", "ProjectAdd",
 		"/listproject", "ProjectList",
 		"/getprojectdetail", "ProjectDetail",
@@ -59,8 +61,16 @@ def startServer():
 class Index:
 	def GET(self):
 		render = web.template.render('view')
-		
 		return render.index()
+
+
+class Install:
+	def GET(self):
+		render = web.template.render('view')
+		return render.install()
+
+	def POST(self):
+		raise web.seeother("/")
 
 
 # ================================处理project表相关的代码=========================================
@@ -68,93 +78,112 @@ class ProjectList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		sqlCmd = "select id,name from project order by 1"
-		with SQLQuery(sqlCmd) as (status,result):
-			if not status[0]:
-				raise web.internalerror("Query project failed, reason: {0}.".format(status[1]))
-			return lib.queryResultToJson(result)
+		try:
+			result = Project.findraw()
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except ModelError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except DBError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		else:
+			return json.dumps(result)
 
 
 class ProjectDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
-
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "select * from project where id={0}".format(param.id)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))				
-				if result:
-					result[0]['ctime'] = result[0]['ctime'].strftime("%Y-%m-%d %H:%M:%S")			
-				return lib.queryResultToJson(result)
+		params = web.input()
+		try:
+			project = Project.get(params.id)
+			#result = Project.getraw(params.id)
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except ModelError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except DBError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		else:
+			project.ctime = project.ctime.strftime("%Y-%m-%d %H:%M:%S")
+			return project.toJson()
+			#result['ctime'] = result['ctime'].strftime("%Y-%m-%d %H:%M:%S")
+			#return json.dumps(result)
 
 
 class ProjectAdd:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("ip","ip",""),
-			("whois","text",""),
-			("description","text","")
-		)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "insert into project(name, url, ip, whois, description) values('{0}', '{1}', '{2}', '{3}', '{4}')".format(\
-				param.name, param.url, param.ip, param.whois, param.description)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query project detail failed, reason: {0}.".format(status[1]))			
-				return True
+		params = web.input()
+		try:
+			kw = dict()
+			for k in ("name","url","ip","whois","description"): kw[k]=params[k].strip()
+			project = Project(**kw)
+			project.save()
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except ModelError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except DBError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		else:
+			return True
 
 
 class ProjectDelete:
 	def GET(self):
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-		
-			sqlCmd = "delete from project where id={0}".format(param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Delete project failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			Project.delete(params.id.strip())
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except ModelError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except DBError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		else:
+			return True
 
 
 class ProjectModify:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("ip","ip",""),
-			("whois","text",""),
-			("description","text",""),
-			("id","integer","0-0")
-		)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))		
-			sqlCmd = "update project set name='{0}',url='{1}',ip='{2}',whois='{3}',description='{4}' where id={5}".format(\
-				param.name, param.url, param.ip, param.whois, param.description, param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Modify project failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			project = Project.get(params.id.strip())
+			for key in ("name","url","ip","whois","description"):
+				project[key] = params[key].strip()
+			project.save()
+			#kw = dict()
+			#for key in ("name","url","ip","whois","description"): kw[key]=params[key].strip()
+			#Project.where(id=params.id.strip()).update(**kw)
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except ModelError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except DBError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		else:
+			return True
+		
 
 #=================================处理host表相关的代码=========================================
 

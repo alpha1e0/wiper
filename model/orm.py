@@ -229,6 +229,16 @@ class Model(dict):
 		super(Model, self).__init__(**kwargs)
 		self.saveType = "insert"
 
+	def __getattr__(self, key):
+		try:
+			return self[key]
+		except KeyError:
+			raise AttributeError("Model object has no attribute '{0}'".format(key))
+
+	def __setattr__(self, key, value):
+		self[key] = value
+
+
 	@classmethod
 	def rawsql(cls, sqlCmd):
 		'''
