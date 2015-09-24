@@ -266,13 +266,13 @@ function clickProject(){
 	$("#wip-project-detail").empty();
 	removeProjectOperationButtern();
 	$.getJSON("/getprojectdetail?id="+id, function(result){
-		current.setProject(result[0]);
-		addProjectDetailItem("项目名称", result[0].name);
-		addProjectDetailItem("URL地址", result[0].url);
-		addProjectDetailItem("IP地址", result[0].ip);
-		addProjectDetailItem("Whois信息", result[0].whois);
-		addProjectDetailItem("创建时间", result[0].ctime);
-		addProjectDetailItem("描述信息", result[0].description);
+		current.setProject(result);
+		addProjectDetailItem("项目名称", result.name);
+		addProjectDetailItem("URL地址", result.url);
+		addProjectDetailItem("IP地址", result.ip);
+		addProjectDetailItem("Whois信息", result.whois);
+		addProjectDetailItem("创建时间", result.ctime);
+		addProjectDetailItem("描述信息", result.description);
 	});
 	addProjectOperationButtern();
 }

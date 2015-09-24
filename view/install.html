@@ -3,13 +3,13 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="static/css/bootstrap.css">
+        <link rel="stylesheet" href="static/css/bootstrap.min.css">
         <title>Web Information Probe.</title>
     </head>
     <body>      
         <div class="container-fluid">
             <!-- 导航条部分 -->
-            <span class="h1">WIP</span><span>&nbsp;&nbsp;&nbsp;</span>
+            <span class="h1">软件安装...</span>
 
             <nav class="navbar navbar-inverse">
                 <div id="navbar" class="navbar-collapse collapse">
@@ -22,58 +22,50 @@
             
             <!-- 标签页 -->
             <div class="tab-content">
-                <h3><span class="label label-info">填写以下参数完成安装：</span></h3>
-                <hr />
-                <form id="wip-setup-form" class="form-horizontal" method="post" action="/install">
-                    <div class="form-group">
-                        <label for="wip-setup-form-dbtype" class="col-md-4 control-label">数据库类型:</label>
-                        <div class="col-md-8">
-                            <select class="form-control" name="protocol" >
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-6 highlight">
+                    <h3><span class="label label-primary">填写以下参数完成安装：</span></h3>
+                    <hr />
+                    <form id="wip-setup-form" method="post" action="/install">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbtype">数据库类型:</label>
+                            <select id="wip-setup-form-dbtype" name="protocol" class="form-control">
                                 <option value="1">Mysql</option>
                                 <option value="2">Sqlite</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <label for="wip-setup-form-dbhost" class="col-md-4 control-label">数据库地址:</label>
-                        <div class="col-md-8">
-                            <input id="wip-setup-form-dbhost" name="name" type="text" class="form-control" maxlength="100" placeholder="localhost">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbhost">数据库地址:</label>
+                            <input id="wip-setup-form-dbhost" name="name" type="text" class="form-control" maxlength="100" placeholder="localhost" value="localhost">
                         </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <label for="wip-setup-form-dbport" class="col-md-4 control-label">数据库端口:</label>
-                        <div class="col-md-8">
-                            <input id="wip-setup-form-dbport" name="name" type="text" class="form-control" maxlength="100" placeholder="3389">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbport">数据库端口:</label>
+                            <input id="wip-setup-form-dbport" name="name" type="text" class="form-control" maxlength="100" placeholder="3306" value="3306">
                         </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <label for="wip-setup-form-dbuser" class="col-md-4 control-label">数据库用户名:</label>
-                        <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbuser">数据库用户名:</label>
                             <input id="wip-setup-form-dbuser" name="name" type="text" class="form-control" maxlength="100" placeholder="root">
                         </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <label for="wip-setup-form-dbpasswd" class="col-md-4 control-label">数据库密码:</label>
-                        <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbpasswd">数据库密码:</label>
                             <input id="wip-setup-form-dbpasswd" name="name" type="text" class="form-control" maxlength="100" placeholder="123456">
                         </div>
-                    </div>
-                    <div class="form-group has-error">
-                        <label for="wip-setup-form-dbname" class="col-md-4 control-label">数据库名称:</label>
-                        <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="wip-setup-form-dbname">数据库名称:</label>
                             <input id="wip-setup-form-dbname" name="name" type="text" class="form-control" maxlength="100" placeholder="wip" value="wip">
                         </div>
-                    </div>
-                    <hr />
-                    <div class="form-group">
-                        <div class="col-md-offset-2 col-md-10">
-                            <button type="submit" class="btn btn-default btn-primary">提交</button>
+                        <hr />
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">开始安装</button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
+                <div class="col-md-3">
+                </div>
             </div>
         </div>
-
-        <script src="static/js/bootstrap.js"></script>
+        <script src="static/js/jquery-2.1.4.min.js"></script>
+        <script src="static/js/bootstrap.min.js"></script>
     </body>
 </html>

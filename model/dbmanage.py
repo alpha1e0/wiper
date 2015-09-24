@@ -14,16 +14,15 @@ import time
 import MySQLdb as mdb
 
 from init import log
-from init import conf
+from init import conf,WIPError
 
 
-class DBError(Exception):
-    def __init__(self, errorMsg):
-        super(DBError, self).__init__()
-        self.errorMsg = errorMsg
+class DBError(WIPError):
+    def __init__(self, reason):
+        self.errMsg = "DBError. " + ("reason: "+reason if reason else "")
 
     def __str__(self):
-        return self.errorMsg
+        return self.errMsg
 
 
 def escapeString(strValue):
@@ -68,14 +67,14 @@ class DBManage(object):
                     time.sleep(i*2)
                     continue
                 elif msg[0] == 1045:
-                    raise DBError("Database connect error, reason: user or password error.")
+                    raise DBError("user or password error")
                 elif msg[0] == 1049:
-                    raise DBError("Database connect error, reason: database not exists.")
+                    raise DBError("database not exists")
             else:
                 break
 
         if not success:
-            raise DBError("Database connect error, reason: cannot connect to the server, the server maybe down.")
+            raise DBError("cannot connect to the server, the server maybe down.")
 
         self.__cur = self.__con.cursor()
         return True
@@ -96,11 +95,11 @@ class DBManage(object):
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
                 except mdb.OperationalError as msg:
-                    raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
             else:
-                raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
         except mdb.MySQLError as msg:
-            raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
         
         return True
 
@@ -121,11 +120,11 @@ class DBManage(object):
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
                 except mdb.OperationalError as msg:
-                    raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
             else: 
-                raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
         except mdb.MySQLError as msg:
-            raise DBError("SQL executing error, location: {0}, reason: {1}."format(sqlcmd, msg))
+            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
 
         nameList = [x[0] for x in self.__cur.description]
         result = [dict(zip(nameList,x)) for x in self.__cur.fetchall()]

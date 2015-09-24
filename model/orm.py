@@ -10,26 +10,24 @@ See the file COPYING for copying detail
 import re
 import json
 
-from model.dbmanage import DBManage, escapeString
-from init import log
+from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
+from init import log, WIPError
 
 
-class FieldError(Exception):
-	def __init__(self, errorMsg):
-		super(FieldError, self).__init__()
-		self.value = errorMsg if errorMsg else "Field error!"
-
-	def __str__(self):
-		return self.value
-
-
-class ModelError(Exception):
-	def __init__(self, errorMsg):
-		super(ModelError, self).__init__()
-		self.value = errorMsg if errorMsg else "Model error!"
+class FieldError(WIPError):
+	def __init__(self, reason):
+		self.errMsg = "FieldError. " + ("reason: "+reason if reason else "")
 
 	def __str__(self):
-		return self.value
+		return self.errMsg
+
+
+class ModelError(WIPError):
+	def __init__(self, reason):
+		self.errMsg = "ModelError. " + ("reason: "+reason if reason else "")
+
+	def __str__(self):
+		return self.errMsg
 
 
 class Field(object):
@@ -49,15 +47,16 @@ class Field(object):
 		self.nullable = kwargs.get("notnull", False)
 		self.default = kwargs.get("default", None)
 		self.ddl = kwargs.get("ddl", None)
+		self.vrange = kwargs.get("vrange", None)
 
 		vrange = kwargs.get("vrange", None)
 		if vrange:
 			try:
-				vrange = (int(n) for n in vrange.split("-"))
+				vrange = [int(n) for n in vrange.split("-")]
 			except ValueError:
-				raise FieldError("AttrDefine Error, location {0}!".format(vrange))
+				raise FieldError("attribute {0} define error".format(vrange))
 			if vrange[0] > vrange[1]:
-				raise FieldError("AttrDefine Error, location {0}!".format(vrange))
+				raise FieldError("attribute {0} define error".format(vrange))
 
 	def inputCheck(self, strValue):
 		return True
@@ -65,7 +64,7 @@ class Field(object):
 	def inputFormat(self, strValue):
 		'''
 		The input data is a string, here format the input date to specified type.
-			for example, the IntergetField().format("123") will format the string "123" to integer 123
+			for example, the IntegerField().format("123") will format the string "123" to integer 123
 		If failed, raise FieldError.
 		'''
 		return strValue
@@ -79,14 +78,14 @@ class IntegerField(Field):
 		if not strValue and self.default:
 			strValue = self.default
 		if not strValue and self.notnull and not self.default:
-			raise FieldError("IntegerField error, reason: the field must not null.".format(strValue,strValue))
+			raise FieldError("the integer field '{0}' must not null".format(self.name))
 		try:
-			ret = int(strValue):
+			ret = int(strValue)
 		except ValueError:
-			raise FieldError("IntegerField error, location: {0}, reason: integer value format error.".format(strValue,strValue))
+			raise FieldError("the integer field value '{0}' format error".format(strValue))
 		if self.vrange:
 			if ret<self.vrange[0] or ret>self.vrange[1]:
-				raise FieldError("IntegerField error, location:{0}, reason: value out of range.".format(strValue))
+				raise FieldError("the integer field value '{0}' out of range".format(strValue))
 			else:
 				return ret
 		else:
@@ -110,12 +109,12 @@ class StringField(Field):
 		if not strValue and self.default:
 			strValue = self.default
 		if not strValue and self.notnull:
-			raise FieldError("StringField error, reason: the field must not null.".format(strValue,strValue))
+			raise FieldError("the string field '{0}' must not null".format(self.name))
 		if self.vrange:
 			ret = escapeString(strValue)
 			retLen = len(ret)
 			if retLen<self.vrange[0] or retLen>self.vrange[1]:
-				raise FieldError("StringField error, location:{0}, reason: string length out of range.".format(strValue))
+				raise FieldError("the length of the string field value '{0}' out of range".format(strValue))
 			else:
 				return ret
 		else:
@@ -135,12 +134,12 @@ class UrlField(StringField):
 		if not strValue and self.default:
 			strValue = self.default
 		if not strValue and self.notnull:
-			raise FieldError("UrlField error, reason: the field must not null.".format(strValue,strValue))
+			raise FieldError("the url field '{0}' must not null".format(self.name))
 
 		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+)(?:\:\d+)?)")
 		match = urlPattern.match(strValue)
 		if not match:
-			raise FieldError("UrlField error, location:{0}, reason: url format error.".format(strValue))
+			raise FieldError("the url field value '{0}' format error".format(strValue))
 		else:
 			return match.groups()[0]
 
@@ -153,12 +152,12 @@ class IPField(StringField):
 		if not strValue and self.default:
 			strValue = self.default
 		if not strValue and self.notnull:
-			raise FieldError("IPField error, reason: the field must not null.".format(strValue,strValue))
+			raise FieldError("the IP field '{0}' must not null".format(self.name))
 
 		ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))(?:\:\d+)?)$")
 		match = ipPattern.match(strValue)
 		if not match:
-			raise FieldError("IPField error, location:{0}, reason: IP format error.".format(strValue))
+			raise FieldError("the IP field value '{0}' format error".format(strValue))
 		else:
 			return match.groups()[0]
 
@@ -171,12 +170,12 @@ class EmailField(StringField):
 		if not strValue and self.default:
 			strValue = self.default
 		if not strValue and self.notnull:
-			raise FieldError("EmailField error, reason: the field must not null.".format(strValue,strValue))
+			raise FieldError("the email field '{0}' must not null".format(self.name))
 
 		emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))$")
 		match = emailPattern.match(strValue)
 		if not match:
-			raise FieldError("EmailField error, location:{0}, reason: Email format error.".format(strValue))
+			raise FieldError("the email field value '{0}' format error".format(strValue))
 		else:
 			return match.groups()[0]
 
@@ -189,8 +188,8 @@ class ModelMetaClass(type):
 		if name == "Model" or name == "Database":
 			return type.__new__(cls, name, bases, attrs)
 
-		if "__table" not in attrs:
-			raise ModelError("Model {0} error, reason: attribute '__table' not specified.".format(name))
+		if "_table" not in attrs:
+			raise ModelError("model {0} error, attribute '_table' not specified".format(name))
 
 		mapping = dict()
 		primaryKey = False
@@ -203,14 +202,16 @@ class ModelMetaClass(type):
 					if not primaryKey:
 						primaryKey = value
 					else:
-						raise ModelError("Model {0} error, reason: duplicate primary key.".format(name))
+						raise ModelError("model {0} error, duplicate primary key".format(name))
 				mapping[key] = value
-
 		if not primaryKey:
-			raise ModelError("Model {0} error, reason: primary key not found.".format(name))
+			raise ModelError("model {0} error, primary key not found.".format(name))
+			
+		for key in mapping:
+			attrs.pop(key)
 
-		attrs[__mapping] = mapping
-		attrs[__primaryKey] = primaryKey
+		attrs['_mapping'] = mapping
+		attrs['_primaryKey'] = primaryKey
 
 		return type.__new__(cls, name, bases, attrs)
 
@@ -222,8 +223,8 @@ class Model(dict):
 
 	__metaclass__ = ModelMetaClass
 
-	__orderby = ""
-	__where = ""
+	_orderby = ""
+	_where = ""
 
 	def __init__(self, **kwargs):
 		super(Model, self).__init__(**kwargs)
@@ -244,7 +245,8 @@ class Model(dict):
 		'''
 		Execute sql command direct.
 		'''
-		with SQLExec(sqlCmd) as result:
+		with DBManage() as con:
+			result = con.sql(sqlCmd)
 			return result
 
 	@classmethod
@@ -252,7 +254,8 @@ class Model(dict):
 		'''
 		Execute select query direct.
 		'''
-		with SQLQuery(sqlCmd) as result:
+		with DBManage() as con:
+			result = con.find(sqlCmd)
 			return result
 
 	@classmethod
@@ -263,21 +266,21 @@ class Model(dict):
 		pass
 
 	@classmethod
-	def __clearStatus(cls):
-		cls.__orderby = ""
-		cls.__where = ""
+	def _clearStatus(cls):
+		cls._orderby = ""
+		cls._where = ""
 
 	@classmethod
-	def __paramFormat(cls, params):
+	def _paramFormat(cls, params):
 		if not params:
 			return False
 
 		ret = dict()
 		for key,value in params.iteritems():
 			try:
-				tmpValue = cls.__mapping[key].inputFormat(value)
+				tmpValue = cls._mapping[key].inputFormat(value)
 			except KeyError:
-				raise ModelError("Model error, location:{0}, reason: the model did not have key {1}.".format(cls.__class__.__name__, key))
+				raise ModelError("model {0} error, the model did not have key '{1}'".format(cls.__class__.__name__, key))
 			else:
 				ret[key] = tmpValue
 
@@ -291,9 +294,9 @@ class Model(dict):
 		'''
 		if not kwargs:
 			return cls
-		params = cls.__paramFormat(kwargs)
+		params = cls._paramFormat(kwargs)
 		strList = ["{0}='{1}'".format(k,v) for k,v in params.iteritems()]
-		cls.__where = "where " + " and ".join(strList)
+		cls._where = "where " + " and ".join(strList)
 		return cls
 
 	@classmethod
@@ -301,7 +304,7 @@ class Model(dict):
 		'''
 		Set the 'order by' part of the SQL command. 
 		'''
-		cls.__orderby = "order by {0}".format(orderby)
+		cls._orderby = "order by {0}".format(orderby)
 		return cls
 
 
@@ -317,8 +320,8 @@ class Model(dict):
 		else:
 			columns = "*"
 
-		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls.__table,where=cls.__where,orderby=cls.__orderby)
-		cls.__clearStatus()
+		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
+		cls._clearStatus()
 
 		with SQLQuery(sqlCmd) as result:
 			return result
@@ -337,8 +340,8 @@ class Model(dict):
 		else:
 			columns = "*"
 
-		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls.__table,where=cls.__where,orderby=cls.__orderby)
-		cls.__clearStatus()
+		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
+		cls._clearStatus()
 
 		with SQLQuery(sqlCmd) as result:
 			ret = list()
@@ -360,8 +363,9 @@ class Model(dict):
 		else:
 			columns = "*"
 
-		pvalue = cls.__primaryKey.inputFormat(pvalue)
-		sqlCmd = "select * from {table} where {key}={value}".format(table=cls.__table,key=cls.__primaryKey.name,value=pvalue)
+		pvalue = cls._primaryKey.inputFormat(pvalue)
+		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+		cls._clearStatus()
 
 		with SQLQuery(sqlCmd) as result:
 			return result[0]
@@ -377,8 +381,9 @@ class Model(dict):
 		else:
 			columns = "*"
 
-		pvalue = cls.__primaryKey.inputFormat(pvalue)
-		sqlCmd = "select * from {table} where {key}={value}".format(table=cls.__table,key=cls.__primaryKey.name,value=pvalue)
+		pvalue = cls._primaryKey.inputFormat(pvalue)
+		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+		cls._clearStatus()
 
 		with SQLQuery(sqlCmd) as result:
 			if result:
@@ -396,11 +401,11 @@ class Model(dict):
 		if not kwargs:
 			return False
 
-		params = cls.__paramFormat(kwargs)
+		params = cls._paramFormat(kwargs)
 		keys = ",".join([k for k in params])
 		values = ",".join(["'"+params[k]+"'" for k in params])
 
-		salCmd = "insert into {table}({keys}) values({values})".format(table=cls.__table,keys=keys,values=values)
+		salCmd = "insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values)
 		with SQLExec(sqlCmd) as result:
 			return result
 
@@ -418,11 +423,11 @@ class Model(dict):
 
 		sqlCmdList = list()
 		for row in rows:
-			params = cls.__paramFormat(row)
+			params = cls._paramFormat(row)
 			keys = ",".join([k for k in params])
 			values = ",".join(["'"+params[k]+"'" for k in params])
 
-			sqlCmdList.append("insert into {table}({keys}) values({values})".format(table=cls.__table,keys=keys,values=values))
+			sqlCmdList.append("insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values))
 
 		with DBManage() as con:
 			for sqlCmd in sqlCmdList:
@@ -438,12 +443,12 @@ class Model(dict):
 		if not kwargs:
 			return False
 
-		params = cls.__paramFormat(kwargs)
+		params = cls._paramFormat(kwargs)
 		setValue = [k+"='"+v+"'" for k,v in params.iteritems]
 		setValue = ",".join(setValue)
 
-		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls.__table,setvalue=setValue,where=cls.__where)
-		cls.__clearStatus()
+		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls._where)
+		cls._clearStatus()
 		with SQLExec(sqlCmd) as result:
 			return result
 
@@ -462,11 +467,11 @@ class Model(dict):
 			User.where(name='aa').delete() while delete rows where name is 'aa'
 		'''
 		if pvalue:
-			pvalue = cls.__primaryKey.inputFormat(pvalue)
-			sqlCmd = "delect from {table} where {key}={value}".format(table=cls.__table,key=cls.__primaryKey.name,value=pvalue)
+			pvalue = cls._primaryKey.inputFormat(pvalue)
+			sqlCmd = "delect from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
 		else:
-			sqlCmd = "delect from {table} {where}".format(table=cls.__table,where=cls.__where)
-			__clearStatus()
+			sqlCmd = "delect from {table} {where}".format(table=cls._table,where=cls._where)
+			cls._clearStatus()
 
 		with SQLExec(sqlCmd) as result:
 			return result
@@ -488,16 +493,16 @@ class Model(dict):
 			u.save()
 		'''
 		if self.saveType == "insert":
-			params = self.__paramFormat(self)
+			params = self._paramFormat(self)
 			keys = ",".join([k for k in params])
 			values = ",".join(["'"+params[k]+"'" for k in params])
-			salCmd = "insert into {table}({keys}) values({values})".format(table=self.__table,keys=keys,values=values)
+			salCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
 		elif self.saveType == "update":
-			params = self.__paramFormat(self)
-			setValue = [k+"='"+v+"'" for k,v in params.iteritems if k!=self.__primaryKey.name]
+			params = self._paramFormat(self)
+			setValue = [k+"='"+v+"'" for k,v in params.iteritems if k!=self._primaryKey.name]
 			setValue = ",".join(setValue)
-			where = "where " + "{key}={value}".format(key=self.__primaryKey.name,value=self[self.__primaryKey.name])
-			sqlCmd = "update {table} set {setvalue} {where}".format(table=self.__table,setvalue=setValue,where=where)
+			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
+			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)
 
 		with SQLExec(sqlCmd) as result:
 			return result
@@ -507,7 +512,7 @@ class Model(dict):
 		'''
 		Remove current object, will delete a row from database.
 		'''
-		sqlCmd = "delect from {table} where {key}={value}".format(table=self.__table,key=self.__primaryKey.name,value=self[self.__primaryKey.name])
+		sqlCmd = "delect from {table} where {key}={value}".format(table=self._table,key=self._primaryKey.name,value=self[self._primaryKey.name])
 
 		with SQLExec(sqlCmd) as result:
 			return result

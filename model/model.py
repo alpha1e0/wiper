@@ -7,13 +7,13 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
-from model.orm import Model
+from orm import Model, IntegerField, StringField, UrlField, IPField, TextField
 from init import conf
 
 class Project(Model):
-	__table = "project"
+	_table = "project"
 
-	id = IntergetField(primarykey=True,notnull=True,ddl="integer")
+	id = IntegerField(primarykey=True,notnull=True,ddl="integer")
 	name = StringField(notnull=True,ddl="varchar(100)",vrange="1-100")
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
@@ -37,9 +37,9 @@ class Project(Model):
 
 
 class Host(Model):
-	__table = "host"
+	_table = "host"
 
-	id = IntergetField(primarykey=True,notnull=True,ddl="integer")
+	id = IntegerField(primarykey=True,notnull=True,ddl="integer")
 	title = StringField(ddl="varchar(100)",vrange="0-100")
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
@@ -49,7 +49,7 @@ class Host(Model):
 	server_info = StringField(ddl="varchar(150)",vrange="0-150")
 	middleware = StringField(ddl="varchar(200)",vrange="0-200")
 	description = TextField(ddl="text")
-	project_id IntegerField(notnull=True,ddl="integer")
+	project_id = IntegerField(notnull=True,ddl="integer")
 
 	@classmethod
 	def create(cls):
@@ -73,9 +73,9 @@ class Host(Model):
 
 
 class Vul(Model):
-	__table = "vul"
+	_table = "vul"
 
-	id = IntergetField(primarykey=True,notnull=True,ddl="integer")
+	id = IntegerField(primarykey=True,notnull=True,ddl="integer")
 	name = StringField(notnull=True,ddl="varchar(100)",vrange="1-100")
 	url = UrlField(ddl="varchar(4096)")
 	info = StringField(ddl="varchar(1024)",vrange="0-1024")
@@ -102,9 +102,9 @@ class Vul(Model):
 
 
 class Comment(Model):
-	__table = "comment"
+	_table = "comment"
 
-	id = IntergetField(primarykey=True,notnull=True,ddl="integer")
+	id = IntegerField(primarykey=True,notnull=True,ddl="integer")
 	name = StringField(notnull=True,ddl="varchar(100)",vrange="1-100")
 	url = UrlField(ddl="varchar(4096)")
 	info = StringField(ddl="varchar(1024)",vrange="0-1024")
@@ -130,20 +130,20 @@ class Comment(Model):
 		cls.rawsql(sqlCmd)
 
 
-class Datebase(Model):
-	__tables = [Project, Host, Vul, Comment]
+class Database(Model):
+	_tables = [Project, Host, Vul, Comment]
 
 	@classmethod
-	def createDatabase(cls):
+	def create(cls):
 		cls.rawsql("drop database if exists {0}".format(conf.dbname))
 		cls.rawsql("create database {0}".format(conf.dbname))
-		for table in __tables:
+		for table in _tables:
 			table.create()
 
 	@classmethod
-	def resetDatabase(cls):
+	def reset(cls):
 		cls.rawsql("drop database if exists {0}".format(conf.dbname))
 		cls.rawsql("create database {0}".format(conf.dbname))
-		for table in __tables:
+		for table in _tables:
 			table.create()
 

@@ -16,10 +16,11 @@ import json
 import web
 
 import lib
+from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
 from plugin.dnsbrute import DnsBrute
-from init import log
+from init import log, WIPError
 
 
 def startServer():
@@ -77,18 +78,14 @@ class Install:
 class ProjectList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
-
 		try:
-			result = Project.findraw()
+			result = Project.findraw('id','name')
 		except FieldError as msg:
 			log.error(msg)
 			raise web.internalerror(msg)
-		except ModelError as msg:
+		except WIPError as msg:
 			log.error(msg)
-			raise web.internalerror(msg)
-		except DBError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
+			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
 
@@ -98,19 +95,18 @@ class ProjectDetail:
 		web.header('Content-Type', 'application/json')
 		params = web.input()
 		try:
-			project = Project.get(params.id)
-			#result = Project.getraw(params.id)
+			project = Project.get(params['id'])
+			#result = Project.getraw(params['id'])
+		except KeyError:
+			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
 			log.error(msg)
 			raise web.internalerror(msg)
-		except ModelError as msg:
+		except WIPError as msg:
 			log.error(msg)
-			raise web.internalerror(msg)
-		except DBError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
+			raise web.internalerror("Internal ERROR!")
 		else:
-			project.ctime = project.ctime.strftime("%Y-%m-%d %H:%M:%S")
+			project.ctime = str(project.ctime)
 			return project.toJson()
 			#result['ctime'] = result['ctime'].strftime("%Y-%m-%d %H:%M:%S")
 			#return json.dumps(result)
@@ -120,21 +116,17 @@ class ProjectAdd:
 	def POST(self):
 		params = web.input()
 		try:
-			kw = dict()
-			for k in ("name","url","ip","whois","description"): kw[k]=params[k].strip()
+			kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
 			project = Project(**kw)
 			project.save()
+		except KeyError:
+			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
 			log.error(msg)
 			raise web.internalerror(msg)
-		except ModelError as msg:
+		except WIPError as msg:
 			log.error(msg)
-			raise web.internalerror(msg)
-		except DBError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except KeyError:
-			raise web.internalerror("Missing argument.")
+			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 
@@ -143,18 +135,17 @@ class ProjectDelete:
 	def GET(self):
 		params = web.input()
 		try:
-			Project.delete(params.id.strip())
+			Project.delete(params['id'].strip())
+			#project = Project.get(params['id'])
+			#project.remove()
+		except KeyError:
+			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
 			log.error(msg)
 			raise web.internalerror(msg)
-		except ModelError as msg:
+		except WIPError as msg:
 			log.error(msg)
-			raise web.internalerror(msg)
-		except DBError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except KeyError:
-			raise web.internalerror("Missing argument.")
+			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 
@@ -170,17 +161,14 @@ class ProjectModify:
 			#kw = dict()
 			#for key in ("name","url","ip","whois","description"): kw[key]=params[key].strip()
 			#Project.where(id=params.id.strip()).update(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
 			log.error(msg)
 			raise web.internalerror(msg)
-		except ModelError as msg:
+		except WIPError as msg:
 			log.error(msg)
-			raise web.internalerror(msg)
-		except DBError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except KeyError:
-			raise web.internalerror("Missing argument.")
+			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 		

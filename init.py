@@ -17,8 +17,17 @@ reload(sys)
 sys.setdefaultencoding("utf-8")
 
 
+class WIPError(Exception):
+    def __init__(self, reason=""):
+        self.errMsg = "WIPError. " + ("reason: "+reason if reason else "")
+
+    def __str__(self):
+        return self.errMsg
+
+
 def Enum(**enums):
     return type('Enum', (), enums)
+
 
 def initLog():
     '''
@@ -66,6 +75,7 @@ if not os.path.exists("log"):
 
 if not os.path.exists(os.path.join("static","attachment")):
     os.mkdir(os.path.join("static","attachment"))
+
 
 log = initLog()
 conf = Conf()
