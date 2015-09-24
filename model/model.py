@@ -135,15 +135,15 @@ class Database(Model):
 
 	@classmethod
 	def create(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.dbname))
-		cls.rawsql("create database {0}".format(conf.dbname))
-		for table in _tables:
+		cls.rawsql("drop database if exists {0}".format(conf.dbname), raw=True)
+		cls.rawsql("create database {0}".format(conf.dbname), raw=True)
+		for table in cls._tables:
 			table.create()
 
 	@classmethod
 	def reset(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.dbname))
-		cls.rawsql("create database {0}".format(conf.dbname))
-		for table in _tables:
+		cls.rawsql("drop database if exists {0}".format(conf.dbname), raw=True)
+		cls.rawsql("create database {0}".format(conf.dbname), raw=True)
+		for table in cls._tables:
 			table.create()
 

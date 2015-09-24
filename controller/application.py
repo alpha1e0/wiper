@@ -20,7 +20,7 @@ from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
 from plugin.dnsbrute import DnsBrute
-from init import log, WIPError
+from init import log, conf, WIPError
 
 
 def startServer():
@@ -71,6 +71,25 @@ class Install:
 		return render.install()
 
 	def POST(self):
+		params = web.input()
+
+		try:
+			conf.set("db", "db_type", params.dbtype)
+			conf.set("db", "db_host", params.dbhost)
+			conf.set("db", "db_port", params.dbport)
+			conf.set("db", "db_user", params.dbuser)
+			conf.set("db", "db_password", params.dbpassword)
+			conf.set("db", "db_name", params.dbname)
+			conf.write()
+			conf.read()
+		except WIPError as msg:
+			raise web.internalerror("Configure file parse error.")
+
+		try:
+			Database.create()
+		except DBError as msg:
+			raise web.internalerror("Databae creating error.")
+
 		raise web.seeother("/")
 
 
@@ -79,12 +98,10 @@ class ProjectList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 		try:
-			result = Project.findraw('id','name')
+			result = Project.queryraw('id','name')
 		except FieldError as msg:
-			log.error(msg)
 			raise web.internalerror(msg)
 		except WIPError as msg:
-			log.error(msg)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)

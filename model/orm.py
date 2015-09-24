@@ -241,11 +241,11 @@ class Model(dict):
 
 
 	@classmethod
-	def rawsql(cls, sqlCmd):
+	def rawsql(cls, sqlCmd, raw=False):
 		'''
 		Execute sql command direct.
 		'''
-		with DBManage() as con:
+		with DBManage(raw=raw) as con:
 			result = con.sql(sqlCmd)
 			return result
 
@@ -255,7 +255,7 @@ class Model(dict):
 		Execute select query direct.
 		'''
 		with DBManage() as con:
-			result = con.find(sqlCmd)
+			result = con.query(sqlCmd)
 			return result
 
 	@classmethod
@@ -309,10 +309,10 @@ class Model(dict):
 
 
 	@classmethod
-	def findraw(cls, *args):
+	def queryraw(cls, *args):
 		'''
 		Select from database, return the 'raw' data.
-		Example: User.where(name='aa').findraw('name','ip','url')
+		Example: User.where(name='aa').queryraw('name','ip','url')
 			will returns: [{'name':'aa','ip','1.1.1.1','url':'test.com'},{'name':....}]
 		'''
 		if args:
@@ -328,12 +328,12 @@ class Model(dict):
 
 
 	@classmethod
-	def find(cls, *args):
+	def query(cls, *args):
 		'''
 		Select from database, return a list of model object
 		Example: 
-			User.where(name='aa').findraw('name','ip','url') will returns: [User(),User()]
-			User.findraw() will return all the rows
+			User.where(name='aa').queryraw('name','ip','url') will returns: [User(),User()]
+			User.queryraw() will return all the rows
 		'''
 		if args:
 			columns = ",".join(args)

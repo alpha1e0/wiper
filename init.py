@@ -38,12 +38,12 @@ def initLog():
 
     streamHD = logging.StreamHandler()
     streamHD.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] %(name)s:%(levelname)s: %(message)s')
+    formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
     streamHD.setFormatter(formatter)
 
     fileHD = logging.FileHandler(os.path.join('log', 'wiplog.log'))
     fileHD.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
+    formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
     fileHD.setFormatter(formatter)
 
     log.addHandler(streamHD)
@@ -54,20 +54,59 @@ def initLog():
 
 class Conf:
     def __init__(self):
-        cf = ConfigParser.ConfigParser()
-        try:
-            cf.read(os.path.join("app.config"))
-            self.dbhost = cf.get("db", "db_host")
-            self.dbport = cf.get("db", "db_port")
-            self.dbuser = cf.get("db", "db_user")
-            self.dbpassword = cf.get("db", "db_password")
-            self.dbname = cf.get("db", "db_name")
+        self._configFile = "app.config"
+        self._cf = ConfigParser.ConfigParser()
+        self.read()
 
-            self.dnsServers = [x.strip() for x in cf.get("dns", "servers").split()]
-            self.dnsTimeout = float(cf.get("dns", "timeout"))
+    @property
+    def configFile(self):
+        return self._configFile
+
+    @configFile.setter
+    def configFile(self, value):
+        self._configFile = value.strip()
+    
+
+    def read(self, fileName="app.config"):
+        '''
+        Read the configure file, get the configuration.
+        '''
+        try:
+            self._cf.read(os.path.join(self._configFile))
+            self.dbhost = self._cf.get("db", "db_host")
+            self.dbport = self._cf.get("db", "db_port")
+            self.dbuser = self._cf.get("db", "db_user")
+            self.dbpassword = self._cf.get("db", "db_password")
+            self.dbname = self._cf.get("db", "db_name")
+
+            self.dnsServers = [x.strip() for x in self._cf.get("dns", "servers").split()]
+            self.dnsTimeout = float(self._cf.get("dns", "timeout"))
         except ConfigParser.Error as msg:
             log.error("Read configure file failed, reason:{0}!".format(msg))
-            exit(1)
+            raise WIPError("read configure file error")
+
+
+    def set(self, section, option, value):
+        '''
+        Set a configure.
+        '''
+        try:
+            self._cf.set(section, option, value)
+        except ConfigParser.Error as msg:
+            log.error("Set configure failed, reason:{0}!".format(msg))
+            raise WIPError("set configure error")
+        
+
+    def write(self):
+        '''
+        Write configures to configure file.
+        '''
+        try:
+            with open(self._configFile, "w") as fd:
+                self._cf.write(fd)
+        except IOError as msg:
+            log.error("Write configure file failed, reason:{0}!".format(msg))
+            raise WIPError("write configure file error")
 
 
 if not os.path.exists("log"):
