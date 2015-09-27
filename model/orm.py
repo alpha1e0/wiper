@@ -57,6 +57,8 @@ class Field(object):
 				raise FieldError("attribute {0} define error".format(vrange))
 			if vrange[0] > vrange[1]:
 				raise FieldError("attribute {0} define error".format(vrange))
+			else:
+				self.vrange = vrange
 
 	def inputCheck(self, strValue):
 		return True
@@ -228,13 +230,13 @@ class Model(dict):
 
 	def __init__(self, **kwargs):
 		super(Model, self).__init__(**kwargs)
-		self.saveType = "insert"
 
 	def __getattr__(self, key):
-		try:
-			return self[key]
-		except KeyError:
-			raise AttributeError("Model object has no attribute '{0}'".format(key))
+		#try:
+		#	return self[key]
+		#except KeyError:
+		#	raise AttributeError("Model object has no attribute '{0}'".format(key))
+		return self[key]
 
 	def __setattr__(self, key, value):
 		self[key] = value
@@ -347,7 +349,6 @@ class Model(dict):
 			ret = list()
 			for line in result:
 				obj = cls(**line)
-				obj.saveType = "update"
 				ret.append(obj)
 
 		return ret
@@ -388,7 +389,6 @@ class Model(dict):
 		with SQLQuery(sqlCmd) as result:
 			if result:
 				obj = cls(**result[0])
-				obj.saveType = "update"
 				return obj
 
 
@@ -405,7 +405,7 @@ class Model(dict):
 		keys = ",".join([k for k in params])
 		values = ",".join(["'"+params[k]+"'" for k in params])
 
-		salCmd = "insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values)
+		sqlCmd = "insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values)
 		with SQLExec(sqlCmd) as result:
 			return result
 
@@ -444,7 +444,7 @@ class Model(dict):
 			return False
 
 		params = cls._paramFormat(kwargs)
-		setValue = [k+"='"+v+"'" for k,v in params.iteritems]
+		setValue = [k+"='"+v+"'" for k,v in params.iteritems()]
 		setValue = ",".join(setValue)
 
 		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls._where)
@@ -468,9 +468,9 @@ class Model(dict):
 		'''
 		if pvalue:
 			pvalue = cls._primaryKey.inputFormat(pvalue)
-			sqlCmd = "delect from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+			sqlCmd = "delete from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
 		else:
-			sqlCmd = "delect from {table} {where}".format(table=cls._table,where=cls._where)
+			sqlCmd = "delete from {table} {where}".format(table=cls._table,where=cls._where)
 			cls._clearStatus()
 
 		with SQLExec(sqlCmd) as result:
@@ -481,7 +481,7 @@ class Model(dict):
 	def deletes(cls, rows):
 		pass
 
-	def save(self):
+	def save(self, update=False):
 		'''
 		Save current object, will insert a row into database.
 		Exaple:
@@ -490,14 +490,14 @@ class Model(dict):
 
 			u=User.get(10)
 			u.name='bb'
-			u.save()
+			u.save(update=True)
 		'''
-		if self.saveType == "insert":
+		if not update:
 			params = self._paramFormat(self)
 			keys = ",".join([k for k in params])
 			values = ",".join(["'"+params[k]+"'" for k in params])
-			salCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
-		elif self.saveType == "update":
+			sqlCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
+		else:
 			params = self._paramFormat(self)
 			setValue = [k+"='"+v+"'" for k,v in params.iteritems if k!=self._primaryKey.name]
 			setValue = ",".join(setValue)
@@ -512,7 +512,7 @@ class Model(dict):
 		'''
 		Remove current object, will delete a row from database.
 		'''
-		sqlCmd = "delect from {table} where {key}={value}".format(table=self._table,key=self._primaryKey.name,value=self[self._primaryKey.name])
+		sqlCmd = "delete from {table} where {key}={value}".format(table=self._table,key=self._primaryKey.name,value=self[self._primaryKey.name])
 
 		with SQLExec(sqlCmd) as result:
 			return result

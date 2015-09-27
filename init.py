@@ -29,25 +29,32 @@ def Enum(**enums):
     return type('Enum', (), enums)
 
 
-def initLog():
+def genLog(logfile=None):
     '''
     critical, error, warning, info, debug, notset
     '''
-    log = logging.getLogger('wip')
-    log.setLevel(logging.DEBUG)
+    if not logfile:
+        log = logging.getLogger('wip')
+        log.setLevel(logging.DEBUG)
 
-    streamHD = logging.StreamHandler()
-    streamHD.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
-    streamHD.setFormatter(formatter)
+        streamHD = logging.StreamHandler()
+        streamHD.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
+        streamHD.setFormatter(formatter)
 
-    fileHD = logging.FileHandler(os.path.join('log', 'wiplog.log'))
-    fileHD.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
-    fileHD.setFormatter(formatter)
+        fileHD = logging.FileHandler(os.path.join('log', 'wiplog.log'))
+        fileHD.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
+        fileHD.setFormatter(formatter)
 
-    log.addHandler(streamHD)
-    log.addHandler(fileHD)
+        log.addHandler(streamHD)
+        log.addHandler(fileHD)
+    else:
+        fileHD = logging.FileHandler(os.path.join('log', '{0}.log'.format(logfile)))
+        fileHD.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
+        fileHD.setFormatter(formatter)
+        log.addHandler(fileHD)
 
     return log
 
@@ -67,7 +74,7 @@ class Conf:
         self._configFile = value.strip()
     
 
-    def read(self, fileName="app.config"):
+    def read(self):
         '''
         Read the configure file, get the configuration.
         '''
@@ -116,7 +123,7 @@ if not os.path.exists(os.path.join("static","attachment")):
     os.mkdir(os.path.join("static","attachment"))
 
 
-log = initLog()
+log = genLog()
 conf = Conf()
 conf.log = log
 

@@ -71,10 +71,23 @@ class Install:
 		return render.install()
 
 	def POST(self):
-		params = web.input()
+		originParams = web.input()
+		options = (
+			("dbtype","integer","1-2"),
+			("dbhost","string","1-100"),
+			("dbport","integer","1-65535"),
+			("dbuser","string","1-50"),
+			("dbpassword","string","0-50"),
+			("dbname","string","1-50"),
+		)
 
 		try:
-			conf.set("db", "db_type", params.dbtype)
+			params = lib.formatParam(originParams, options)
+		except lib.ParamError as msg:
+			raise web.internalerror("Parameter error, {0}.".format(msg))
+
+		try:
+			conf.set("db", "db_type", (params.dbtype=='1' and "mysql" or params.dbtype=='2' and "sqlite"))
 			conf.set("db", "db_host", params.dbhost)
 			conf.set("db", "db_port", params.dbport)
 			conf.set("db", "db_user", params.dbuser)
@@ -113,7 +126,6 @@ class ProjectDetail:
 		params = web.input()
 		try:
 			project = Project.get(params['id'])
-			#result = Project.getraw(params['id'])
 		except KeyError:
 			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
@@ -124,16 +136,14 @@ class ProjectDetail:
 			raise web.internalerror("Internal ERROR!")
 		else:
 			project.ctime = str(project.ctime)
+			#project.ctime = project.ctime.strftime("%Y-%m-%d %H:%M:%S")
 			return project.toJson()
-			#result['ctime'] = result['ctime'].strftime("%Y-%m-%d %H:%M:%S")
-			#return json.dumps(result)
 
 
 class ProjectAdd:
 	def POST(self):
 		params = web.input()
 		try:
-			kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
 			project = Project(**kw)
 			project.save()
 		except KeyError:
@@ -152,9 +162,8 @@ class ProjectDelete:
 	def GET(self):
 		params = web.input()
 		try:
-			Project.delete(params['id'].strip())
-			#project = Project.get(params['id'])
-			#project.remove()
+			project = Project.get(params['id'])
+			project.remove()
 		except KeyError:
 			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
@@ -174,10 +183,7 @@ class ProjectModify:
 			project = Project.get(params.id.strip())
 			for key in ("name","url","ip","whois","description"):
 				project[key] = params[key].strip()
-			project.save()
-			#kw = dict()
-			#for key in ("name","url","ip","whois","description"): kw[key]=params[key].strip()
-			#Project.where(id=params.id.strip()).update(**kw)
+			project.save(update=True)
 		except KeyError:
 			raise web.internalerror("Missing argument.")
 		except FieldError as msg:
@@ -196,112 +202,86 @@ class HostList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (
-			("projectid","integer","0-0"),
-			("orderby","string","1-20")
-		)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-		
-			sqlCmd = "select id,title,url,ip,level from host where project_id = {0} order by {1}".format(param.projectid,param.orderby)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query host failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		try:
+			result = Host.queryraw('id','title','url','ip','level')
+		except FieldError as msg:
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class HostDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "select * from host where id={0}".format(param.id)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query host detail failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		params = web.input()
+		try:
+			result = Host.getraw(params['id'])
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class HostAdd:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("url","url",""),
-			("ip","ip",""),
-			("title","string","1-200"),
-			("protocol","integer","1-20"),
-			("level","integer","1-4"),
-			("os","string","0-150"),
-			("serverinfo","string","0-150"),
-			("middleware","string","0-200"),
-			("description","text",""),
-			("projectid","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "insert into host(url,ip,title,protocol,level,os,server_info,middleware,description,project_id) values('{0}','{1}'\
-				,'{2}','{3}','{4}','{5}','{6}','{7}','{8}','{9}')".format(param.url,param.ip,param.title,param.protocol,param.level,\
-				param.os,param.serverinfo,param.middleware,param.description,param.projectid)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Add host detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","projectid")}
+			Host.insert(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 class HostDelete:
 	def GET(self):
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "delete from host where id={0}".format(param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Delete host detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			Host.delete(params['id'].strip())
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 class HostModify:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("url","url",""),
-			("ip","ip",""),
-			("title","string","1-200"),
-			("protocol","integer","1-20"),
-			("level","integer","1-4"),
-			("os","string","0-150"),
-			("serverinfo","string","0-150"),
-			("middleware","string","0-200"),
-			("description","text",""),
-			("id","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "update host set url='{0}',ip='{1}',title='{2}',level='{3}',os='{4}',server_info='{5}',middleware='{6}',description='{7}',protocol='{8}' \
-				where id={9}".format(param.url,param.ip,param.title,param.level,param.os,param.serverinfo,param.middleware,param.description,param.protocol,param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Modify host detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
+			Host.where(id=params['id'].strip()).update(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 #=================================处理vul表相关的代码=========================================
@@ -310,105 +290,86 @@ class VulList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (
-			("hostid","integer","0-0"),
-			("orderby","string","1-20")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "select id,name,level from vul where host_id={0} order by {1}".format(param.hostid,param.orderby)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query vul failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		try:
+			result = Vul.queryraw('id','name','level')
+		except FieldError as msg:
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class VulDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-		
-			sqlCmd = "select * from vul where id={0}".format(param.id)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query vul detail failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		params = web.input()
+		try:
+			result = Vul.getraw(params['id'])
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class VulAdd:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("info","string","0-1024"),
-			("type","integer","1-100"),
-			("level","integer","1-4"),
-			("description","text",""),
-			("hostid","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "insert into vul(name,url,info,type,level,description,host_id) values('{0}','{1}'\
-				,'{2}','{3}','{4}','{5}','{6}')".format(param.name,param.url,param.info,param.type,param.level,param.description,param.hostid)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Add vul detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("name","url","info","type","level","description","host_id")}
+			Vul.insert(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 class VulDelete:
 	def GET(self):
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "delete from vul where id={0}".format(param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Delete vul detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			Vul.delete(params['id'].strip())
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 class VulModify:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("info","string","0-1024"),
-			("type","integer","1-100"),
-			("level","integer","1-4"),
-			("description","text",""),
-			("id","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-			
-			sqlCmd = "update vul set name='{0}',url='{1}',info='{2}',type='{3}',level='{4}',description='{5}'\
-				where id={6}".format(param.name,param.url,param.info,param.type,param.level,param.description,param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Modify vul detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("id","name","url","info","type","level","description")}
+			Vul.where(id=params['id'].strip()).update(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 #=================================处理comment表相关的代码=========================================
@@ -417,64 +378,51 @@ class CommentList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (
-			("hostid","integer","0-0"),
-			("orderby","string","1-20")
-		)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "select id,name,level from comment where host_id={0} order by {1}".format(param.hostid,param.orderby)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query comment failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		try:
+			result = Comment.queryraw('id','name','level')
+		except FieldError as msg:
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class CommentDetail:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
-
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-		
-			sqlCmd = "select * from comment where id={0}".format(param.id)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		params = web.input()
+		try:
+			result = Comment.getraw(params['id'])
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return json.dumps(result)
 
 
 class CommentAdd:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("info","string","0-1024"),
-			("level","integer","1-4"),
-			("attachment","string","0-200"),
-			("description","text",""),
-			("hostid","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-				,'{2}','{3}','{4}','{5}','{6}')".format(param.name,param.url,param.info,param.level,param.attachment,param.description,param.hostid)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Add comment detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+			Comment.insert(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 class CommentDelete:
@@ -507,27 +455,20 @@ class CommentDelete:
 
 class CommentModify:
 	def POST(self):
-		originParam = web.input()
-		options = (
-			("name","string","1-100"),
-			("url","url",""),
-			("info","string","0-1024"),
-			("level","integer","1-4"),
-			("attachment","string","0-200"),
-			("description","text",""),
-			("id","integer","0-0")
-		)
-		
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
-
-			sqlCmd = "update comment set name='{0}',url='{1}',info='{2}',level='{3}',attachment='{4}',description='{5}' \
-				where id={6}".format(param.name,param.url,param.info,param.level,param.attachment,param.description,param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Modify comment detail failed, reason: {0}.".format(status[1]))
-				return True
+		params = web.input()
+		try:
+			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+			Comment.where(id=params['id'].strip()).update(**kw)
+		except KeyError:
+			raise web.internalerror("Missing argument.")
+		except FieldError as msg:
+			log.error(msg)
+			raise web.internalerror(msg)
+		except WIPError as msg:
+			log.error(msg)
+			raise web.internalerror("Internal ERROR!")
+		else:
+			return True
 
 
 #=================================处理attachment表相关的代码=========================================

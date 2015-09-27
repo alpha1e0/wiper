@@ -318,7 +318,7 @@ function addHost(){
     			return false;
     		}
     		var project_id = current.getProject().id;
-    		formData.push({'name':'projectid', 'value':project_id});
+    		formData.push({'name':'project_id', 'value':project_id});
     	},
     	success:function(){   		
     		alert("提交成功!");
