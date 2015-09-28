@@ -16,7 +16,6 @@ import ConfigParser
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-
 class WIPError(Exception):
     def __init__(self, reason=""):
         self.errMsg = "WIPError. " + ("reason: "+reason if reason else "")
@@ -127,4 +126,5 @@ log = genLog()
 conf = Conf()
 conf.log = log
 
+log.debug("debug: init application ================================================= ")
 

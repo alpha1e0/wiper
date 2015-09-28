@@ -557,7 +557,7 @@ function addVul(){
     			return false;
     		}
     		var host_id = current.getHost().id;
-    		formData.push({'name':'hostid', 'value':host_id});
+    		formData.push({'name':'host_id', 'value':host_id});
     	},
     	success:function(){   		
     		alert("提交成功!");
@@ -744,7 +744,7 @@ function addComment(){
                 return false;
             }
             var host_id = current.getHost().id;
-            formData.push({'name':'hostid', 'value':host_id});
+            formData.push({'name':'host_id', 'value':host_id});
         },
         success:function(){             
             alert("提交成功!");

@@ -15,7 +15,7 @@ import json
 
 import web
 
-import lib
+from lib import formatParam, ParamError
 from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
@@ -57,7 +57,7 @@ def startServer():
 	app.run()
 
 
-# ================================================主页=========================================
+# ================================================index page=========================================
 
 class Index:
 	def GET(self):
@@ -82,9 +82,9 @@ class Install:
 		)
 
 		try:
-			params = lib.formatParam(originParams, options)
-		except lib.ParamError as msg:
-			raise web.internalerror("Parameter error, {0}.".format(msg))
+			params = formatParam(originParams, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
 			conf.set("db", "db_type", (params.dbtype=='1' and "mysql" or params.dbtype=='2' and "sqlite"))
@@ -95,26 +95,26 @@ class Install:
 			conf.set("db", "db_name", params.dbname)
 			conf.write()
 			conf.read()
-		except WIPError as msg:
+		except WIPError as error:
 			raise web.internalerror("Configure file parse error.")
 
 		try:
 			Database.create()
-		except DBError as msg:
+		except DBError as error:
 			raise web.internalerror("Databae creating error.")
 
 		raise web.seeother("/")
 
 
-# ================================处理project表相关的代码=========================================
+# ================================the operation of project=========================================
 class ProjectList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 		try:
 			result = Project.queryraw('id','name')
-		except FieldError as msg:
-			raise web.internalerror(msg)
-		except WIPError as msg:
+		except FieldError as error:
+			raise web.internalerror(error)
+		except WIPError as error:
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -127,12 +127,12 @@ class ProjectDetail:
 		try:
 			project = Project.get(params['id'])
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			project.ctime = str(project.ctime)
@@ -147,12 +147,12 @@ class ProjectAdd:
 			project = Project(**kw)
 			project.save()
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -165,12 +165,12 @@ class ProjectDelete:
 			project = Project.get(params['id'])
 			project.remove()
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -185,28 +185,31 @@ class ProjectModify:
 				project[key] = params[key].strip()
 			project.save(update=True)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 		
 
-#=================================处理host表相关的代码=========================================
+#=================================the operation of host=========================================
 
 class HostList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
+		params = web.input()
 		try:
-			result = Host.queryraw('id','title','url','ip','level')
-		except FieldError as msg:
-			raise web.internalerror(msg)
-		except WIPError as msg:
+			result = Host.where(project_id=params['projectid'].strip()).queryraw('id','title','url','ip','level')
+		except KeyError:
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			raise web.internalerror(error)
+		except WIPError as error:
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -220,12 +223,12 @@ class HostDetail:
 		try:
 			result = Host.getraw(params['id'])
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -238,12 +241,12 @@ class HostAdd:
 			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","projectid")}
 			Host.insert(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -255,12 +258,12 @@ class HostDelete:
 		try:
 			Host.delete(params['id'].strip())
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -273,28 +276,31 @@ class HostModify:
 			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
 			Host.where(id=params['id'].strip()).update(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 
 
-#=================================处理vul表相关的代码=========================================
+#=================================the operation of vul=========================================
 
 class VulList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
+		params = web.input()
 		try:
-			result = Vul.queryraw('id','name','level')
-		except FieldError as msg:
-			raise web.internalerror(msg)
-		except WIPError as msg:
+			result = Vul.where(host_id=params['hostid'].strip()).queryraw('id','name','level')
+		except KeyError:
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			raise web.internalerror(error)
+		except WIPError as error:
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -308,12 +314,12 @@ class VulDetail:
 		try:
 			result = Vul.getraw(params['id'])
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -326,12 +332,12 @@ class VulAdd:
 			kw = {k:params[k].strip() for k in ("name","url","info","type","level","description","host_id")}
 			Vul.insert(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -343,12 +349,12 @@ class VulDelete:
 		try:
 			Vul.delete(params['id'].strip())
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -361,28 +367,30 @@ class VulModify:
 			kw = {k:params[k].strip() for k in ("id","name","url","info","type","level","description")}
 			Vul.where(id=params['id'].strip()).update(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 
 
-#=================================处理comment表相关的代码=========================================
+#=================================the operation of comment=========================================
 
 class CommentList:
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
 		try:
-			result = Comment.queryraw('id','name','level')
-		except FieldError as msg:
-			raise web.internalerror(msg)
-		except WIPError as msg:
+			result = Comment.where(host_id=params['hostid'].strip()).queryraw('id','name','level')
+		except KeyError:
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			raise web.internalerror(error)
+		except WIPError as error:
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -396,12 +404,12 @@ class CommentDetail:
 		try:
 			result = Comment.getraw(params['id'])
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return json.dumps(result)
@@ -414,12 +422,12 @@ class CommentAdd:
 			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
 			Comment.insert(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
@@ -427,30 +435,29 @@ class CommentAdd:
 
 class CommentDelete:
 	def GET(self):
-		originParam = web.input()
-		options = (("id","integer","0-0"),)
+		params = web.input()
 
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+		try:
+			comment = Comment.get(params['id'].strip)
+		except KeyError:
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
+			raise web.internalerror("Internal ERROR!")
 
-			sqlCmd = "select attachment from comment where id={0}".format(param.id)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query comment detail failed, reason: {0}.".format(status[1]))
-				#print result
-				attachment = result[0]['attachment']
-				#print attachment
-				if attachment != "":
-					log.debug(attachment)
-					if os.path.exists(os.path.join("static","attachment",attachment)):
-						os.remove(os.path.join("static","attachment",attachment))
-		
-			sqlCmd = "delete from comment where id={0}".format(param.id)
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Delete comment detail failed, reason: {0}.".format(status[1]))
-				return True
+		if not comment:
+			return False
+
+		#delete attachment
+		if os.path.exists(os.path.join("static","attachment",comment.attachment)):
+			os.remove(os.path.join("static","attachment",comment.attachment))
+
+		comment.remove()
+
+		return True
 
 
 class CommentModify:
@@ -460,24 +467,22 @@ class CommentModify:
 			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
 			Comment.where(id=params['id'].strip()).update(**kw)
 		except KeyError:
-			raise web.internalerror("Missing argument.")
-		except FieldError as msg:
-			log.error(msg)
-			raise web.internalerror(msg)
-		except WIPError as msg:
-			log.error(msg)
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
+		except WIPError as error:
+			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		else:
 			return True
 
 
-#=================================处理attachment表相关的代码=========================================
-
 class AttachmentAdd:
 	def POST(self):
-		originParam = web.input(attachment={})
-		originParam["filename"] = originParam.attachment.filename
-		originParam["value"] = originParam.attachment.value
+		originParams = web.input(attachment={})
+		originParams["filename"] = originParams.attachment.filename
+		originParams["value"] = originParams.attachment.value
 
 		options = (
 			("hostid","integer","0-0"),
@@ -485,42 +490,50 @@ class AttachmentAdd:
 			("name","string","1-200"),
 			("value","text","")
 		)
+
+		try:
+			params = formatParam(originParams, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))
 			
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
 
-			hostID = param.hostid
-			attachName = param.name
-			attachFilename = param.filename
-			fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
-			fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
-			if attachName != "":
-				attachType = os.path.splitext(attachFilename)[-1]
-				fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
-			else:
-				fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
-			fileNameFull = os.path.join("static","attachment",fileName)
+		hostID = params.hostid
+		attachName = params.name
+		attachFilename = params.filename
+		fileCTime = time.strftime("%Y-%m-%d-%H%M%S",time.localtime())
+		fileNamePrefix = "{0}_{1}".format(hostID,fileCTime)
+		if attachName != "":
+			attachType = os.path.splitext(attachFilename)[-1]
+			fileName = u"{0}_{1}{2}".format(fileNamePrefix,attachName,attachType)
+		else:
+			fileName = u"{0}_{1}".format(fileNamePrefix,attachFilename)
+		fileNameFull = os.path.join("static","attachment",fileName)
 
-			sqlCmd = "insert into comment(name,url,info,level,attachment,description,host_id) values('{0}','{1}'\
-				,'{2}','{3}','{4}','{5}','{6}')".format(fileName,"","","3",fileName,"attachment:"+fileName,hostID)
+		try:
+			comment = Comment(name=fileName,url="",info="",level=3,attachment=fileName,description="attachment:"+fileName,host_id=hostID)
+		except WIPError as error:
+			log.error(error)
+			raise web.internalerror("Internal ERROR!")
 
-			try:
-				fd = open(fileNameFull, "wb")
-				#fd.write(param['attachment'].value)
-				fd.write(param.value)
-			except IOError as msg:
-				raise web.internalerror('Write attachment file failed!')
-			finally:
-				fd.close()
+		try:
+			fd = open(fileNameFull, "wb")
+			#fd.write(params['attachment'].value)
+			fd.write(params.value)
+		except IOError as error:
+			raise web.internalerror('Write attachment file failed!')
+		finally:
+			fd.close()
 
-			with SQLExec(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Add attachment comment failed, reason: {0}.".format(status[1]))
-				return True
+		try:
+			comment.save()
+		except WIPError as error:
+			log.error(error)
+			raise web.internalerror("Internal ERROR!")
+
+		return True
 
 
-#=================================处理domainseek表相关的代码=========================================
+#=================================operation of domainseek=========================================
 
 class TaskResultList:
 	def GET(self):
@@ -544,13 +557,16 @@ class DictAdd:
 	def POST(self):
 		originParam = web.input(dictfile={})
 
-		fileName = param.dictfile.filename
+		try:
+			fileName = param.dictfile.filename
+		except AttributeError:
+			raise web.internalerror("Missing parameter.")
 		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)
 
 		try:
 			fd = open(fileNameFull, "w")
 			fd.write(param.dictfile.value)
-		except IOError as msg:
+		except IOError as error:
 			raise web.internalerror('Write dictfile failed!')
 
 

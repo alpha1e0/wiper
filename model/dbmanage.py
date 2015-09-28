@@ -63,23 +63,23 @@ class DBManage(object):
                 self.__con = mdb.connect(host=self.dbhost, user=self.dbuser, passwd=self.dbpassword, charset='utf8')
                 if not self.raw:
                     self.__con.select_db(self.dbname)
-            except mdb.OperationalError as msg:
+            except mdb.OperationalError as error:
                 #Could not connect the server, retrys
-                if msg[0] == 2003: 
+                if error[0] == 2003: 
                     success = False
                     time.sleep(i*2)
                     continue
-                elif msg[0] == 1045:
-                    log.debug("DBError, cannot connect to the database server, user or password error.")
+                elif error[0] == 1045:
+                    log.error("DBError, cannot connect to the database server, user or password error.")
                     raise DBError("user or password error")
-                elif msg[0] == 1049:
-                    log.debug("DBError, cannot connect to the database server, database not exists.")
+                elif error[0] == 1049:
+                    log.error("DBError, cannot connect to the database server, database not exists.")
                     raise DBError("database not exists")
             else:
                 break
 
         if not success:
-            log.debug("DBError, cannot connect to the database server, the server maybe down.")
+            log.error("DBError, cannot connect to the database server, the server maybe down.")
             raise DBError("cannot connect to the server, the server maybe down.")
 
         self.__cur = self.__con.cursor()
@@ -93,22 +93,22 @@ class DBManage(object):
         try:
             self.__cur.execute(sqlcmd)
             self.__con.commit()
-        except mdb.OperationalError as msg:
+        except mdb.OperationalError as error:
             # if lost connection, retry one time
-            if msg[0] == 2013:
+            if error[0] == 2013:
                 try:
                     self.connect()
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
-                except mdb.OperationalError as msg:
-                    log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
+                except mdb.OperationalError as error:
+                    log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             else:
-                log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-        except mdb.MySQLError as msg:
-            log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
+                log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+        except mdb.MySQLError as error:
+            log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         
         return True
 
@@ -121,22 +121,22 @@ class DBManage(object):
         '''
         try:
             self.__cur.execute(sqlcmd)
-        except mdb.OperationalError as msg:
+        except mdb.OperationalError as error:
             # if lost connection, retry one time
-            if msg[0] == 2013:
+            if error[0] == 2013:
                 try:
                     self.connect()
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
-                except mdb.OperationalError as msg:
-                    log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
+                except mdb.OperationalError as error:
+                    log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             else:
-                log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-        except mdb.MySQLError as msg:
-            log.debug("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
-            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, msg))
+                log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+        except mdb.MySQLError as error:
+            log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
 
         nameList = [x[0] for x in self.__cur.description]
         result = [dict(zip(nameList,x)) for x in self.__cur.fetchall()]
