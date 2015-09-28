@@ -15,7 +15,7 @@ import json
 
 import web
 
-from lib import formatParam, ParamError
+from lib import formatParam, ParamError, handleException
 from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
@@ -108,329 +108,162 @@ class Install:
 
 # ================================the operation of project=========================================
 class ProjectList:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-		try:
-			result = Project.queryraw('id','name')
-		except FieldError as error:
-			raise web.internalerror(error)
-		except WIPError as error:
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Project.queryraw('id','name')
+		return json.dumps(result)
 
 
 class ProjectDetail:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
 		params = web.input()
-		try:
-			project = Project.get(params['id'])
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			project.ctime = str(project.ctime)
-			#project.ctime = project.ctime.strftime("%Y-%m-%d %H:%M:%S")
-			return project.toJson()
+		project = Project.get(params.id)
+		project.ctime = str(project.ctime)
+		return project.toJson()
 
 
 class ProjectAdd:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			project = Project(**kw)
-			project.save()
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
+		project = Project(**kw)
+		project.save()
+		return json.dumps({'success':1})
 
 
 class ProjectDelete:
+	@handleException
 	def GET(self):
 		params = web.input()
-		try:
-			project = Project.get(params['id'])
-			project.remove()
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		project = Project.get(params.id)
+		project.remove()
+		return json.dumps({'success':1})
 
 
 class ProjectModify:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			project = Project.get(params.id.strip())
-			for key in ("name","url","ip","whois","description"):
-				project[key] = params[key].strip()
-			project.save(update=True)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
+		Project.where(id=params.id.strip()).update(**kw)
+		return json.dumps({'success':1})
 		
 
 #=================================the operation of host=========================================
 
 class HostList:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
 		params = web.input()
-		try:
-			result = Host.where(project_id=params['projectid'].strip()).queryraw('id','title','url','ip','level')
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			raise web.internalerror(error)
-		except WIPError as error:
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).queryraw('id','title','url','ip','level')
+		return json.dumps(result)
 
 
 class HostDetail:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
 		params = web.input()
-		try:
-			result = Host.getraw(params['id'])
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Host.getraw(params.id)
+		return json.dumps(result)
 
 
 class HostAdd:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","projectid")}
-			Host.insert(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","project_id")}
+		Host.insert(**kw)
+		return json.dumps({'success':1})
 
 
 class HostDelete:
+	@handleException
 	def GET(self):
 		params = web.input()
-		try:
-			Host.delete(params['id'].strip())
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		Host.delete(params.id.strip())
+		return json.dumps({'success':1})
 
 
 class HostModify:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
-			Host.where(id=params['id'].strip()).update(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
+		Host.where(id=params.id.strip()).update(**kw)
+		return json.dumps({'success':1})
 
 
 #=================================the operation of vul=========================================
 
 class VulList:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
 		params = web.input()
-		try:
-			result = Vul.where(host_id=params['hostid'].strip()).queryraw('id','name','level')
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			raise web.internalerror(error)
-		except WIPError as error:
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Vul.where(host_id=params.hostid.strip()).queryraw('id','name','level')
+		return json.dumps(result)
 
 
 class VulDetail:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
 		params = web.input()
-		try:
-			result = Vul.getraw(params['id'])
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Vul.getraw(params.id)
+		return json.dumps(result)
 
 
 class VulAdd:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("name","url","info","type","level","description","host_id")}
-			Vul.insert(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("name","url","info","type","level","description","host_id")}
+		Vul.insert(**kw)
+		return json.dumps({'success':1})
 
 
 class VulDelete:
+	@handleException
 	def GET(self):
 		params = web.input()
-		try:
-			Vul.delete(params['id'].strip())
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		Vul.delete(params.id.strip())
+		return json.dumps({'success':1})
 
 
 class VulModify:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("id","name","url","info","type","level","description")}
-			Vul.where(id=params['id'].strip()).update(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("id","name","url","info","type","level","description")}
+		Vul.where(id=params.id.strip()).update(**kw)
+		return json.dumps({'success':1})
 
 
 #=================================the operation of comment=========================================
 
 class CommentList:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
-		try:
-			result = Comment.where(host_id=params['hostid'].strip()).queryraw('id','name','level')
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			raise web.internalerror(error)
-		except WIPError as error:
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		params = web.input()
+		result = Comment.where(host_id=params.hostid.strip()).queryraw('id','name','level')
+		return json.dumps(result)		
 
 
 class CommentDetail:
+	@handleException
 	def GET(self):
-		web.header('Content-Type', 'application/json')
-
 		params = web.input()
-		try:
-			result = Comment.getraw(params['id'])
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return json.dumps(result)
+		result = Comment.getraw(params.id)
+		return json.dumps(result)
 
 
 class CommentAdd:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
-			Comment.insert(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+		Comment.insert(**kw)
+		return json.dumps({'success':1})
 
 
 class CommentDelete:
@@ -438,44 +271,35 @@ class CommentDelete:
 		params = web.input()
 
 		try:
-			comment = Comment.get(params['id'].strip)
-		except KeyError:
+			comment = Comment.get(params.id.strip)
+		except AttributeError:
 			raise web.internalerror("Missing parameter.")
 		except FieldError as error:
-			log.error(error)
 			raise web.internalerror(error)
 		except WIPError as error:
 			log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		if not comment:
-			return False
+			return json.dumps({'success':0})
 
 		#delete attachment
-		if os.path.exists(os.path.join("static","attachment",comment.attachment)):
-			os.remove(os.path.join("static","attachment",comment.attachment))
+		if comment.attachment:
+			if os.path.exists(os.path.join("static","attachment",comment.attachment)):
+				os.remove(os.path.join("static","attachment",comment.attachment))
 
 		comment.remove()
 
-		return True
+		return json.dumps({'success':1})
 
 
 class CommentModify:
+	@handleException
 	def POST(self):
 		params = web.input()
-		try:
-			kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
-			Comment.where(id=params['id'].strip()).update(**kw)
-		except KeyError:
-			raise web.internalerror("Missing parameter.")
-		except FieldError as error:
-			log.error(error)
-			raise web.internalerror(error)
-		except WIPError as error:
-			log.error(error)
-			raise web.internalerror("Internal ERROR!")
-		else:
-			return True
+		kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+		Comment.where(id=params.id.strip()).update(**kw)
+		return json.dumps({'success':1})
 
 
 class AttachmentAdd:
@@ -517,7 +341,6 @@ class AttachmentAdd:
 
 		try:
 			fd = open(fileNameFull, "wb")
-			#fd.write(params['attachment'].value)
 			fd.write(params.value)
 		except IOError as error:
 			raise web.internalerror('Write attachment file failed!')

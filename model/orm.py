@@ -89,9 +89,9 @@ class IntegerField(Field):
 			if ret<self.vrange[0] or ret>self.vrange[1]:
 				raise FieldError("the integer field value '{0}' out of range".format(strValue))
 			else:
-				return ret
+				return str(ret)
 		else:
-			return ret
+			return str(ret)
 
 
 class FloatField(Field):
@@ -112,8 +112,8 @@ class StringField(Field):
 			strValue = self.default
 		if not strValue and self.notnull:
 			raise FieldError("the string field '{0}' must not null".format(self.name))
+		ret = escapeString(strValue)
 		if self.vrange:
-			ret = escapeString(strValue)
 			retLen = len(ret)
 			if retLen<self.vrange[0] or retLen>self.vrange[1]:
 				raise FieldError("the length of the string field value '{0}' out of range".format(strValue))
@@ -232,11 +232,10 @@ class Model(dict):
 		super(Model, self).__init__(**kwargs)
 
 	def __getattr__(self, key):
-		#try:
-		#	return self[key]
-		#except KeyError:
-		#	raise AttributeError("Model object has no attribute '{0}'".format(key))
-		return self[key]
+		try:
+			return self[key]
+		except KeyError:
+			raise AttributeError("Model object has no attribute '{0}'".format(key))
 
 	def __setattr__(self, key, value):
 		self[key] = value
@@ -369,7 +368,8 @@ class Model(dict):
 		cls._clearStatus()
 
 		with SQLQuery(sqlCmd) as result:
-			return result[0]
+			if result:
+				return result[0]
 
 
 	@classmethod
@@ -499,7 +499,7 @@ class Model(dict):
 			sqlCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
 		else:
 			params = self._paramFormat(self)
-			setValue = [k+"='"+v+"'" for k,v in params.iteritems if k!=self._primaryKey.name]
+			setValue = [k+"='"+v+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
 			setValue = ",".join(setValue)
 			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
 			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)

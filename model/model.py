@@ -55,7 +55,7 @@ class Host(Model):
 	def create(cls):
 		sqlCmd = ("create table host ("
 		    "id integer not null auto_increment,"
-		    "title varchar(200) not null unique,"
+		    "title varchar(200) not null,"
 		    "url varchar(100),"
 		    "ip varchar(50),"
 		    "protocol integer not null,"

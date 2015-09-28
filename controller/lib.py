@@ -10,7 +10,11 @@ See the file COPYING for copying detail
 import re
 import json
 
-from init import WIPError
+import web
+
+from init import WIPError,log
+from model.dbmanage import DBError
+from model.orm import FieldError, ModelError
 
 
 def addSlashes(str):
@@ -31,6 +35,25 @@ class ParamError(WIPError):
 
 	def __str__(self):
 		return self.errMsg
+
+
+def handleException(func):
+	def _wrapper(*args, **kwargs):
+		try:
+			return func(*args, **kwargs)
+		except KeyError:
+			raise web.internalerror("Missing parameter.")
+		except AttributeError:
+			raise web.internalerror("Missing parameter.")
+		except FieldError as error:
+			raise web.internalerror(error)
+		except ModelError as error:
+			raise web.internalerror("Internal ERROR!")
+		except DBError as error:
+			log.error(error)
+			raise web.internalerror("Internal ERROR!")
+
+	return _wrapper
 
 
 def formatParam(originParam,options):

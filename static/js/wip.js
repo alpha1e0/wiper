@@ -484,15 +484,15 @@ function clickHost(){
 	removeCommentListOperationButtern();
 	levelList = ["关键","重要","一般","提示"];
 	$.getJSON("/gethostdetail?id="+id, function(result){
-		current.setHost(result[0]);
-		addHostDetailItem("Title", result[0].title);
-		addHostDetailItem("URL地址", result[0].url, result[0].protocol);
-		addHostDetailItem("IP地址", result[0].ip, result[0].protocol);
-		addHostDetailItem("等级", levelList[result[0].level-1]);
-		addHostDetailItem("OS信息", result[0].os);
-		addHostDetailItem("Server信息", result[0].server_info);
-		addHostDetailItem("中间件", result[0].middleware);
-		addHostDetailItem("描述", result[0].description);
+		current.setHost(result);
+		addHostDetailItem("Title", result.title);
+		addHostDetailItem("URL地址", result.url, result.protocol);
+		addHostDetailItem("IP地址", result.ip, result.protocol);
+		addHostDetailItem("等级", levelList[result.level-1]);
+		addHostDetailItem("OS信息", result.os);
+		addHostDetailItem("Server信息", result.server_info);
+		addHostDetailItem("中间件", result.middleware);
+		addHostDetailItem("描述", result.description);
 	});
 
 	addHostOperationButtern();
