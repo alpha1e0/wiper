@@ -2,7 +2,7 @@
 #-*- coding: UTF-8 -*-
 
 '''
-Information probing tool for penetration test
+Wiper, an assistant tool for web penetration test.
 Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
@@ -17,6 +17,7 @@ class Project(Model):
 	name = StringField(notnull=True,ddl="varchar(100)",vrange="1-100")
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
+	level = IntegerField(notnul=True,ddl="integer",vrange="1-4")
 	ctime = StringField(ddl="timestamp")
 	whois = TextField(ddl="text")
 	description = TextField(ddl="text")
@@ -28,6 +29,7 @@ class Project(Model):
     		"name varchar(100) not null unique,"
     		"url varchar(100),"
     		"ip varchar(50),"
+    		"level integer,"
     		"whois text,"
     		"ctime timestamp not null default CURRENT_TIMESTAMP,"
     		"description text,"
@@ -109,7 +111,7 @@ class Comment(Model):
 	url = UrlField(ddl="varchar(4096)")
 	info = StringField(ddl="varchar(1024)",vrange="0-1024")
 	level = IntegerField(ddl="integer",vrange="1-4")
-	attachment = StringField(ddl="varchar(200)",vrange="1-200")
+	attachment = StringField(ddl="varchar(200)",vrange="0-200")
 	description = TextField(ddl="text")
 	host_id = IntegerField(notnull=True,ddl="integer")
 

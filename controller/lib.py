@@ -2,7 +2,7 @@
 #-*- coding: UTF-8 -*-
 
 '''
-Information probing tool for penetration test
+Wiper, an assistant tool for web penetration test.
 Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
@@ -17,6 +17,14 @@ from model.dbmanage import DBError
 from model.orm import FieldError, ModelError
 
 
+class ParamError(WIPError):
+	def __init__(self, reason=""):
+		self.errMsg = "ParamError. " + ("reason: "+reason if reason else "")
+
+	def __str__(self):
+		return self.errMsg
+
+
 def addSlashes(str):
 	d = {'"':'\\"', "'":"\\'", "\0":"\\\0", "\\":"\\\\"}
 	return "".join([d.get(x,x) for x in str])
@@ -29,12 +37,11 @@ def stripSlashes(str):
 	return r
 
 
-class ParamError(WIPError):
-	def __init__(self, reason=""):
-		self.errMsg = "ParamError. " + ("reason: "+reason if reason else "")
+def jsonSuccess():
+	return json.dumps({'success':1})
 
-	def __str__(self):
-		return self.errMsg
+def jsonFail():
+	return json.dumps({'success':0})
 
 
 def handleException(func):

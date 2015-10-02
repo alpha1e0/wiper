@@ -2,7 +2,7 @@
 #-*- coding: UTF-8 -*-
 
 '''
-Information probing tool for penetration test
+Wiper, an assistant tool for web penetration test.
 Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
@@ -44,7 +44,7 @@ class Field(object):
 	def __init__(self, **kwargs):
 		self.name = kwargs.get("name", None)
 		self.primarykey = kwargs.get("primarykey", False)
-		self.nullable = kwargs.get("notnull", False)
+		self.notnull = kwargs.get("notnull", False)
 		self.default = kwargs.get("default", None)
 		self.ddl = kwargs.get("ddl", None)
 		self.vrange = kwargs.get("vrange", None)
@@ -77,10 +77,14 @@ class IntegerField(Field):
 		super(IntegerField, self).__init__(**kwargs)
 
 	def inputFormat(self, strValue):
-		if not strValue and self.default:
-			strValue = self.default
-		if not strValue and self.notnull and not self.default:
-			raise FieldError("the integer field '{0}' must not null".format(self.name))
+		if not strValue:
+			if self.default: 
+				strValue = self.default
+			if self.notnull: 
+				raise FieldError("the integer field '{0}' must not null".format(self.name))
+			else:
+				return strValue
+
 		try:
 			ret = int(strValue)
 		except ValueError:
@@ -108,10 +112,14 @@ class StringField(Field):
 		super(StringField, self).__init__(**kwargs)
 
 	def inputFormat(self, strValue):
-		if not strValue and self.default:
-			strValue = self.default
-		if not strValue and self.notnull:
-			raise FieldError("the string field '{0}' must not null".format(self.name))
+		if not strValue:
+			if self.default:
+				strValue = self.default
+			if self.notnull:
+				raise FieldError("the string field '{0}' must not null".format(self.name))
+			else:
+				return strValue
+
 		ret = escapeString(strValue)
 		if self.vrange:
 			retLen = len(ret)
@@ -133,12 +141,15 @@ class UrlField(StringField):
 		super(UrlField, self).__init__(**kwargs)
 
 	def inputFormat(self, strValue):
-		if not strValue and self.default:
-			strValue = self.default
-		if not strValue and self.notnull:
-			raise FieldError("the url field '{0}' must not null".format(self.name))
+		if not strValue:
+			if self.default:
+				strValue = self.default
+			if self.notnull:
+				raise FieldError("the url field '{0}' must not null".format(self.name))
+			else:
+				return strValue
 
-		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+)(?:\:\d+)?)")
+		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+)(?:\:\d+)?.*)")
 		match = urlPattern.match(strValue)
 		if not match:
 			raise FieldError("the url field value '{0}' format error".format(strValue))
@@ -151,10 +162,13 @@ class IPField(StringField):
 		super(IPField, self).__init__(**kwargs)
 
 	def inputFormat(self, strValue):
-		if not strValue and self.default:
-			strValue = self.default
-		if not strValue and self.notnull:
-			raise FieldError("the IP field '{0}' must not null".format(self.name))
+		if not strValue:
+			if self.default:
+				strValue = self.default
+			if self.notnull:
+				raise FieldError("the IP field '{0}' must not null".format(self.name))
+			else:
+				return strValue
 
 		ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))(?:\:\d+)?)$")
 		match = ipPattern.match(strValue)
@@ -169,10 +183,13 @@ class EmailField(StringField):
 		super(EmailField, self).__init__(**kwargs)
 
 	def inputFormat(self, strValue):
-		if not strValue and self.default:
-			strValue = self.default
-		if not strValue and self.notnull:
-			raise FieldError("the email field '{0}' must not null".format(self.name))
+		if not strValue:
+			if self.default:
+				strValue = self.default
+			if self.notnull:
+				raise FieldError("the email field '{0}' must not null".format(self.name))
+			else:
+				return strValue
 
 		emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))$")
 		match = emailPattern.match(strValue)

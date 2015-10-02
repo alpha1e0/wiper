@@ -7,7 +7,7 @@
         <title>Web Information Probe.</title>
     </head>
     <body>      
-        <div class="container-fluid">
+        <div class="container">
             <!-- 导航条部分 -->
             <span class="h1">软件安装...</span>
 
@@ -17,17 +17,16 @@
                     <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">安装</a></li>
                   </ul>
                 </div>
-              </div>
             </nav>
             
             <!-- 标签页 -->
             <div class="tab-content">
                 <div class="col-md-3">
                 </div>
-                <div class="col-md-6">
+                <div id="wip-setup-column" class="col-md-6">
                     <h3><span class="label label-primary">填写以下参数完成安装：</span></h3>
                     <hr />
-                    <form id="wip-setup-form" method="post" action="/install">
+                    <form id="wip-setup-form">
                         <div class="form-group">
                             <label for="wip-setup-form-dbtype">数据库类型:</label>
                             <select id="wip-setup-form-dbtype" name="dbtype" class="form-control">
@@ -66,6 +65,7 @@
             </div>
         </div>
         <script src="static/js/jquery-2.1.4.min.js"></script>
-        <script src="static/js/bootstrap.min.js"></script>
+        <script src="static/js/jquery.form.js"></script>
+        <script src="static/js/install.js"></script>
     </body>
 </html>

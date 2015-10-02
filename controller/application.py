@@ -2,7 +2,7 @@
 #-*- coding: UTF-8 -*-
 
 '''
-Information probing tool for penetration test
+Wiper, an assistant tool for web penetration test.
 Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
@@ -15,7 +15,7 @@ import json
 
 import web
 
-from lib import formatParam, ParamError, handleException
+from lib import formatParam, ParamError, handleException, jsonSuccess, jsonFail
 from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
@@ -101,16 +101,18 @@ class Install:
 		try:
 			Database.create()
 		except DBError as error:
-			raise web.internalerror("Databae creating error.")
+			raise web.internalerror("Databae creating error,"+str(error))
 
-		raise web.seeother("/")
+		#raise web.seeother("/")
+		return jsonSuccess()
 
 
 # ================================the operation of project=========================================
 class ProjectList:
 	@handleException
 	def GET(self):
-		result = Project.queryraw('id','name')
+		params = web.input()
+		result = Project.orderby(params.orderby.strip()).queryraw("id","name","level")
 		return json.dumps(result)
 
 
@@ -127,10 +129,10 @@ class ProjectAdd:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
+		kw = {k:params[k].strip() for k in ("name","url","ip","level","whois","description")}
 		project = Project(**kw)
 		project.save()
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class ProjectDelete:
@@ -139,7 +141,7 @@ class ProjectDelete:
 		params = web.input()
 		project = Project.get(params.id)
 		project.remove()
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class ProjectModify:
@@ -148,7 +150,7 @@ class ProjectModify:
 		params = web.input()
 		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
 		Project.where(id=params.id.strip()).update(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 		
 
 #=================================the operation of host=========================================
@@ -175,7 +177,7 @@ class HostAdd:
 		params = web.input()
 		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","project_id")}
 		Host.insert(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class HostDelete:
@@ -183,7 +185,7 @@ class HostDelete:
 	def GET(self):
 		params = web.input()
 		Host.delete(params.id.strip())
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class HostModify:
@@ -192,7 +194,7 @@ class HostModify:
 		params = web.input()
 		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
 		Host.where(id=params.id.strip()).update(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 #=================================the operation of vul=========================================
@@ -201,7 +203,7 @@ class VulList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Vul.where(host_id=params.hostid.strip()).queryraw('id','name','level')
+		result = Vul.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).queryraw('id','name','level')
 		return json.dumps(result)
 
 
@@ -219,7 +221,7 @@ class VulAdd:
 		params = web.input()
 		kw = {k:params[k].strip() for k in ("name","url","info","type","level","description","host_id")}
 		Vul.insert(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class VulDelete:
@@ -227,7 +229,7 @@ class VulDelete:
 	def GET(self):
 		params = web.input()
 		Vul.delete(params.id.strip())
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class VulModify:
@@ -236,7 +238,7 @@ class VulModify:
 		params = web.input()
 		kw = {k:params[k].strip() for k in ("id","name","url","info","type","level","description")}
 		Vul.where(id=params.id.strip()).update(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 #=================================the operation of comment=========================================
@@ -245,7 +247,7 @@ class CommentList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Comment.where(host_id=params.hostid.strip()).queryraw('id','name','level')
+		result = Comment.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).queryraw('id','name','level')
 		return json.dumps(result)		
 
 
@@ -261,9 +263,9 @@ class CommentAdd:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+		kw = {k:params[k].strip() for k in ("name","url","info","level","description","host_id")}
 		Comment.insert(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class CommentDelete:
@@ -271,7 +273,7 @@ class CommentDelete:
 		params = web.input()
 
 		try:
-			comment = Comment.get(params.id.strip)
+			comment = Comment.get(params.id.strip())
 		except AttributeError:
 			raise web.internalerror("Missing parameter.")
 		except FieldError as error:
@@ -281,7 +283,7 @@ class CommentDelete:
 			raise web.internalerror("Internal ERROR!")
 
 		if not comment:
-			return json.dumps({'success':0})
+			return jsonFail()
 
 		#delete attachment
 		if comment.attachment:
@@ -290,16 +292,16 @@ class CommentDelete:
 
 		comment.remove()
 
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class CommentModify:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("name","url","info","level","attachment","description","host_id")}
+		kw = {k:params[k].strip() for k in ("id","name","url","info","level","attachment","description")}
 		Comment.where(id=params.id.strip()).update(**kw)
-		return json.dumps({'success':1})
+		return jsonSuccess()
 
 
 class AttachmentAdd:
@@ -349,6 +351,9 @@ class AttachmentAdd:
 
 		try:
 			comment.save()
+		except FieldError as error:
+			log.error(error)
+			raise web.internalerror(error)
 		except WIPError as error:
 			log.error(error)
 			raise web.internalerror("Internal ERROR!")
