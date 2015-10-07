@@ -84,6 +84,7 @@ class Conf:
             self.dbuser = self._cf.get("db", "db_user")
             self.dbpassword = self._cf.get("db", "db_password")
             self.dbname = self._cf.get("db", "db_name")
+            self.dbisinstall = self._cf.get("db", "db_isinstall")
 
             self.dnsServers = [x.strip() for x in self._cf.get("dns", "servers").split()]
             self.dnsTimeout = float(self._cf.get("dns", "timeout"))

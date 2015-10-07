@@ -37,7 +37,7 @@ class DBManage(object):
     '''
 
     def __init__(self,dbhost=None,dbuser=None,dbpassword=None,dbname=None,dbport=3306,retry=3,raw=False):
-        #'raw' means connect the database with or without dbname.
+        #'raw' False: select default db, True: select default db
         self.__con = None
         self.__cur = None
         self.__retry = retry+1

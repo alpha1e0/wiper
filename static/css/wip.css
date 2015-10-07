@@ -5,6 +5,84 @@ See the file COPYING for copying detail
 */
 
 body {
-    padding-top: 60px;
-    padding-bottom: 60px;
+  padding-top: 60px;
+  padding-bottom: 60px;
+  background-color: #eeeeee;
+}
+
+hr {
+	border-top: 2px solid #000000;
+}
+
+hr.thin {
+  border-top: 1px dashed #000000;
+}
+
+.content-list {
+	border-radius: 5px;
+	box-shadow: 2px 2px 2px #888888;
+}
+
+span.copyright {
+  float: right
+}
+
+/*
+ * autotask sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 50px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #ffffff;
+    border-right: 1px solid #eee;
+	box-shadow: 2px 2px 2px #888888;
+  }
+}
+
+/* Sidebar navigation */
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+
+
+/*
+ * autotask main content
+ */
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 200px;
+    padding-left: 200px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
 }

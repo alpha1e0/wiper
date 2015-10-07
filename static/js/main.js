@@ -143,6 +143,7 @@ $(document).ready(function() {
     //绑定与auto task相关操作的事件
     $("#wip-tab-button-domainseek").click(configTasks);
     $("#wip-domainseek-button-show-taskresult").click(listTaskResult);
+
 });
 
 /******************************************************************************************************
@@ -162,7 +163,7 @@ function renderProjectListColumn(data){
 	}
 
 	clearProjectListColumn();
-	var listGroup = $("<div></div").attr("id","wip-project-list");
+	var listGroup = $("<div></div").attr("id","wip-project-list").addClass("content-list");
 	for(var i=0;i<data.length;i++){
 		listGroup.append(genRow(data[i]));
 	}
@@ -176,12 +177,12 @@ function clearProjectListColumn(){
 function renderProjectDetailColumn(data){
 	if(!data) return;
 	function genRow(name, value){
-		var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":"), $("<br />"), value);
+		var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":"), $("<br />"), $("<span></span>").text(value));
 		return row;
 	}
 
 	clearProjectDetailColumn();
-	var listGroup = $("<div></div").attr("id","wip-project-detail-list");
+	var listGroup = $("<div></div").attr("id","wip-project-detail-list").addClass("content-list");
 	listGroup.append(genRow("项目名称", data.name));
 	listGroup.append(genRow("URL地址", data.url));
 	listGroup.append(genRow("IP地址", data.ip));
@@ -315,7 +316,7 @@ function renderHostListColumn(data){
 		return item;
 	}
 	clearHostListColumn();
-	var listGroup = $("<div></div").attr("id","wip-host-list");
+	var listGroup = $("<div></div").attr("id","wip-host-list").addClass("content-list");
 	for(var i=0; i<data.length; i++){
 		listGroup.append(genRow(data[i]));
 	}
@@ -331,17 +332,17 @@ function renderHostDetailColumn(data){
 	//type:protocol type ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"]
 	function genRow(name, value, type=0){
 		if(type==0){
-			var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value);
+			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
 		} else {			
 			var uri = PROTOCOLLIST[type]+"://"+value;
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-			var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), a);
+			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
 		}
 		return row;
 	}
 
 	clearHostDetailColumn();
-	var listGroup = $("<div></div").attr("id","wip-host-detail-list");
+	var listGroup = $("<div></div").attr("id","wip-host-detail-list").addClass("content-list");
 	listGroup.append(genRow("Title", data.title));
 	listGroup.append(genRow("URL地址", data.url, data.protocol));
 	listGroup.append(genRow("IP地址", data.ip, data.protocol));
@@ -521,9 +522,9 @@ function renderVulListColumn(data){
 	addButton.click(addVul);
 	var refreshButton = $('<button id="wip-button-vul-refresh" type="button" class="btn btn-success" title="刷新漏洞列表"><span class="glyphicon glyphicon-repeat" aria-hidden="true"></span></button>')
 	refreshButton.click(refreshVul);
-	var operationGroup = $("<div></div").attr("id","wip-vul-list-operation").append(refreshButton," ",addButton,$("<hr />"));
+	var operationGroup = $("<div></div").attr("id","wip-vul-list-operation").append(refreshButton," ",addButton,$("<hr class='thin'/>"));
 
-	var listGroup = $("<div></div").attr("id","wip-vul-list");
+	var listGroup = $("<div></div").attr("id","wip-vul-list").addClass("content-list");
 	for(var i=0; i<data.length; i++){
 		listGroup.append(genRow(data[i]));
 	}
@@ -539,7 +540,7 @@ function renderVulDetailColumn(data){
 	if(!data) return;
 	function genRow(name, value, type=0){
 		if(type==0){
-			var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value);
+			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
 		}else{
 			if(!value){
     			var uri=""
@@ -547,13 +548,13 @@ function renderVulDetailColumn(data){
     			var uri = PROTOCOLLIST[type]+"://"+value;
     		}
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-			var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), a);
+			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
 		}
 		return row;
 	}
 
 	clearVulDetailColumn();
-	var listGroup = $("<div></div").attr("id","wip-vul-detail-list");
+	var listGroup = $("<div></div").attr("id","wip-vul-detail-list").addClass("content-list");
 	listGroup.append(genRow("名称", data.name));
 	listGroup.append(genRow("等级", LEVELLIST[data.level]));
 	listGroup.append(genRow("URL地址", data.url, current.getHost().protocol));
@@ -718,9 +719,9 @@ function renderCommentListColumn(data){
 	refreshButton.click(refreshComment);
 	var attachButton = $('<button id="wip-button-attachment-add" type="button" class="btn btn-success">添加附件</button>');
 	attachButton.click(addAttachment);
-	var operationGroup = $("<div></div").attr("id","wip-comment-list-operation").append(refreshButton, " ", addButton, " ", attachButton, $("<hr />"));
+	var operationGroup = $("<div></div").attr("id","wip-comment-list-operation").append(refreshButton, " ", addButton, " ", attachButton, $("<hr class='thin'/>"));
 
-	var listGroup = $("<div></div").attr("id","wip-comment-list");
+	var listGroup = $("<div></div").attr("id","wip-comment-list").addClass("content-list");
 	for(var i=0; i<data.length; i++){
 		listGroup.append(genRow(data[i]));
 	}
@@ -736,7 +737,7 @@ function renderCommentDetailColumn(data){
 	if(!data) return;
 	function genRow(name, value, type=0){
 		if(type==0){
-        	var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), value);
+        	var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
     	}else{
     		if(!value){
     			var uri=""
@@ -744,20 +745,21 @@ function renderCommentDetailColumn(data){
     			var uri = PROTOCOLLIST[type]+"://"+value;
     		}
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-			var row = $("<div></div>").addClass("list-group-item").append($("<b></b>").text(name+":\t"), $("<br />"), a);
+			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
 		}
 		return row;
     }
 
     clearCommentDetailColumn();
-    var listGroup = $("<div></div").attr("id","wip-comment-detail-list");
+    var listGroup = $("<div></div").attr("id","wip-comment-detail-list").addClass("content-list");
     listGroup.append(genRow("名称", data.name));
     listGroup.append(genRow("等级", LEVELLIST[data.level]));
     listGroup.append(genRow("URL地址", data.url, current.getHost().protocol));
     listGroup.append(genRow("详情", data.info));
     listGroup.append(genRow("描述", data.description));
-    var attachmentItem = $("<a></a>").addClass("list-group-item").append($("<b></b>").text("附件"+":\t"), $("<br />"), data.attachment)
-    attachmentItem.attr("href","static/attachment/"+data.attachment).attr("target","_blank");
+    var link = $("<a></a>").attr("href", "static/attachment/"+data.attachment).attr("target","_blank").text(data.attachment);
+    var attachmentItem = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text("附件"+":\t"), $("<br />"), link);
+    //attachmentItem.attr("href","static/attachment/"+data.attachment).attr("target","_blank");
     listGroup.append(attachmentItem);
 
     var modifyButton = $('<button id="wip-button-comment-modify" type="button" class="btn btn-success" title="修改备注"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
@@ -919,95 +921,5 @@ function addAttachment(){
     $("#wip-modal-form-attachment").ajaxForm(options);
 }
 
-/******************************************************************************************************
-* Date: 2015-8-17
-* Author: alphp1e0
-* Description: 备注相关操作，增、删、改，显示备注列表、显示备注详情
-******************************************************************************************************/
 
-function configTasks(){
-	configZonetransTask();
-	configGooglehackingTask();
-	configDnsbruteTask();
-	configSubnetscanTask();
-	//getTaskStatus();
-	listTaskResult();
-}
-
-function configZonetransTask(){}
-
-function configGooglehackingTask(){}
-
-function configDnsbruteTask(){
-    var options = {
-        type:"POST",
-        url:"adddict",
-        beforeSerialize:function(form, opt){
-        },
-        beforeSubmit:function(formData, jqForm, opt){
-            //参数校验
-        },
-        success:function(){             
-            alert("上传成功!");
-        },
-        error:function(xhr, status, error){
-            alert("上传失败!");
-        }
-    };
-    $("#wip-form-domainseek-dnsbrute-dictadd").ajaxForm(options);	
-
-	$("#wip-form-domainseek-dnsbrute-dictselect").empty()
-	$.getJSON("/getdictlist", function(result){
-        $.each(result, function(i, value){
-            $("#wip-form-domainseek-dnsbrute-dictselect").append($("<option></option>").val(value).text(value));
-        });
-    });
-    var options = {
-        type:"POST",
-        url:"startdnsbrute",
-        beforeSerialize:function(form, opt){
-        },
-        beforeSubmit:function(formData, jqForm, opt){
-            //参数校验
-            if (!current.getProject()) {
-    			alert("请先选择project!");
-    			return false;
-    		}
-    		var project_id = current.getProject().id;
-    		formData.push({'name':'projectid', 'value':project_id});
-        },
-        success:function(){             
-            alert("提交成功!");
-        },
-        error:function(xhr, status, error){
-            alert("提交失败，失败原因："+xhr.responseText);
-        }
-    };
-    $("#wip-form-domainseek-dnsbrute-start").ajaxForm(options);
-}
-
-function configSubnetscanTask(){}
-
-function listTaskResult(){
-	if(!current.getProject()){
-		$("#wip-domainseek-task-result-list").empty()
-		return false;
-	}
-	function addTaskItem(id, url, ip, level, source){
-		
-		allDiv = $("<div></div>").addClass("list-group-item").attr("id","wip-domainseek-task-reuslt"+id);
-		sourceSpan = $("<span></span>").text("来源："+source+" | "+"等级："+LEVELLIST[level]);
-		urlA = $("<a></a>").text(" | URL: "+url).attr("href","http://"+url).attr("target","url_"+id);
-		ipA = $("<a></a>").text(" | IP: "+ip).attr("href","http://"+ip).attr("target","ip_"+id);
-		allDiv.append(sourceSpan,urlA,ipA);
-		$("#wip-domainseek-task-result-list").append(allDiv);
-	}
-
-	$("#wip-domainseek-task-result-list").empty()
-	$.getJSON("/gettaskresult?projectid="+current.getProject().id, function(result){
-        $.each(result, function(i, value){
-            addTaskItem(value.id, value.url, value.ip, value.level, value.source);
-        });
-    });
-}
 

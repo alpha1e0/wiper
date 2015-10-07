@@ -67,13 +67,14 @@ class Index:
 
 class Install:
 	def GET(self):
+		if conf.dbisinstall == "true":
+			raise web.notfound("page not found.")
 		render = web.template.render('view')
 		return render.install()
 
 	def POST(self):
 		originParams = web.input()
 		options = (
-			("dbtype","integer","1-2"),
 			("dbhost","string","1-100"),
 			("dbport","integer","1-65535"),
 			("dbuser","string","1-50"),
@@ -87,7 +88,6 @@ class Install:
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
-			conf.set("db", "db_type", (params.dbtype=='1' and "mysql" or params.dbtype=='2' and "sqlite"))
 			conf.set("db", "db_host", params.dbhost)
 			conf.set("db", "db_port", params.dbport)
 			conf.set("db", "db_user", params.dbuser)
@@ -102,6 +102,9 @@ class Install:
 			Database.create()
 		except DBError as error:
 			raise web.internalerror("Databae creating error,"+str(error))
+
+		conf.set("db", "db_isinstall", "true")
+		conf.write()
 
 		#raise web.seeother("/")
 		return jsonSuccess()
@@ -313,7 +316,7 @@ class AttachmentAdd:
 		options = (
 			("hostid","integer","0-0"),
 			("filename","string","1-200"),
-			("name","string","1-200"),
+			("name","string","0-200"),
 			("value","text","")
 		)
 

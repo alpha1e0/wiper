@@ -11,17 +11,34 @@
         <nav class="navbar navbar-inverse navbar-fixed-top">
             <div class="container-fluid">
                 <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" type="button">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
                     <a href="#" class="navbar-brand">Wiper</a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
-                  <ul class="nav navbar-nav">
-                    <li class="active"><a aria-expanded="false" href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目列表</a></li>
-                    <li><a aria-expanded="true" href="#wip-tab-project-detail" id="wip-tab-button-detail" data-toggle="tab">项目详情</a></li>
-                    <li><a aria-expanded="true" href="#wip-tab-auto-task" id="wip-tab-button-autotask" data-toggle="tab">自动任务</a></li>
-                  </ul>
-                  <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#wip-tab-setup" id="wip-tab-button-setup" data-toggle="tab">设置</a></li>
-                  </ul>
+                    <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a aria-expanded="false" href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">项目列表</a>
+                        </li>
+                        <li>
+                            <a aria-expanded="true" href="#wip-tab-project-detail" id="wip-tab-button-detail" data-toggle="tab">项目详情</a>
+                        </li>
+                        <li>
+                            <a aria-expanded="true" href="#wip-tab-auto-task" id="wip-tab-button-autotask" data-toggle="tab">自动任务</a>
+                        </li>
+                        <li>
+                            <a aria-expanded="true" href="#wip-tab-setup" id="wip-tab-button-setup" data-toggle="tab">设置</a>
+                        </li>
+                    </ul>
+                    <!--<ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a aria-expanded="true" href="#wip-tab-setup" id="wip-tab-button-setup" data-toggle="tab">设置</a>
+                        </li>
+                    </ul>-->
                 </div>
             </div>
         </nav>
@@ -92,7 +109,7 @@
                     <div class="col-md-3">
                         <div>
                             <div class="btn-group">
-                                <button id="wip-button-host-detail" type="button" class="btn btn-success">Host详情</button>
+                                <button id="wip-button-host-detail" type="button" class="btn btn-primary">Host详情</button>
                             </div>
                             <div class="btn-group">
                                 <button id="wip-button-vul-list" type="button" class="btn btn-success">漏洞列表</button>
@@ -120,10 +137,99 @@
 
                 <!--tab auto task-->
                 <div id="wip-tab-auto-task" class="tab-pane row-fluid">
+                    <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-sm-3 col-md-2 sidebar">
+                            <ul class="nav nav-sidebar">
+                                <li><a id="wip-button-autotask-subdomainscan" href="#">子域名扫描</a></li>
+                                <li><a id="wip-button-autotask-subnetscan" href="#">C段扫描</a></li>
+                                <li><a id="wip-button-autotask-servicerecognize" href="#">服务识别</a></li>
+                                <li><a id="wip-button-autotask-vulscan" href="#">弱点扫描</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                            <div id="wip-autotask-subdomainscan">
+                                <h3><span class="label label-primary">子域名扫描:</span></h3>
+                                <hr >
+                                <form id="wip-form-autotask-subdomainscan">
+                                    <div class="form-group has-error">
+                                        <label for="wip-form-autotask-subdomainscan-domain">输入域名：</label>
+                                        <input type="text" name="domain" class="form-control" id="wip-form-autotask-subdomainscan-domain" placeholder="aaa.com">
+                                    </div>
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="zonetrans" value="true" checked="checked">域传送漏洞检测/利用
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" name="googlehacking" value="true" checked="checked">google hacking
+                                        </label>
+                                        <label>
+                                            <input type="checkbox" name="dnsbrute" value="true" checked="checked">字典爆破
+                                        </label>
+                                    </div>
+                                    <hr class="thin" />
+                                    <div class="form-group">
+                                        <label class="control-label">选择字典<i>(可在设置页面中上传字典，缺省情况下使用默认字典)</i>:</label>
+                                        <select id="wip-form-autotask-subdomainscan-dictselect" class="form-control" name="dictlist" multiple="multiple">
+                                        </select>
+                                    </div>
+                                    <hr class="thin" />
+                                    <button type="submit" class="btn btn-success">开始任务</button>
+                                </form>
+                            </div>
+                            <div id="wip-autotask-subnetscan">
+                                <h3><span class="label label-primary">C段扫描:</span></h3>
+                                <hr >
+                                <form id="wip-form-autotask-subnetscan">
+                                    <div class="form-group">
+                                        <label class="control-label">选择以下IP进行C段扫描:</label>
+                                        <select id="wip-form-autotask-subnetscan-ipselect" class="form-control" name="dictlist" multiple="multiple">
+                                            <option value="1">54.55.56.57</option>
+                                            <option value="2">164.165.166.167</option>
+                                        </select>
+                                    </div>
+                                    <div id="wip-form-buttongroup-autotask-subnetscan">
+                                        <div class="form-group">
+                                            <input type="text" id="wip-form-input-autotask-subnetscan-ipadd" class="form-control" placeholder="223.5.5.5">
+                                        </div>
+                                        <button title="添加IP" class="btn btn-default" type="button" id="wip-form-button-autotask-subnetscan-ipadd">手动添加IP</button>
+                                    </div>
+                                    <hr class="thin" />
+                                    <button type="submit" class="btn btn-success">开始任务</button>
+                                </form>
+                            </div>
+                            <div id="wip-autotask-servicerecognize">
+                                <h3><span class="label label-primary">服务识别:</span></h3>
+                                <hr >
+                                <form id="wip-form-autotask-servicerecognize">
+                                    <div class="form-group has-error">
+                                        <label for="wip-form-autotask-servicerecognize-domain">输入域名或IP：</label>
+                                        <input type="text" name="domain" class="form-control" id="wip-form-autotask-servicerecognize-domain" placeholder="aaa.com">
+                                    </div>
+                                    <hr class="thin" />
+                                    <button type="submit" class="btn btn-success">开始任务</button>
+                                </form>
+                            </div>
+                            <div id="wip-autotask-vulscan">
+                                <h3><span class="label label-primary">弱点扫描:</span></h3>
+                                <hr >
+                                <form id="wip-form-autotask-vluscan">
+                                    <div class="form-group has-error">
+                                        <label for="wip-form-autotask-vluscan-domain">输入域名或IP：</label>
+                                        <input type="text" name="domain" class="form-control" id="wip-form-autotask-vluscan-domain" placeholder="aaa.com">
+                                    </div>
+                                    <hr class="thin" />
+                                    <button type="submit" class="btn btn-success">开始任务</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
                 </div>
 
                 <!--tab setup-->
                 <div id="wip-tab-setup" class="tab-pane row-fluid">
+                    <h1>setup</h1>
                 </div>
             </div>
         </div>
@@ -134,6 +240,7 @@
                 <strong>主机:&nbsp;</strong><span id="wip-title-host" class="text-danger">host</span><span>&nbsp;&nbsp;&nbsp;</span>
                 <strong>漏洞:&nbsp;</strong><span id="wip-title-vul" class="text-danger">vul</span><span>&nbsp;&nbsp;&nbsp;</span>
                 <strong>备注:&nbsp;</strong><span id="wip-title-comment" class="text-danger">comment</span><span>&nbsp;&nbsp;&nbsp;</span>
+                <span class="copyright"><a href="https://github.com/alpha1e0">Powered by alpha1e0</a></span>
             </div>
         </div>
 
@@ -198,7 +305,7 @@
                             <hr />
                             <div class="form-group">
                                 <div class="col-md-offset-2 col-md-10">
-                                    <button type="submit" class="btn btn-default btn-primary">提交</button>
+                                    <button type="submit" class="btn btn-primary">提交</button>
                                 </div>
                             </div>
                         </form>
@@ -504,5 +611,6 @@
         <script src="static/js/jquery.form.js"></script>
         <script src="static/js/bootstrap.min.js"></script>
         <script src="static/js/main.js"></script>
+        <script src="static/js/autotask.js"></script>
     </body>
 </html>

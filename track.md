@@ -34,7 +34,7 @@
 
 3、数据库相关
 
-	** 支持sqlite数据库
+	支持按project导入、导出（使用pickle或json）
 
 4、安装脚本编写
 	
