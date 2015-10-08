@@ -116,16 +116,6 @@ class Conf:
             raise WIPError("write configure file error")
 
 
-if not os.path.exists("log"):
-    os.mkdir("log")
-
-if not os.path.exists(os.path.join("static","attachment")):
-    os.mkdir(os.path.join("static","attachment"))
-
-
 log = genLog()
 conf = Conf()
 conf.log = log
-
-log.debug("init application ================================================= ")
-

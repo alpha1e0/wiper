@@ -12,23 +12,34 @@ import socket
 import multiprocessing
 import re
 
-from plugin.lib.dictparse import readDict
-from plugin.lib.httpidentify import HTTPIdentify
-from plugin.lib.datasave import DataSaver
+from plugin.lib.dictparse import DictFileEnum
+from plugin.lib.taskmanager import Plugin
 from init import log
 
 
+class DnsBrute():
+	def __init__(self, domain, dictlist):
+		super(self, DnsBrute).__init__(self)
+		self.domain = domain
+		self.dictlist = dictlist
 
-class DnsBrute(multiprocessing.Process):
+	def dataHandle(self, data):
+		bruter = Bruter(self.url, self.dictlist)
+
+		result = bruter.brute()
+		for line in result:
+			self.put(Host(url=line[0], ip=line[1]))
+
+
+class Bruter(object):
 	'''
 	Use wordlist to bruteforce subdomain.
 	'''
-	def __init__(self, url, projectID, dictlist):
+	def __init__(self, url, dictlist):
 		multiprocessing.Process.__init__(self)
 		#log.debug("init here")
 		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_~!=:]+\.)+(?:[-0-9a-zA-Z_~!=:]+))")
 		self.domain = urlPattern.match(url.strip()).groups()[0]
-		self.projectID = projectID
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",f) for f in dictlist]
 		self.result = []
 		#partDoman示例：aaa.com partDomain为aaa，aaa.com.cn partDomain为aaa
@@ -53,7 +64,7 @@ class DnsBrute(multiprocessing.Process):
 
 	def bruteSubDomain(self):
 		for dlist in self.dictlist:
-			for line in readDict(dlist):
+			for line in DictFileEnum(dlist):
 				domain = line + "." + self.domain
 				log.debug(domain)
 				ip = self.checkDomain(domain)
@@ -63,7 +74,7 @@ class DnsBrute(multiprocessing.Process):
 
 	def bruteTopDomain(self):
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
-		for line in readDict(dlist):
+		for line in DictFileEnum(dlist):
 			domain = self.partDomain + "." + line
 			log.debug(domain)
 			ip = self.checkDomain(domain)
@@ -71,15 +82,11 @@ class DnsBrute(multiprocessing.Process):
 				self.result.append([domain,ip])
 
 
-	def run(self):
+	def brute(self):
 		self.bruteTopDomain()
 		self.bruteSubDomain()
 
-		httpI = HTTPIdentify()
-		hosts = httpI.identify(self.result)
-
-		dataSaver = DataSaver()
-		dataSaver.saveHosts(hosts,self.projectID)
+		return self.result
 
 
 

@@ -106,7 +106,13 @@ class Install:
 		conf.set("db", "db_isinstall", "true")
 		conf.write()
 
-		#raise web.seeother("/")
+		if not os.path.exists("log"):
+    		os.mkdir("log")
+		if not os.path.exists(os.path.join("static","attachment")):
+    		os.mkdir(os.path.join("static","attachment"))
+    	if not os.path.exists("data"):
+    		os.mkdir("data")
+
 		return jsonSuccess()
 
 

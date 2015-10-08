@@ -10,19 +10,26 @@ See the file COPYING for copying detail
 import multiprocessing
 
 from init import log
+from plugin.lib.taskmanager import Plugin
 from plugin.lib.dnsresolve import DnsResolver
+from model.model import Host
 
 
-class ZoneTrans(multiprocessing.Process):
+class ZoneTrans(Plugin):
 	'''
 	Find and use DNS zone transfer vulnerability.
 	'''
 
-	def __init__(self, domain, projectID):
-		multiprocessing.Process.__init__(self)
+	def dataHandle(self, data):
+		#from self.input get data, process them, then write to self.output
+		if not isinstance(data, Host):
+			self.put(data)
+		else:
+			dnsresolver = DnsResolver(data.url)
+			records = dnsresolver.getZoneRecords()
+			for line in records:
+				if line[2] == "A":
+					self.put(Host(url=line[0], ip=line[1]))
+				elif line[2] == "CNAME":
+					self.put(Host(url=line[0], description="alias "+line[1]))
 
-		self.domain = domain
-		self.projectID = projectID
-
-	def run(self):
-		pass

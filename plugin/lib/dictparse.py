@@ -10,11 +10,11 @@ See the file COPYING for copying detail
 import os
 
 
-def readDict(fileName):
+def DictFileEnum(fileName):
 	if os.path.exists(fileName):
 		with open(fileName, "r") as fd:
 			for line in fd:
-				if line[0]!="#" and line!="":
+				if line and not line.startswith("#"):
 					yield line.strip()
 
 

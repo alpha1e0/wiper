@@ -14,6 +14,8 @@
 
 增加设置页面，上传字典文件放到设置页面
 
+plugin 围绕modal，modal在各个进程间通过queue传递
+
 
 ---
 
@@ -32,22 +34,25 @@
 	CMS检测
 	CMS hacking
 
+2、小工具开发
+
+	编码/解码工具，支持：
+		进制转换
+		ascii/utf-8/gbk
+		url编码/base64编码/HTML编解码
+		MD5
+
 3、数据库相关
 
 	支持按project导入、导出（使用pickle或json）
 
 4、安装脚本编写
 	
-	判断isInstalled
 	readme、copyright编写
 
 5、其他
 	
 
-	不同level，标记不同颜色
-	添加”显示host信息“按钮
-
-	注释
 
 
 ## 其他

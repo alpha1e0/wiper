@@ -70,9 +70,15 @@ class DnsResolver(object):
 
 
 	def getZoneRecords(self, domain=None):
+		'''
+		Check and use dns zone transfer vulnerability. This function will traverse all the 'ns' server
+		Usage:
+			dnsresolver = DnsResolver('aaa.com')
+			records = dnsresolver.getZoneRecords()
+		'''
 		domainToResolve = domain if domain else self.domain
 
-		records = []
+		records = list()
 		nsRecords = self.getRecords("NS", domainToResolve)
 		for serverRecord in nsRecords:
 			xfrHandler = self.axfr(serverRecord[1], domainToResolve)
@@ -101,9 +107,15 @@ class DnsResolver(object):
 
 
 	def getZoneRecords2(self, server, domain=None):
+		'''
+		Use the specified ns server, check and use dns zone transfer vulnerability.
+		Usage:
+			dnsresolver = DnsResolver('aaa.com')
+			records = dnsresolver.getZoneRecords2()
+		'''
 		domainToResolve = domain if domain else self.domain
 
-		records = []
+		records = list()
 
 		xfrHandler = self.axfr(server, domainToResolve)
 
@@ -133,12 +145,13 @@ class DnsResolver(object):
 
 	def resolveAll(self):
 		types = ["A", "CNAME", "NS", "MX", "SOA", "TXT"]
+		records = list()
 
 		for t in types:
-			self.records += self.getRecords(t)
+			records += self.getRecords(t)
 
-		self.records += self.getZoneRecords()
+		records += self.getZoneRecords()
 
-		return self.records
+		return records
 
 
