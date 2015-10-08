@@ -11,6 +11,7 @@ import time
 from multiprocessing import Process, Queue
 
 from init import conf, WIPError
+from model.orm import Model
 
 
 class TaskError(WIPError):
@@ -35,9 +36,23 @@ class TaskManager(Process):
 		self._inQueue = Queue()
 		self._outQueue = Queue()
 
-	def startTask(self, pluginObj):
-		# send pluginObj to task process with cmdQueue
-		self._inQueue.put(pluginObj)
+	def startTask(self, pluginObj, startData):
+		'''
+		Start task. send pluginObj to task process.
+		Parameter:
+			pluginObj: the plugin object
+			startData: the start data, a list of Model
+		'''
+		self.inQueue.put(pluginObj)
+
+		for data in startData:
+			self.outQueue.put(data)
+		self.outQueue.put(Model())
+
+
+	@property
+	def inQueue(self):
+	    return self._inQueue
 
 	@property
 	def outQueue(self):
@@ -62,15 +77,25 @@ class Plugin(Process):
 				result = doSomeThing(data)
 				self.outQueue.put(result)
 	Example: 
-		plugin = (DNSTrans(timeout=5) + DomainBrute() + GoogleHacking()) | HttpRecognize() | DataSaver(mod="database") whill return a pluginObject
+		plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSaver(mod="database") whill return a pluginObject
 		
 	'''
-	def __init__(self, inQueue, outQueue):
+	def __init__(self, inQueue=None, outQueue=None):
 		Process.__init__(self)
 
 		self._inQueue = inQueue
 		self._outQueue = outQueue
-		self._processList = list()
+		if not self.inQueue:
+			self.inQueue = conf.taskManager.outQueue
+
+		self._addList = list()
+		self._orList = list()
+		self.addAppend(self)
+		self.orAppend(self)
+
+		#indicate how many input-queue input data to self, this value helps judging wether to exit process
+		self._inCounter = 1
+
 
 	@property
 	def inQueue(self):
@@ -81,6 +106,7 @@ class Plugin(Process):
 		if not isinstance(queue, Queue):
 			raise TaskError("the inQueue queue is not isinstance of Queue")
 		self._inQueue = queue
+
 
 	@property
 	def outQueue(self):
@@ -93,49 +119,71 @@ class Plugin(Process):
 		self._outQueue = queue
 
 
+	def addAppend(self, pluginObj):
+		if not isinstance(pluginObj, Plugin):
+			raise TaskError("the object is not plugin")
+		self._addList.append(pluginObj)
+
+	def orAppend(self, pluginObj):
+		if not isinstance(pluginObj, Plugin):
+			raise TaskError("the object is not plugin")
+		self._orList.append(pluginObj)
+
+
 	def get(self, timeout=1):
+		'''
+		Get data from input queue.
+		'''
 		return self.inQueue.get(timeout=timeout)
 
-
 	def put(self, data):
+		'''
+		Put data to output queue.
+		'''
 		self.outQueue.put(data)
 
 
-	def __add__(self, pluginObj):
+	def __radd__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
 			raise TaskError("the right parameter is not plugin")
 
-		if not self.inQueue:
-			self.inQueue = conf.taskManager.outQueue
+		self.addAppend(pluginObj)
+		self.orAppend(pluginObj)
 
-		if self not in self._processList:
-			self._processList.append(self)
-		if pluginObj not in self._processList:
-			self._processList.append(pluginObj)
+		return self
 
 
-	def __or__(self, pluginObj):
+	def __ror__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
 			raise TaskError("the right parameter is not plugin")
 
-		if not self.inQueue:
-			self.inQueue = conf.taskManager.outQueue
+		for obj in pluginObj._addList:
+			self.addAppend(obj)
 
 		queue = Queue()
-		self.outQueue = queue
-		pluginObj.inQueue = queue
+		inLen = len(self._orList)
+		for inObj in pluginObj._orList:
+			for outObj in self._orList:
+				outObj._inCounter = inLen
+				inObj.outQueue = queue
+				outObj.inQueue = queue
 
-		if self not in self._processList:
-			self._processList.append(self)
-		if pluginObj not in self._processList:
-			self._processList.append(pluginObj)
+		return self
+
+
+	def quit(self):
+		'''
+		Quit process. if the process finish a task, it sends an empty object.
+		'''
+		if self.outQueue:
+			self.put(Model())
 
 
 	def startPlugin(self):
 		'''
 		Start all plugins, this function will be called by TaskManager().startTask
 		'''
-		for plugin in self._processList:
+		for plugin in self._addList:
 			plugin.start()
 
 	
@@ -143,6 +191,7 @@ class Plugin(Process):
 		'''
 		Start process, the subclass must rewrite this function or 'dataHandle' function
 		'''
+		counter = self._inCounter
 		while True:
 			try:
 				data = self.get(timeout=1)
@@ -152,7 +201,10 @@ class Plugin(Process):
 				if data:
 					self.dataHandle(data)
 				else:
-					break
+					counter -= 1
+					if not counter:
+						self.quit()
+						break
 
 
 	def dataHandle(self, data):
