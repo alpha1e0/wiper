@@ -67,7 +67,7 @@ class Index:
 
 class Install:
 	def GET(self):
-		if conf.dbisinstall == "true":
+		if conf.isinstall == "true":
 			raise web.notfound("page not found.")
 		render = web.template.render('view')
 		return render.install()
@@ -88,13 +88,11 @@ class Install:
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
-			conf.set("db", "db_host", params.dbhost)
-			conf.set("db", "db_port", params.dbport)
-			conf.set("db", "db_user", params.dbuser)
-			conf.set("db", "db_password", params.dbpassword)
-			conf.set("db", "db_name", params.dbname)
-			conf.write()
-			conf.read()
+			conf.dbhost = params.dbhost
+			conf.dbport = params.dbport
+			conf.dbuser = params.dbuser
+			conf.dbpassword = params.dbpassword
+			conf.dbname = params.dbname
 		except WIPError as error:
 			raise web.internalerror("Configure file parse error.")
 
@@ -103,8 +101,8 @@ class Install:
 		except DBError as error:
 			raise web.internalerror("Databae creating error,"+str(error))
 
-		conf.set("db", "db_isinstall", "true")
-		conf.write()
+		conf.isinstall = True
+		conf.save()
 
 		if not os.path.exists("log"):
     		os.mkdir("log")

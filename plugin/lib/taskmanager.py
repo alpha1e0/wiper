@@ -73,7 +73,7 @@ class Plugin(Process):
 	The base class of plugin.
 	Usage:
 		class XXXPlugin(Plugin):
-			def dataHandle(self, data):
+			def handle(self, data):
 				result = doSomeThing(data)
 				self.outQueue.put(result)
 	Example: 
@@ -194,7 +194,7 @@ class Plugin(Process):
 	
 	def run(self):
 		'''
-		Start process, the subclass must rewrite this function or 'dataHandle' function
+		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quit, then break
 		'''
 		counter = self._inCounter
@@ -205,7 +205,7 @@ class Plugin(Process):
 				continue
 			else:
 				if data:
-					self.dataHandle(data)
+					self.handle(data)
 				else:
 					counter -= 1
 					if not counter:
@@ -213,7 +213,7 @@ class Plugin(Process):
 						break
 
 
-	def dataHandle(self, data):
+	def handle(self, data):
 		'''
 		Handle data, the subclass must rewrite this function or 'run' function
 		'''

@@ -1,6 +1,6 @@
 wip.sublime-project
 wip.sublime-workspace
 *.pyc
-app.config
+config.yaml
 /log/*
 /static/attachment/*

@@ -23,14 +23,12 @@ class DnsResolver(object):
 	Dns operation.
 	The records format is [domain, value, type]
 	'''
-	def __init__(self, domain):
+	def __init__(self, domain=None, timeout=None):
 		self.domain = domain
-		
-		self.records = []
 
 		self.resolver = dns.resolver.Resolver()
 		self.resolver.nameservers = conf.dnsServers
-		self.resolver.timeout = conf.dnsTimeout
+		self.resolver.timeout = timeout if timeout else conf.dnsTimeout
 		#self.resolver.nameservers = ["223.5.5.5", "8.8.4.4"]
 		#self.resolver.timeout = 3
 

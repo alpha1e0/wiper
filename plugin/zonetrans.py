@@ -20,7 +20,7 @@ class ZoneTrans(Plugin):
 	Find and use DNS zone transfer vulnerability.
 	'''
 
-	def dataHandle(self, data):
+	def handle(self, data):
 		#from self.input get data, process them, then write to self.output
 		if not isinstance(data, Host):
 			self.put(data)

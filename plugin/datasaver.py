@@ -16,7 +16,7 @@ class DataSaver(plugin):
 		self.projectid = projectid
 		self.hostid = hostid
 
-	def dataHandle(self, data):
+	def handle(self, data):
 		try:
 			data.project_id = self.projectid
 			data.host_id = self.hostid

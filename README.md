@@ -39,6 +39,10 @@ WEB渗透测辅助工具
 
 依赖：
 
+**yaml**
+
+	pip install pyyaml
+
 **webpy**
 
 	pip install webpy
