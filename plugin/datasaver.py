@@ -12,7 +12,7 @@ from plugin.lib.taskmanager import TaskManager
 
 class DataSaver(plugin):
 	def __init__(self, projectid, hostid):
-		super(self, DataSaver).__init__(self)
+		super(DataSaver, self).__init__(self)
 		self.projectid = projectid
 		self.hostid = hostid
 

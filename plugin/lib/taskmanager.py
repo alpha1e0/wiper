@@ -88,12 +88,16 @@ class Plugin(Process):
 		if not self.inQueue:
 			self.inQueue = conf.taskManager.outQueue
 
+		#addlist will record all the plugin object when use '+' or '|' operator
 		self._addList = list()
+		#orlist will record all the plugin object when use '+' operator
 		self._orList = list()
 		self.addAppend(self)
 		self.orAppend(self)
 
-		#indicate how many input-queue input data to self, this value helps judging wether to exit process
+		#indicate how many input-queue input data to self
+		#when a process receive an empty object, it means the father process finish task and quit, 
+		#if all the father processes quit, then self quit.
 		self._inCounter = 1
 
 
@@ -143,32 +147,33 @@ class Plugin(Process):
 		self.outQueue.put(data)
 
 
-	def __radd__(self, pluginObj):
-		if not isinstance(pluginObj, Plugin):
-			raise TaskError("the right parameter is not plugin")
-
-		self.addAppend(pluginObj)
-		self.orAppend(pluginObj)
-
-		return self
-
-
-	def __ror__(self, pluginObj):
+	def __add__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
 			raise TaskError("the right parameter is not plugin")
 
 		for obj in pluginObj._addList:
 			self.addAppend(obj)
+		self.orAppend(pluginObj)
+
+		return self
+
+
+	def __or__(self, pluginObj):
+		if not isinstance(pluginObj, Plugin):
+			raise TaskError("the right parameter is not plugin")
+
+		for obj in self._addList:
+			pluginObj.addAppend(obj)
 
 		queue = Queue()
 		inLen = len(self._orList)
-		for inObj in pluginObj._orList:
-			for outObj in self._orList:
+		for inObj in self._orList:
+			for outObj in pluginObj._orList:
 				outObj._inCounter = inLen
 				inObj.outQueue = queue
 				outObj.inQueue = queue
 
-		return self
+		return pluginObj
 
 
 	def quit(self):
@@ -190,6 +195,7 @@ class Plugin(Process):
 	def run(self):
 		'''
 		Start process, the subclass must rewrite this function or 'dataHandle' function
+		when all the father processes quit, then break
 		'''
 		counter = self._inCounter
 		while True:

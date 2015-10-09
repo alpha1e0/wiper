@@ -19,7 +19,7 @@ from init import log
 
 class DnsBrute():
 	def __init__(self, domain, dictlist):
-		super(self, DnsBrute).__init__(self)
+		super(DnsBrute, self).__init__(self)
 		self.domain = domain
 		self.dictlist = dictlist
 
