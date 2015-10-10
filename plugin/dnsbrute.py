@@ -53,6 +53,9 @@ class DnsBrute(Plugin):
 
 
 	def handle(self, data):
+		if not isinstance(data, Host):
+			self.put(data)
+			return
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
 		for line in DictFileEnum(dlist):
 			domain = self.partDomain + "." + line

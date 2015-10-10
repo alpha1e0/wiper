@@ -195,7 +195,7 @@ class Plugin(Process):
 	def run(self):
 		'''
 		Start process, the subclass must rewrite this function or 'handle' function
-		when all the father processes quit, then break
+		when all the father processes quits, then break to quit
 		'''
 		counter = self._inCounter
 		while True:

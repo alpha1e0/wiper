@@ -21,7 +21,6 @@ class ZoneTrans(Plugin):
 	'''
 
 	def handle(self, data):
-		#from self.input get data, process them, then write to self.output
 		if not isinstance(data, Host):
 			self.put(data)
 		else:
