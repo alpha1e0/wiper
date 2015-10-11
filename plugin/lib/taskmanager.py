@@ -21,6 +21,13 @@ class TaskError(WIPError):
 	def __str__(self):
 		return self.errMsg
 
+class PluginError(WIPError):
+	def __init__(self, reason):
+		self.errMsg = "PluginError. " + ("reason: "+reason if reason else "")
+
+	def __str__(self):
+		return self.errMsg
+
 
 class TaskManager(Process):
 	'''
