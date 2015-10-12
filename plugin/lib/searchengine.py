@@ -25,44 +25,36 @@ def searchConfig(name):
 		return config
 
 
-class query(object):
+class Query(object):
 	'''
 	Build query string
 	parameter:
-		size: indicate how much items of the search result
 		site:
 		title:
 		url:
 		filetype:
 		ext:
 		link:
-		encode:
 		kw:
 	example:
 		query(site="xxx.com") - query(site="www.xxx.com")
 	'''
 	def __init__(self, **kwargs):
-		pass
+		for key,value in kwargs.iteritems():
+			self.kw = "{0}={1} ".format(key,value)
 
 	def __sub__(self, obj):
 		pass
 
-	def buildQueryString(self, engine="baidu"):
+	def __and__(self, obj):
+		pass
+
+	def __or__(self, obj):
 		pass
 
 
-class Baidu(object):
-	'''
-	Simple baidu search engine client.
-	parameter:
-		size: indicate how much items of the search result
-		site:
-		title:
-		url:
-		filetype:
-		ext:
-		link:
-		encode:
-		kw:
-	'''
-	def __init__(self, **kwargs):
+	def doSearch(engine="baidu", size=500, encode="utf-8"):
+		pass
+
+
+
