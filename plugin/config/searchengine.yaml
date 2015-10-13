@@ -6,9 +6,7 @@
 
 #https://www.baidu.com/s?wd=angelababy&ie=utf-8&rn=20&pn=1
 baidu: 
-  url: 
-    - http://www.baidu.com/s?
-    - https://www.baidu.com/s?
+  url: http://www.baidu.com/s?
   default: #默认使用的参数
     tn: baidulocal #tn表示来源，为baidulocal时能够返回纯净的页面，便于自动化处理
     ie: utf-8
@@ -19,7 +17,6 @@ baidu:
     pgnum: pn #页码
     origin: tn #搜索来源，baidulocal站内搜索，baiduhome_ph百度首页
   ghsyn: #google hacking 语法
-    not: "-"
     site: site
     title: intitle
     url: inurl
@@ -37,7 +34,6 @@ google:
     pgsize: num
     pgnum: start
   ghsyn:
-    not: "-"
     site: site
     title: intitle
     url: inurl
@@ -54,7 +50,6 @@ bing:
     pgsize: num
     pgnum: first
   ghsyn:
-    not: "-"
     site: site
     title: intitle
     url: url
