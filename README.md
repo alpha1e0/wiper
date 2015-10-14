@@ -43,11 +43,13 @@ WEB渗透测辅助工具
 
 	pip install pyyaml
 
+**requests**
+
+	pip install requests
+
 **webpy**
 
 	pip install webpy
-
-	git clone https://github.com/webpy/webpy;
 
 **MySQLdb**
 
@@ -57,4 +59,5 @@ WEB渗透测辅助工具
 
 	pip install dnspython
 
-	git clone https://github.com/rthalley/dnspython;
+
+
