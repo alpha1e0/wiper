@@ -2,6 +2,8 @@
 #-*- coding: UTF-8 -*-
 
 import os
+import random
+import time
 
 import requests
 import yaml
@@ -19,6 +21,21 @@ class SearchConfig(object):
 			return None
 		else:
 			return config
+
+
+class UserAgents(object):
+	def __new__(cls):
+		configFile = os.path.join("plugin","config","useragent.yaml")
+		try:
+			with open(configFile, "r") as fd:
+				config = yaml.load(fd)
+		except IOError:
+			userAgents = ["Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+				"Mozilla/5.0 (Windows; U; Windows NT 5.2)Gecko/2008070208 Firefox/3.0.1",
+				"Opera/9.27 (Windows NT 5.2; U; zh-cn)",
+				"Mozilla/5.0 (Macintosh; PPC Mac OS X; U; en)Opera 8.0)"]
+		else:
+			userAgents = [v for k,v in config]
 
 
 def genUrlParam(key, value, **kwargs):
@@ -105,6 +122,7 @@ class Baidu(object):
 		self.encode = encode
 
 		self.config = SearchConfig("baidu")
+		self.userAgents = UserAgents()
 
 		self.url = self.config['url']
 
@@ -116,6 +134,12 @@ class Baidu(object):
 
 
 	def search(self, keyword, size=None):
+		'''
+		Use baidu to search specified keyword.
+		parameter:
+			keyword: the keyword to search
+			size: the length of search result
+		'''
 		size = size if size else self.size
 		pageSize = self.config['param']['pgsize']['max']
 		pages = size / pageSize
@@ -137,7 +161,33 @@ class Baidu(object):
 
 
 	def _search(self, url):
-		pass
+		'''
+		Request with specified url, parse the reponse html document.
+		parameter:
+			url: the query url
+		return:
+			return the search result, result format is:
+				[[titel,url,brief-information],[...]...]
+		'''
+		result = list()
+		#use timeout and random user-agent to bypass baidu IP restrict policy
+		timeout = random.randint(1,3)
+		time.sleep(timeout)
+
+		headers = {"User-Agent": self.userAgents[random.randint(0,len(self.userAgents))]}
+		reponse = requests.get(url, headers=headers)
+		# 判断是否返回了结果
+		document = BeautifulSoup(reponse.text)
+
+		attrs={"class":"f"}
+		relist = doc.findAll("td", attrs=attrs)
+
+		for line in relist:
+			title = line.font.string
+			url = line.a["href"]
+			brief = line.a.nextSibling.nextSibling.contents[0]
+			result.append([title, url, brief])
+
 
 
 text = u'''
@@ -165,7 +215,19 @@ headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:41.0)
 #print re.text
 
 doc = BeautifulSoup(text)
-print doc.prettify()
-print doc.findAll("table", border="0")
+#print doc.prettify()
+#print doc.findAll("table", border="0")
+#print doc.head.title
+re = list()
+attrs={"class":"f"}
+#relist = doc.findAll("td", attrs={"class","f"})
+relist = doc.findAll("td", attrs=attrs)
 
+for line in relist:
+	title = line.font.string
+	url = line.a["href"]
+	brief = line.a.nextSibling.nextSibling.contents[0]
+	re.append([title, url, brief])
+
+print re[0]
 
