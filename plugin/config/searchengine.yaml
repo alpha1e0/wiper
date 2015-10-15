@@ -23,9 +23,9 @@ baidu:
     site: site
     title: intitle
     url: inurl
-    ext: null
+    ext: filetype
     filetype: filetype
-    link: null
+    link: ""
 
 google:
   url: https://wwww.google.com/search?
@@ -50,6 +50,7 @@ google:
 bing:
   url: http://wwww.bing.com/search?
   default: 
+    ie: utf-8
   param:
     query: q
     encode: ie
@@ -64,4 +65,4 @@ bing:
     url: url
     ext: contains
     filetype: filetype
-    link: null
+    link: ""
