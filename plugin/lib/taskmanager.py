@@ -46,7 +46,7 @@ class TaskManager(Process):
 	def startTask(self, pluginObj, startData):
 		'''
 		Start task. send pluginObj to task process.
-		Parameter:
+		input:
 			pluginObj: the plugin object
 			startData: the start data, a list of Model
 		'''

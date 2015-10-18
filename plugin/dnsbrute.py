@@ -23,7 +23,7 @@ class DnsBrute(Plugin):
 	Use wordlist to bruteforce subdomain.
 	'''
 	def __init__(self, domain, dictlist):
-		super(DnsBrute, self).__init__(self)
+		super(DnsBrute, self).__init__()
 
 		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
 		self.domain = urlPattern.match(domain.strip()).groups()[0]

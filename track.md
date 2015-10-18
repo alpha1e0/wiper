@@ -16,7 +16,8 @@
 
 增加设置页面，上传字典文件放到设置页面
 
-plugin 围绕modal，modal在各个进程间通过queue传递
+plugin 修改get方法，增加去重的代码(增加__contains__方法，如果重复raise Queue.Empty)
+plugin 增加dostart方法，调用taskmanager启动plugin
 
 
 ---

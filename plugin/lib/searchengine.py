@@ -37,7 +37,7 @@ def genUrlParam(key, value, **kwargs):
 class Query(object):
 	'''
 	Build query keyword
-	parameter:
+	input:
 		site: seach specified site
 		title: search in title
 		url: search in url
@@ -99,7 +99,7 @@ class Query(object):
 class Baidu(object):
 	'''
 	Baidu search engine.
-	parameter:
+	input:
 		size: specified the amount of the result
 		encode: specified the url encode method
 	example:

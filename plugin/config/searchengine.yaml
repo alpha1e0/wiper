@@ -16,16 +16,15 @@ baidu:
     pgsize:  #页面返回的行数，取值10-100
       key: rn
       min: 10
-      max: 100
+      max: 10
     pgnum: pn #页码
     origin: tn #搜索来源，baidulocal站内搜索，baiduhome_ph百度首页
   ghsyn: #google hacking 语法
     site: site
     title: intitle
     url: inurl
-    ext: filetype
     filetype: filetype
-    link: ""
+    link: null
 
 google:
   url: https://wwww.google.com/search?
@@ -43,7 +42,6 @@ google:
     site: site
     title: intitle
     url: inurl
-    ext: filetype
     filetype: filetype
     link: link
 
@@ -62,7 +60,6 @@ bing:
   ghsyn:
     site: site
     title: intitle
-    url: url
-    ext: contains
+    url: null
     filetype: filetype
-    link: ""
+    link: null
