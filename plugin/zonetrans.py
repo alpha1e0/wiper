@@ -7,9 +7,7 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
-import multiprocessing
 
-from init import log
 from plugin.lib.taskmanager import Plugin
 from plugin.lib.dnsresolve import DnsResolver
 from model.model import Host

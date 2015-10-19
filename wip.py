@@ -13,4 +13,5 @@ from controller.application import startServer
 
 
 if __name__ == "__main__":
+	init.taskManager.run()
     startServer()

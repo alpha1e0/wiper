@@ -14,6 +14,7 @@ import ConfigParser
 
 import yaml
 
+from  plugin.lib.taskmanager import TaskManager
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -147,4 +148,6 @@ class Conf(object):
 
 log = Log()
 conf = Conf()
+taskManager = TaskManager()
 conf.log = log
+conf.taskManager = taskManager

@@ -107,6 +107,9 @@ class Plugin(Process):
 		#if all the father processes quit, then self quit.
 		self._inCounter = 1
 
+		#record the new data from input queue, drop the duplicated data
+		self._dataSet = set()
+
 
 	@property
 	def inQueue(self):
@@ -145,7 +148,12 @@ class Plugin(Process):
 		'''
 		Get data from input queue.
 		'''
-		return self.inQueue.get(timeout=timeout)
+		data = self.inQueue.get(timeout=timeout)
+		if data in self._dataSet:
+			raise Queue.Empty()
+		else:
+			self._dataSet.add(data)
+			return data
 
 	def put(self, data):
 		'''

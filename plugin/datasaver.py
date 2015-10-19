@@ -7,7 +7,7 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
-from plugin.lib.taskmanager import TaskManager
+from plugin.lib.taskmanager import plugin
 
 
 class DataSaver(plugin):

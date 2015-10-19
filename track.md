@@ -2,9 +2,7 @@
 ## 问题列表
 
 * windows系统 static/attachment/汉字识别问题，webpy解析url存在问题，当URL中有中文时，webpy没有进行utf-8之类的解码；导致附件名称不能有中文
-* 删除host时没有刷新hostlist
-* baidu 究竟什么区别导致搜索返回验证脚本
-* intitle:huawei.com html解析失败，https://www.baidu.com/s?word=intitle%3Ahuawei.com&tn=baidulocal
+* bing 搜索，http://wwww.bing.com/search?ie=utf-8&q=intitle%3Atorrent&num=10&first=0& 总是被”机器人检测“阻断
 
 ---
 
@@ -15,9 +13,6 @@
 	C段扫描模块，单独一个tab页面，自动聚合IP、手动添加IP，http识别；页面整改，两个框加入/删除按钮
 
 增加设置页面，上传字典文件放到设置页面
-
-plugin 修改get方法，增加去重的代码(增加__contains__方法，如果重复raise Queue.Empty)
-plugin 增加dostart方法，调用taskmanager启动plugin
 
 
 ---

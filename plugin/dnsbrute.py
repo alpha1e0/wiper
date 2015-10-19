@@ -9,13 +9,13 @@ See the file COPYING for copying detail
 
 import os
 import socket
-import multiprocessing
 import re
 
-from plugin.lib.dictparse import DictFileEnum
-from plugin.lib.taskmanager import Plugin
-from plugin.lib.dnsresolve import DnsResolver
 from init import log
+from plugin.lib.dictparse import DictFileEnum
+from plugin.lib.taskmanager import Plugin, PluginError
+from plugin.lib.dnsresolve import DnsResolver
+from model.model import Host
 
 
 class DnsBrute(Plugin):
@@ -26,7 +26,10 @@ class DnsBrute(Plugin):
 		super(DnsBrute, self).__init__()
 
 		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
-		self.domain = urlPattern.match(domain.strip()).groups()[0]
+		try:
+			self.domain = urlPattern.match(domain.strip()).groups()[0]
+		except AttributeError:
+			raise PluginError("dns brute plugin, domain format error")
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",x) for x in dictlist]
 
 		#partDoman示例：aaa.com partDomain为aaa，aaa.com.cn partDomain为aaa

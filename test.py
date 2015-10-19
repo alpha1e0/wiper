@@ -210,7 +210,7 @@ class SearchEngine(object):
 
 			print "debug",url
 			print "debug",len(reponse.text)
-			print "debug",reponse.text
+			#print "debug",reponse.text
 
 			if self.findSignature in reponse.text:
 				break
@@ -318,8 +318,8 @@ class Bing(SearchEngine):
 #['site','title','url','filetype','link','kw']
 
 #query = Query(filetype="xls") | Query(site="huawei.com")
-query = Query(title="torrent")
-#query = Query(filetype="xls")
+#query = Query(title="torrent")
+query = Query(filetype="xls")
 #print query.genKeyword("bing")
 #query = Query(kw="siw")
 re = query.doSearch(engine="bing", size=5)
