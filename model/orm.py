@@ -11,7 +11,7 @@ import re
 import json
 
 from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
-from init import log, WIPError
+from init import log, WIPError, Dict
 
 
 class FieldError(WIPError):
@@ -235,7 +235,7 @@ class ModelMetaClass(type):
 		return type.__new__(cls, name, bases, attrs)
 
 
-class Model(dict):
+class Model(Dict):
 	'''
 	Base class for ORM.
 	'''
@@ -244,18 +244,6 @@ class Model(dict):
 
 	_orderby = ""
 	_where = ""
-
-	def __init__(self, **kwargs):
-		super(Model, self).__init__(**kwargs)
-
-	def __getattr__(self, key):
-		try:
-			return self[key]
-		except KeyError:
-			raise AttributeError("Model object has no attribute '{0}'".format(key))
-
-	def __setattr__(self, key, value):
-		self[key] = value
 
 
 	@classmethod

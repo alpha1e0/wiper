@@ -10,11 +10,10 @@ See the file COPYING for copying detail
 import os
 import sys
 import logging
-import ConfigParser
 
 import yaml
 
-from  plugin.lib.taskmanager import TaskManager
+#from  plugin.lib.taskmanager import TaskManager
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -28,8 +27,18 @@ class WIPError(Exception):
         return self.errMsg
 
 
-def Enum(**enums):
-    return type('Enum', (), enums)
+class Dict(dict):
+    def __init__(self, **kwargs):
+        super(Dict, self).__init__(**kwargs)
+
+    def __getattr__(self, key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError("object has no attribute '{0}'".format(key))
+
+    def __setattr__(self, key, value):
+        self[key] = value
 
 
 class Log(object):
@@ -64,12 +73,11 @@ class Log(object):
         return log
 
 
-class Conf(object):
-    def __init__(self):
-        self._confFile = "config.yaml"
+class Conf(Dict):
+    _confFile = "config.yaml"
 
+    def __init__(self):
         confFile = self._confFile
-        
         if not os.path.exists(confFile):
             confFile = "config.sample.yaml"
             if not os.path.exists(confFile):
@@ -77,77 +85,31 @@ class Conf(object):
 
         try:
             with open(confFile,'r') as fd:
-                self._confDict = yaml.load(fd)
+                confDict = yaml.load(fd)
         except IOError:
             raise WIPError("open configure file '{0}' error".format(confFile))
         except yaml.scanner.ScannerError:
             raise WIPError("configure file '{0}' format error, should be yaml format".format(confFile))
 
+        for key,value in confDict.iteritems():
+            if isinstance(value, dict):
+                confDict[key] = Dict(**value)
 
-    @property
-    def dbhost(self):
-        return self._confDict['db']['host']
-    @dbhost.setter
-    def dbhost(self, value):
-        self._confDict['db']['host'] = value
+        super(Conf, self).__init__(**confDict)
 
-    @property
-    def dbport(self):
-        return self._confDict['db']['port']
-    @dbport.setter
-    def dbport(self, value):
-        self._confDict['db']['port'] = value
 
-    @property
-    def dbuser(self):
-        return self._confDict['db']['user']
-    @dbuser.setter
-    def dbuser(self, value):
-        self._confDict['db']['user'] = value
-
-    @property
-    def dbpassword(self):
-        return self._confDict['db']['password']
-    @dbpassword.setter
-    def dbpassword(self, value):
-        self._confDict['db']['password'] = value
-
-    @property
-    def dbname(self):
-        return self._confDict['db']['name']
-    @dbname.setter
-    def dbname(self, value):
-        self._confDict['db']['name'] = value
-    
-    @property
-    def isinstall(self):
-        return self._confDict['isinstall']
-    @isinstall.setter
-    def isinstall(self, value):
-        self._confDict['isinstall'] = value
-
-    @property
-    def dnsServers(self):
-        return self._confDict['dns']['servers']
-    @dnsServers.setter
-    def dnsServers(self, value):
-        self._confDict['dns']['servers'] = value
-
-    @property
-    def dnsTimeout(self):
-        return self._confDict['dns']['timeout']
-    @dnsTimeout.setter
-    def dnsTimeout(self, value):
-        self._confDict['dns']['timeout'] = value
-
-    
     def save(self):
-        yaml.dump(self._confDict, self._confFile)
+        try:
+            with open(self._confFile,'w') as fd:
+                yaml.dump(self, fd)
+        except IOError:
+            raise WIPError("write configure file '{0}' error".format(confFile))
 
 
-
-log = Log()
 conf = Conf()
-taskManager = TaskManager()
-conf.log = log
-conf.taskManager = taskManager
+
+#global var rtd, record the run time datas
+rtd = Dict()
+log = Log()
+rtd.log = log
+

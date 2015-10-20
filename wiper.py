@@ -9,9 +9,12 @@ See the file COPYING for copying detail
 
 import init
 from controller.application import startServer
+from plugin.lib.taskmanager import taskManager
 
 
 
 if __name__ == "__main__":
-	init.taskManager.run()
+	init.rtd.taskManager = taskManager
+	init.rtd.taskManager.start()
+	
     startServer()
