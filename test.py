@@ -18,11 +18,14 @@
 #	print line[1]
 #	print line[2]
 
-import config
+import subprocess
+from thirdparty.BeautifulSoup import BeautifulStoneSoup
 
-print init.conf
-print init.conf.isinstall
-init.conf.save()
+with open("result.txt", "r") as fd:
+	xml = fd.read()
+
+doc = BeautifulStoneSoup(xml)
+
 
 
 

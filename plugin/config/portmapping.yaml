@@ -1,6 +1,33 @@
+21: 
+  desp: "ftp server"
+  protoclo: ftp
+22: 
+  desp: "ssh server"
+  protocol: ssh
+23: 
+  desp: "telnet server"
+  protocol: ssh
+25: 
+  desp: "smtp"
+  protocol: smtp
 80:
   desp: "http default"
   protocol: http
+110: 
+  desp: "pop3"
+  protocol: pop3
+220:
+  desp: "imap"
+  protocol: imap
 443:
   desp: "https default"
   protocol: https
+8080:
+  desp: "http proxy"
+  protocol: http
+7001: 
+  desp: "weblogic console"
+  protocol: http
+4848:
+  desp: "glassfish console"
+  protocol: http
