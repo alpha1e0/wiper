@@ -12,7 +12,7 @@ import json
 
 import web
 
-from init import WIPError,log
+from config import WIPError, rtd
 from model.dbmanage import DBError
 from model.orm import FieldError, ModelError
 
@@ -57,7 +57,7 @@ def handleException(func):
 		except ModelError as error:
 			raise web.internalerror("Internal ERROR!")
 		except DBError as error:
-			log.error(error)
+			rtd.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 	return _wrapper

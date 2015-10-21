@@ -20,7 +20,7 @@ from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
 from plugin.dnsbrute import DnsBrute
-from init import log, conf, WIPError
+from config import rtd, conf, WIPError
 
 
 def startServer():
@@ -88,11 +88,11 @@ class Install:
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
-			conf.dbhost = params.dbhost
-			conf.dbport = params.dbport
-			conf.dbuser = params.dbuser
-			conf.dbpassword = params.dbpassword
-			conf.dbname = params.dbname
+			conf.db.host = params.dbhost
+			conf.db.port = params.dbport
+			conf.db.user = params.dbuser
+			conf.db.password = params.dbpassword
+			conf.db.name = params.dbname
 		except WIPError as error:
 			raise web.internalerror("Configure file parse error.")
 
@@ -286,7 +286,7 @@ class CommentDelete:
 		except FieldError as error:
 			raise web.internalerror(error)
 		except WIPError as error:
-			log.error(error)
+			rtd.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		if not comment:
@@ -345,7 +345,7 @@ class AttachmentAdd:
 		try:
 			comment = Comment(name=fileName,url="",info="",level=3,attachment=fileName,description="attachment:"+fileName,host_id=hostID)
 		except WIPError as error:
-			log.error(error)
+			rtd.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		try:
@@ -359,10 +359,10 @@ class AttachmentAdd:
 		try:
 			comment.save()
 		except FieldError as error:
-			log.error(error)
+			rtd.log.error(error)
 			raise web.internalerror(error)
 		except WIPError as error:
-			log.error(error)
+			rtd.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		return True

@@ -11,7 +11,7 @@ import os
 import socket
 import re
 
-from init import log
+#from config import rtd
 from plugin.lib.dictparse import DictFileEnum
 from plugin.lib.taskmanager import Plugin, PluginError
 from plugin.lib.dnsresolve import DnsResolver
@@ -41,7 +41,7 @@ class DnsBrute(Plugin):
 		self.domain = self.domain if pos==-1 else self.domain[pos+4:]
 
 		dns = DnsResolver()
-		#log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
+		#rtd.log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
 
 
 	def checkDomain(self, domain):
@@ -62,7 +62,7 @@ class DnsBrute(Plugin):
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
 		for line in DictFileEnum(dlist):
 			domain = self.partDomain + "." + line
-			#log.debug(domain)
+			#rtd.log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
 				self.put(Host(url=domain, ip=ip))
@@ -70,7 +70,7 @@ class DnsBrute(Plugin):
 		for dlist in self.dictlist:
 			for line in DictFileEnum(dlist):
 				domain = line + "." + self.domain
-				#log.debug(domain)
+				#rtd.log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:
 					self.put(Host(url=domain, ip=ip))

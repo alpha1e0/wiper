@@ -11,7 +11,7 @@ import re
 import json
 
 from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
-from init import log, WIPError, Dict
+from config import log, WIPError, Dict
 
 
 class FieldError(WIPError):

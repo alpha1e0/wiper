@@ -1,5 +1,0 @@
-db: {host: localhost, name: wip, password: 86@shiyan, port: 3306, user: root}
-dns:
-  servers: [223.5.5.5, 8.8.4.4]
-  timeout: 4
-isinstall: true

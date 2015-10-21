@@ -7,14 +7,19 @@ See the file COPYING for copying detail
 '''
 
 
-import init
+import config
 from controller.application import startServer
-from plugin.lib.taskmanager import taskManager
+from plugin.lib.taskmanager import TaskManager
 
+
+
+def init():
+	config.rtd.log = config.Log()
+	config.rtd.taskManager = TaskManager()
 
 
 if __name__ == "__main__":
-	init.rtd.taskManager = taskManager
-	init.rtd.taskManager.start()
-	
+	init()
+
+	config.rtd.taskManager.start()
     startServer()

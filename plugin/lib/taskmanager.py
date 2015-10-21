@@ -10,7 +10,7 @@ See the file COPYING for copying detail
 import time
 from multiprocessing import Process, Queue
 
-from init import conf, WIPError
+from config import conf, WIPError
 from model.orm import Model
 
 
@@ -69,5 +69,3 @@ class TaskManager(Process):
 				pluginObj.startPlugin()
 
 
-
-taskManager = TaskManager()

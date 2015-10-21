@@ -55,7 +55,11 @@ class Log(object):
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             streamHD.setFormatter(formatter)
 
-            fileHD = logging.FileHandler(os.path.join('log', 'wiplog.log'))
+            fileName = os.path.join("log","wiplog.log")
+            if not os.path.exists(fileName):
+                with open(fileName,"w") as fd:
+                    fd.wirte("global log start----------------\r\n")
+            fileHD = logging.FileHandler(fileName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             fileHD.setFormatter(formatter)
@@ -63,7 +67,11 @@ class Log(object):
             log.addHandler(streamHD)
             log.addHandler(fileHD)
         else:
-            fileHD = logging.FileHandler(os.path.join('log', '{0}.log'.format(logfile)))
+            fileName = os.path.join('log', '{0}.log'.format(logfile))
+            if not os.path.exists(fileName):
+                with open(fileName,"w") as fd:
+                    fd.wirte("log start----------------\r\n")
+            fileHD = logging.FileHandler(fineName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             fileHD.setFormatter(formatter)
@@ -95,21 +103,22 @@ class Conf(Dict):
             if isinstance(value, dict):
                 confDict[key] = Dict(**value)
 
-        super(Conf, self).__init__(**confDict)
+        super(Conf,self).__init__(**confDict)
 
 
     def save(self):
+        result = dict(**self)
+        for key, value in result.iteritems():
+            if isinstance(value, Dict):
+                result[key] = dict(value)
         try:
             with open(self._confFile,'w') as fd:
-                yaml.dump(self, fd)
+                yaml.dump(result, fd, default_flow_style=False)
         except IOError:
             raise WIPError("write configure file '{0}' error".format(confFile))
 
 
 conf = Conf()
-
 #global var rtd, record the run time datas
 rtd = Dict()
-log = Log()
-rtd.log = log
 

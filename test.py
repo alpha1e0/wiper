@@ -18,7 +18,7 @@
 #	print line[1]
 #	print line[2]
 
-import init
+import config
 
 print init.conf
 print init.conf.isinstall

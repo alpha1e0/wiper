@@ -1,15 +1,13 @@
 # the sample configure file
-isinstall: false
-
-db: 
+db:
   host: localhost
+  name: wiper
+  password: 86@shiyan
   port: 3306
   user: root
-  password: 123456
-  name: wip
-
 dns:
   servers:
-    - 223.5.5.5
-    - 8.8.4.4
+  - 223.5.5.5
+  - 8.8.4.4
   timeout: 4
+isinstall: false

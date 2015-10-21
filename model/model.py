@@ -8,7 +8,7 @@ See the file COPYING for copying detail
 '''
 
 from orm import Model, IntegerField, StringField, UrlField, IPField, TextField
-from init import conf
+from config import conf
 
 class Project(Model):
 	_table = "project"
@@ -45,7 +45,7 @@ class Host(Model):
 	title = StringField(ddl="varchar(100)",vrange="0-100")
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
-	protocol = IntegerField(notnull=True,ddl="integer",vrange="1-10")
+	protocol = IntegerField(notnull=True,ddl="integer",vrange="1-1000")
 	level = IntegerField(notnul=True,ddl="integer",vrange="1-4")
 	os = StringField(ddl="varchar(150)",vrange="0-150")
 	server_info = StringField(ddl="varchar(150)",vrange="0-150")
@@ -137,15 +137,15 @@ class Database(Model):
 
 	@classmethod
 	def create(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.dbname), raw=True)
-		cls.rawsql("create database {0}".format(conf.dbname), raw=True)
+		cls.rawsql("drop database if exists {0}".format(conf.db.name), raw=True)
+		cls.rawsql("create database {0}".format(conf.db.name), raw=True)
 		for table in cls._tables:
 			table.create()
 
 	@classmethod
 	def reset(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.dbname), raw=True)
-		cls.rawsql("create database {0}".format(conf.dbname), raw=True)
+		cls.rawsql("drop database if exists {0}".format(conf.db.name), raw=True)
+		cls.rawsql("create database {0}".format(conf.db.name), raw=True)
 		for table in cls._tables:
 			table.create()
 
