@@ -12,8 +12,8 @@ import random
 import time
 import urllib
 
-import requests
-import yaml
+from thirdparty import requests
+from thirdparty import yaml
 from thirdparty.BeautifulSoup import BeautifulSoup
 
 

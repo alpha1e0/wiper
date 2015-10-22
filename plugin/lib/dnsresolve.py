@@ -9,10 +9,8 @@ See the file COPYING for copying detail
 
 import os
 
-import dns.resolver
-import dns.reversename
-import dns.query
-import dns.exception
+from thirdparty.dns import resolver, reversename, query
+from thirdparty.dns.exception import DNSException
 
 from config import CONF
 
@@ -26,45 +24,58 @@ class DnsResolver(object):
 	def __init__(self, domain=None, timeout=None):
 		self.domain = domain
 
-		self.resolver = dns.resolver.Resolver()
+		self.resolver = resolver.Resolver()
 		self.resolver.nameservers = CONF.dns.servers
 		self.resolver.timeout = timeout if timeout else CONF.dns.timeout
 		#self.resolver.nameservers = ["223.5.5.5", "8.8.4.4"]
 		#self.resolver.timeout = 3
 
-		self.axfr = dns.query.xfr
+		self.axfr = query.xfr
 
 
 	def domain2IP(self, domain=None):
+		'''
+		Parse domain to IP.
+		'''
 		domainToResolve = domain if domain else self.domain
 		try:
-			reponse = self.resolver.query(domainToResolve, "A")
-		except dns.exception.DNSException:
+			response = self.resolver.query(domainToResolve, "A")
+		except DNSException:
 			return []
-
-		return response[0].to_text()
+		else:
+			return response[0].to_text()
 
 
 	def IP2domain(self, ip):
-		return dns.reversename.from_address(ip)
+		'''
+		Parse IP to domain. The most dns server dose not support this operation.
+		'''
+		return reversename.from_address(ip)
 
 
 	def getRecords(self, rtype, domain=None):
 		'''
 		Get dns records, records type supports "A", "CNAME", "NS", "MX", "SOA", "TXT"
+		Example:
+			dns.getRecords("A")
 		'''
 		if not rtype in ["A", "CNAME", "NS", "MX", "SOA", "TXT", "a", "cname", "ns", "mx", "soa", "txt"]:
 			return []
 
 		domainToResolve = domain if domain else self.domain
 		try:
-			reponse = self.resolver.query(domainToResolve, rtype)
-		except dns.exception.DNSException:
+			response = self.resolver.query(domainToResolve, rtype)
+		except DNSException:
+			return []
+		except resolver.NoAnswer:
+			return []
+
+		if not response:
 			return []
 
 		if rtype in ["MX","mx"]:
-			return [[domainToResolve, line.to_text().rstrip(".").split()[-1], rtype] for line in reponse]
-		return [[domainToResolve, line.to_text().rstrip("."), rtype] for line in reponse]
+			return [[domainToResolve, line.to_text().rstrip(".").split()[-1], rtype] for line in response]
+		return [[domainToResolve, line.to_text().rstrip("."), rtype] for line in response]
 
 
 	def getZoneRecords(self, domain=None):
@@ -81,9 +92,9 @@ class DnsResolver(object):
 		for serverRecord in nsRecords:
 			xfrHandler = self.axfr(serverRecord[1], domainToResolve)
 			try:
-				for reponse in xfrHandler:
-					topDomain = reponse.origin.to_text().rstrip(".")
-					for line in reponse.answer:
+				for response in xfrHandler:
+					topDomain = response.origin.to_text().rstrip(".")
+					for line in response.answer:
 						# A records
 						if line.rdtype == 1:
 							lineSplited = line.to_text().split()
@@ -118,9 +129,9 @@ class DnsResolver(object):
 		xfrHandler = self.axfr(server, domainToResolve)
 
 		try:
-			for reponse in xfrHandler:
-				topDomain = reponse.origin.to_text().rstrip(".")
-				for line in reponse.answer:
+			for response in xfrHandler:
+				topDomain = response.origin.to_text().rstrip(".")
+				for line in response.answer:
 					# A records
 					if line.rdtype == 1:
 						lineSplited = line.to_text().split()
@@ -141,12 +152,13 @@ class DnsResolver(object):
 		return records
 
 
-	def resolveAll(self):
+	def resolveAll(self, domain=None):
+		domainToResolve = domain if domain else self.domain
 		types = ["A", "CNAME", "NS", "MX", "SOA", "TXT"]
 		records = list()
 
 		for t in types:
-			records += self.getRecords(t)
+			records += self.getRecords(t, domainToResolve)
 
 		records += self.getZoneRecords()
 

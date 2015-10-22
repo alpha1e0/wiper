@@ -13,7 +13,7 @@ import os
 import time
 import json
 
-import web
+from thirdparty import web
 
 from lib import formatParam, ParamError, handleException, jsonSuccess, jsonFail
 from model.orm import FieldError, ModelError

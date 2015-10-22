@@ -8,15 +8,34 @@ See the file COPYING for copying detail
 '''
 
 from subprocess import Popen, PIPE, STDOUT
+from thirdparty.BeautifulSoup import BeautifulStoneSoup
 
 class Nmap(object):
-	def __init__(self, cmd):
-		self.cmd = cmd.strip()
-		if not self.cmd.startswith("nmap"):
-			self.cmd = "nmap " + self.cmd
-
-	def run(self):
-		p = Popen('ls', shell=True, stdout=PIPE, stderr=STDOUT)
+	'''
+	Nmap scan.
+	'''
+	@classmethod
+	def scan(cls, cmd):
+		'''
+		Nmap scan.
+		output:
+			[
+				{host: {
+					ip: 1.1.1.1
+					name: xxx.com
+					ports: [
+						{state:filter, port:21, protocol:ftp, type:tcp}
+						{state:open, port:80, protocol:http, type:tcp}
+						{state:open, port:443, protocol:https, type:tcp}
+					]
+				}
+			]
+		'''
+		if "-oX -" not in cmd:
+			cmd = cmd + " -oX -"
+		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		#如何让nmap输出xml, -oX -
 		#p.wait()
-		self.result = p.stdout.read()
+		result = popen.stdout.read()
+
+		xml = BeautifulStoneSoup(xml)

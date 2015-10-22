@@ -6,6 +6,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+
+#=================================================searchengine test===========================================
 #from plugin.lib.searchengine import Query
 
 #['site','title','url','filetype','link','kw']
@@ -22,6 +24,8 @@ sys.setdefaultencoding("utf-8")
 #	print line[1]
 #	print line[2]
 
+
+#=================================================nmap test===========================================
 #from subprocess import Popen, PIPE, STDOUT
 #from thirdparty.BeautifulSoup import BeautifulStoneSoup#
 
@@ -36,20 +40,12 @@ sys.setdefaultencoding("utf-8")
 #print "second"
 #print p.stdout.read()
 
-from thirdparty import yaml
 
-from thirdparty import requests
+#=================================================dnsresolver test============================================
+#from plugin.lib.dnsresolve import DnsResolver
 
-from thirdparty import web
-
-urls = ("/", "Index")
-
-class Index(object):
-	def GET(self):
-		return "hello"
-
-app = web.application(urls, globals())
-app.run()
-
-#re = requests.get("http://www.baidu.com/baidu?wd=pyyaml&tn=baidulocal")
-#print re.text
+#dns = DnsResolver()
+#re = dns.getRecords("ns","www.baidu.com")
+#re = dns.resolveAll("baidu.com")
+#re = dns.getZoneRecords("thinksns.com")
+#print re

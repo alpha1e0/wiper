@@ -39,25 +39,13 @@ WEB渗透测辅助工具
 
 依赖：
 
-**yaml**
+**nmap**
 
-	pip install pyyaml
-
-**requests**
-
-	pip install requests
-
-**webpy**
-
-	pip install webpy
+	https://nmap.org
 
 **MySQLdb**
 
 	pip install mysqldba
-
-**dnspython**
-
-	pip install dnspython
 
 
 

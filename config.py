@@ -11,8 +11,7 @@ import os
 import sys
 import logging
 
-import yaml
-
+from thirdparty import yaml
 
 
 reload(sys)
@@ -103,7 +102,7 @@ class Config(Dict):
             if isinstance(value, dict):
                 confDict[key] = Dict(**value)
 
-        super(Conf,self).__init__(**confDict)
+        super(Config,self).__init__(**confDict)
 
 
     def save(self):
