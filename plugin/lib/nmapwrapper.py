@@ -17,6 +17,6 @@ class Nmap(object):
 
 	def run(self):
 		p = Popen('ls', shell=True, stdout=PIPE, stderr=STDOUT)
-		#如何让nmap输出xml
-		p.wait()
+		#如何让nmap输出xml, -oX -
+		#p.wait()
 		self.result = p.stdout.read()

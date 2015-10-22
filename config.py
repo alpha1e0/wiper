@@ -55,7 +55,7 @@ class Log(object):
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             streamHD.setFormatter(formatter)
 
-            fileName = os.path.join("log","wiplog.log")
+            fileName = os.path.join("log","wiper.log")
             if not os.path.exists(fileName):
                 with open(fileName,"w") as fd:
                     fd.wirte("global log start----------------\r\n")
