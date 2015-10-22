@@ -14,12 +14,12 @@ from plugin.lib.taskmanager import TaskManager
 
 
 def init():
-	config.rtd.log = config.Log()
-	config.rtd.taskManager = TaskManager()
+	config.RTD.log = config.Log()
+	config.RTD.taskManager = TaskManager()
 
 
 if __name__ == "__main__":
 	init()
 
-	config.rtd.taskManager.start()
+	config.RTD.taskManager.start()
     startServer()

@@ -20,7 +20,7 @@ from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
 from plugin.dnsbrute import DnsBrute
-from config import rtd, conf, WIPError
+from config import RTD, CONF, WIPError
 
 
 def startServer():
@@ -67,7 +67,7 @@ class Index:
 
 class Install:
 	def GET(self):
-		if conf.isinstall == "true":
+		if CONF.isinstall == "true":
 			raise web.notfound("page not found.")
 		render = web.template.render('view')
 		return render.install()
@@ -88,11 +88,11 @@ class Install:
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
-			conf.db.host = params.dbhost
-			conf.db.port = params.dbport
-			conf.db.user = params.dbuser
-			conf.db.password = params.dbpassword
-			conf.db.name = params.dbname
+			CONF.db.host = params.dbhost
+			CONF.db.port = params.dbport
+			CONF.db.user = params.dbuser
+			CONF.db.password = params.dbpassword
+			CONF.db.name = params.dbname
 		except WIPError as error:
 			raise web.internalerror("Configure file parse error.")
 
@@ -101,8 +101,8 @@ class Install:
 		except DBError as error:
 			raise web.internalerror("Databae creating error,"+str(error))
 
-		conf.isinstall = True
-		conf.save()
+		CONF.isinstall = True
+		CONF.save()
 
 		if not os.path.exists("log"):
     		os.mkdir("log")
@@ -286,7 +286,7 @@ class CommentDelete:
 		except FieldError as error:
 			raise web.internalerror(error)
 		except WIPError as error:
-			rtd.log.error(error)
+			RTD.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		if not comment:
@@ -345,7 +345,7 @@ class AttachmentAdd:
 		try:
 			comment = Comment(name=fileName,url="",info="",level=3,attachment=fileName,description="attachment:"+fileName,host_id=hostID)
 		except WIPError as error:
-			rtd.log.error(error)
+			RTD.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		try:
@@ -359,10 +359,10 @@ class AttachmentAdd:
 		try:
 			comment.save()
 		except FieldError as error:
-			rtd.log.error(error)
+			RTD.log.error(error)
 			raise web.internalerror(error)
 		except WIPError as error:
-			rtd.log.error(error)
+			RTD.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 		return True

@@ -10,6 +10,8 @@ See the file COPYING for copying detail
 import time
 from multiprocessing import Process, Queue
 
+from config import RTD
+
 
 class PluginError(WIPError):
 	def __init__(self, reason):
@@ -37,7 +39,7 @@ class Plugin(Process):
 		self._inQueue = inQueue
 		self._outQueue = outQueue
 		if not self.inQueue:
-			self.inQueue = conf.taskManager.outQueue
+			self.inQueue = RTD.taskManager.outQueue
 
 		#addlist will record all the plugin object when use '+' or '|' operator
 		self._addList = list()

@@ -81,7 +81,7 @@ class Log(object):
         return log
 
 
-class Conf(Dict):
+class Config(Dict):
     _confFile = "config.yaml"
 
     def __init__(self):
@@ -118,7 +118,7 @@ class Conf(Dict):
             raise WIPError("write configure file '{0}' error".format(confFile))
 
 
-conf = Conf()
+CONF = Config()
 #global var rtd, record the run time datas
-rtd = Dict()
+RTD = Dict()
 

@@ -8,7 +8,7 @@ See the file COPYING for copying detail
 '''
 
 from orm import Model, IntegerField, StringField, UrlField, IPField, TextField
-from config import conf
+from config import CONF
 
 class Project(Model):
 	_table = "project"
@@ -137,15 +137,15 @@ class Database(Model):
 
 	@classmethod
 	def create(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.db.name), raw=True)
-		cls.rawsql("create database {0}".format(conf.db.name), raw=True)
+		cls.rawsql("drop database if exists {0}".format(CONF.db.name), raw=True)
+		cls.rawsql("create database {0}".format(CONF.db.name), raw=True)
 		for table in cls._tables:
 			table.create()
 
 	@classmethod
 	def reset(cls):
-		cls.rawsql("drop database if exists {0}".format(conf.db.name), raw=True)
-		cls.rawsql("create database {0}".format(conf.db.name), raw=True)
+		cls.rawsql("drop database if exists {0}".format(CONF.db.name), raw=True)
+		cls.rawsql("create database {0}".format(CONF.db.name), raw=True)
 		for table in cls._tables:
 			table.create()
 

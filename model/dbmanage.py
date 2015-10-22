@@ -13,7 +13,7 @@ import time
 
 import MySQLdb as mdb
 
-from config import conf, rtd, WIPError
+from config import CONF, RTD, WIPError
 
 
 class DBError(WIPError):
@@ -42,11 +42,11 @@ class DBManage(object):
         self.__cur = None
         self.__retry = retry+1
 
-        self.dbhost = dbhost if dbhost else conf.db.host
-        self.dbuser = dbuser if dbuser else conf.db.user
-        self.dbpassword = dbpassword if dbpassword else conf.db.password
-        self.dbname = dbname if dbname else conf.db.name
-        self.dbport = dbport if dbport else conf.db.port
+        self.dbhost = dbhost if dbhost else CONF.db.host
+        self.dbuser = dbuser if dbuser else CONF.db.user
+        self.dbpassword = dbpassword if dbpassword else CONF.db.password
+        self.dbname = dbname if dbname else CONF.db.name
+        self.dbport = dbport if dbport else CONF.db.port
 
         self.raw = raw
         self.connect()
@@ -70,16 +70,16 @@ class DBManage(object):
                     time.sleep(i*2)
                     continue
                 elif error[0] == 1045:
-                    rtd.log.error("DBError, cannot connect to the database server, user or password error.")
+                    RTD.log.error("DBError, cannot connect to the database server, user or password error.")
                     raise DBError("user or password error")
                 elif error[0] == 1049:
-                    rtd.log.error("DBError, cannot connect to the database server, database not exists.")
+                    RTD.log.error("DBError, cannot connect to the database server, database not exists.")
                     raise DBError("database not exists")
             else:
                 break
 
         if not success:
-            rtd.log.error("DBError, cannot connect to the database server, the server maybe down.")
+            RTD.log.error("DBError, cannot connect to the database server, the server maybe down.")
             raise DBError("cannot connect to the server, the server maybe down.")
 
         self.__cur = self.__con.cursor()
@@ -101,13 +101,13 @@ class DBManage(object):
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
                 except mdb.OperationalError as error:
-                    rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                    RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                     raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             else:
-                rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         except mdb.MySQLError as error:
-            rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+            RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         
         return True
@@ -129,13 +129,13 @@ class DBManage(object):
                     self.__cur.execute(sqlcmd)
                     self.__con.commit()
                 except mdb.OperationalError as error:
-                    rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                    RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                     raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             else:
-                rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         except mdb.MySQLError as error:
-            rtd.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+            RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
             raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
 
         nameList = [x[0] for x in self.__cur.description]

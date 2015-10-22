@@ -14,7 +14,7 @@ import dns.reversename
 import dns.query
 import dns.exception
 
-from config import conf
+from config import CONF
 
 
 
@@ -27,8 +27,8 @@ class DnsResolver(object):
 		self.domain = domain
 
 		self.resolver = dns.resolver.Resolver()
-		self.resolver.nameservers = conf.dns.servers
-		self.resolver.timeout = timeout if timeout else conf.dns.timeout
+		self.resolver.nameservers = CONF.dns.servers
+		self.resolver.timeout = timeout if timeout else CONF.dns.timeout
 		#self.resolver.nameservers = ["223.5.5.5", "8.8.4.4"]
 		#self.resolver.timeout = 3
 

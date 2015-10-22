@@ -57,7 +57,7 @@ def handleException(func):
 		except ModelError as error:
 			raise web.internalerror("Internal ERROR!")
 		except DBError as error:
-			rtd.log.error(error)
+			RTD.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 
 	return _wrapper
@@ -176,7 +176,4 @@ def formatParam(originParam,options):
 			raise ParamError("option type '{0}' is not recognized!".format(option[1]))
 
 	return type("Param", (), params)
-
-
-
 
