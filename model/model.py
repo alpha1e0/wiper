@@ -45,6 +45,7 @@ class Host(Model):
 	title = StringField(ddl="varchar(100)",vrange="0-100")
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
+	port = IntegerField(ddl="integer",vrange="1-65535")
 	protocol = StringField(notnull=True,ddl="varchar(30)",vrange="1-30")
 	level = IntegerField(notnul=True,ddl="integer",vrange="1-4")
 	os = StringField(ddl="varchar(150)",vrange="0-150")
@@ -60,6 +61,7 @@ class Host(Model):
 		    "title varchar(200) not null,"
 		    "url varchar(100),"
 		    "ip varchar(50),"
+		    "port integer,"
 		    "protocol varchar(30) not null,"
 		    "level integer,"
 		    "os varchar(150),"
@@ -67,7 +69,7 @@ class Host(Model):
 		    "middleware varchar(200),"
 		    "description text,"
 		    "project_id integer not null,"
-		    "unique key ipurl (ip, url),"
+		    "unique key ipurlport (ip, url, port),"
 		    "primary key (id),"
 		    "constraint project_id_host foreign key (project_id) references project (id)"
 			") engine=InnoDB  default charset=utf8;")

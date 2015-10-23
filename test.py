@@ -27,12 +27,34 @@ sys.setdefaultencoding("utf-8")
 
 #=================================================nmap test===========================================
 #from subprocess import Popen, PIPE, STDOUT
-#from thirdparty.BeautifulSoup import BeautifulStoneSoup#
+from thirdparty.BeautifulSoup import BeautifulStoneSoup
+from thirdparty.BeautifulSoup import NavigableString#
 
-##with open("result.txt", "r") as fd:
-##	xml = fd.read()##
+with open("result.txt", "r") as fd:
+	xml = fd.read()
 
-##doc = BeautifulStoneSoup(xml)
+doc = BeautifulStoneSoup(xml)
+
+result = list()
+
+hosts = doc.findAll("host")
+for host in hosts:
+	if isinstance(host, NavigableString): continue
+	state = host.status['state'] # up, down
+	ipaddr = host.address['addr'] #1.1.1.1
+	#如果没有host，那么hostname没有name属性，这里是否会有问题
+	hostname = host.hostnames.hostname['name']
+	ports = host.ports.contents
+	for port in ports:
+		if isinstance(port, NavigableString): continue
+		l3type = port['protocol'] #tcp, udp
+		portnum = port['portid'] #80, 443
+		portstate = port.state['state']# open,close
+		protocol = port.service['name']
+		result.append(dict(state=state,ipaddr=ipaddr,hostname=hostname,portnum=portnum,l3type=l3type,portstate=portstate,protocol=protocol))
+
+print result
+
 #cmd = "nmap -A 192.168.13.129 -oX -"
 #p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 #print "first"

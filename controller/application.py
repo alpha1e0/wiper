@@ -182,7 +182,7 @@ class HostAdd:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description","project_id")}
+		kw = {k:params[k].strip() for k in ("title","url","ip","port","protocol","level","os","server_info","middleware","description","project_id")}
 		Host.insert(**kw)
 		return jsonSuccess()
 
@@ -199,7 +199,7 @@ class HostModify:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("title","url","ip","protocol","level","os","server_info","middleware","description")}
+		kw = {k:params[k].strip() for k in ("title","url","ip","port","protocol","level","os","server_info","middleware","description")}
 		Host.where(id=params.id.strip()).update(**kw)
 		return jsonSuccess()
 

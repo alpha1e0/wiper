@@ -34,7 +34,7 @@ class Dict(dict):
         try:
             return self[key]
         except KeyError:
-            raise AttributeError("object has no attribute '{0}'".format(key))
+            raise AttributeError("object dose not have attribute '{0}'".format(key))
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -46,7 +46,7 @@ class Log(object):
     '''
     def __new__(cls, logfile=None):
         if not logfile:
-            log = logging.getLogger('wip')
+            log = logging.getLogger('wiper')
             log.setLevel(logging.DEBUG)
 
             streamHD = logging.StreamHandler()

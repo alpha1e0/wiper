@@ -8,7 +8,10 @@ See the file COPYING for copying detail
 '''
 
 from subprocess import Popen, PIPE, STDOUT
+
+from model.model import Host
 from thirdparty.BeautifulSoup import BeautifulStoneSoup
+
 
 class Nmap(object):
 	'''
@@ -31,7 +34,7 @@ class Nmap(object):
 				}
 			]
 		'''
-		if "-oX -" not in cmd:
+		if "-oX" not in cmd:
 			cmd = cmd + " -oX -"
 		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		#如何让nmap输出xml, -oX -
