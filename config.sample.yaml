@@ -1,10 +1,6 @@
 # the sample configure file
 db:
-  host: localhost
   name: wiper
-  password: 86@shiyan
-  port: 3306
-  user: root
 dns:
   servers:
   - 223.5.5.5

@@ -57,7 +57,7 @@ class Log(object):
             fileName = os.path.join("log","wiper.log")
             if not os.path.exists(fileName):
                 with open(fileName,"w") as fd:
-                    fd.wirte("global log start----------------\r\n")
+                    fd.write("global log start----------------\r\n")
             fileHD = logging.FileHandler(fileName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
@@ -69,7 +69,7 @@ class Log(object):
             fileName = os.path.join('log', '{0}.log'.format(logfile))
             if not os.path.exists(fileName):
                 with open(fileName,"w") as fd:
-                    fd.wirte("log start----------------\r\n")
+                    fd.write("log start----------------\r\n")
             fileHD = logging.FileHandler(fineName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
@@ -120,4 +120,6 @@ class Config(Dict):
 CONF = Config()
 #global var rtd, record the run time datas
 RTD = Dict()
+#for debug
+RTD.log = Log()
 

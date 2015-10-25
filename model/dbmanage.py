@@ -11,7 +11,7 @@ import os
 import sys
 import time
 
-import MySQLdb as mdb
+import sqlite3 as mdb
 
 from config import CONF, RTD, WIPError
 
@@ -25,10 +25,8 @@ class DBError(WIPError):
 
 
 def escapeString(strValue):
-    if isinstance(strValue, basestring):
-        return mdb.escape_string(strValue)
-    else:
-        return ""
+    escapeDict = {"'":"\\'", "\"":"\\\"", "\\":"\\\\", "\x00":"0"}
+    return "".join([escapeDict.get(x, x) for x in strValue])
 
 
 class DBManage(object):
@@ -36,19 +34,14 @@ class DBManage(object):
     Manage the information database.
     '''
 
-    def __init__(self,dbhost=None,dbuser=None,dbpassword=None,dbname=None,dbport=3306,retry=3,raw=False):
+    def __init__(self,dbname=None,retry=3):
         #'raw' False: select default db, True: select default db
         self.__con = None
         self.__cur = None
         self.__retry = retry+1
+        self.__dbname = dbname if dbname else CONF.db.name
+        self.__db = os.path.join("data", self.__dbname)
 
-        self.dbhost = dbhost if dbhost else CONF.db.host
-        self.dbuser = dbuser if dbuser else CONF.db.user
-        self.dbpassword = dbpassword if dbpassword else CONF.db.password
-        self.dbname = dbname if dbname else CONF.db.name
-        self.dbport = dbport if dbport else CONF.db.port
-
-        self.raw = raw
         self.connect()
 
 
@@ -57,32 +50,24 @@ class DBManage(object):
         Connect to database, if failed retrys
         '''
         success = True
-        for i in range(1,self.__retry):
+        for i in xrange(self.__retry):
             success = True
             try:
-                self.__con = mdb.connect(host=self.dbhost, user=self.dbuser, passwd=self.dbpassword, charset='utf8')
-                if not self.raw:
-                    self.__con.select_db(self.dbname)
-            except mdb.OperationalError as error:
+                self.__con = mdb.connect(self.__db)
+            except mdb.Error as error:
                 #Could not connect the server, retrys
-                if error[0] == 2003: 
-                    success = False
-                    time.sleep(i*2)
-                    continue
-                elif error[0] == 1045:
-                    RTD.log.error("DBError, cannot connect to the database server, user or password error.")
-                    raise DBError("user or password error")
-                elif error[0] == 1049:
-                    RTD.log.error("DBError, cannot connect to the database server, database not exists.")
-                    raise DBError("database not exists")
+                time.sleep(i*2)
+                continue
             else:
                 break
 
         if not success:
-            RTD.log.error("DBError, cannot connect to the database server, the server maybe down.")
-            raise DBError("cannot connect to the server, the server maybe down.")
+            RTD.log.error("DBError, cannot connect to the database, reason:{0}".format(str(error)))
+            raise DBError("cannot connect to the server.")
 
         self.__cur = self.__con.cursor()
+        self.__con.row_factory = mdb.Row
+
         return True
 
 
@@ -93,22 +78,15 @@ class DBManage(object):
         try:
             self.__cur.execute(sqlcmd)
             self.__con.commit()
-        except mdb.OperationalError as error:
-            # if lost connection, retry one time
-            if error[0] == 2013:
-                try:
-                    self.connect()
-                    self.__cur.execute(sqlcmd)
-                    self.__con.commit()
-                except mdb.OperationalError as error:
-                    RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-            else:
+        except mdb.Error as error:
+            # failed, retry one time
+            try:
+                self.connect()
+                self.__cur.execute(sqlcmd)
+                self.__con.commit()
+            except mdb.Error as error:
                 RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-        except mdb.MySQLError as error:
-            RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         
         return True
 
@@ -121,27 +99,18 @@ class DBManage(object):
         '''
         try:
             self.__cur.execute(sqlcmd)
-        except mdb.OperationalError as error:
-            # if lost connection, retry one time
-            if error[0] == 2013:
-                try:
-                    self.connect()
-                    self.__cur.execute(sqlcmd)
-                    self.__con.commit()
-                except mdb.OperationalError as error:
-                    RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-                    raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-            else:
+        except mdb.Error as error:
+            # failed, retry one time
+            try:
+                self.connect()
+                self.__cur.execute(sqlcmd)
+                self.__con.commit()
+            except mdb.Error as error:
                 RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-        except mdb.MySQLError as error:
-            RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
-            raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
 
-        nameList = [x[0] for x in self.__cur.description]
-        result = [dict(zip(nameList,x)) for x in self.__cur.fetchall()]
-            
-        return result
+        #return a list of dict, likes [{'age': 42, 'name': u'John'}, {'age': 43, 'name': u'Alice'}]
+        return [dict(zip(x.keys(),x)) for x in self.__cur]
 
 
     def close(self):

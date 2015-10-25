@@ -7,7 +7,9 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
-from orm import Model, IntegerField, StringField, UrlField, IPField, TextField
+import os
+
+from orm import Model, IntegerField, StringField, UrlField, IPField, TextField, BooleanField
 from config import CONF
 
 class Project(Model):
@@ -22,19 +24,19 @@ class Project(Model):
 	whois = TextField(ddl="text")
 	description = TextField(ddl="text")
 
+
 	@classmethod
 	def create(cls):
-		sqlCmd = ("create table project ("
-    		"id integer not null auto_increment,"
+		sqlCmd = ("create table if not exists project("
+    		"id integer primary key autoincrement,"
     		"name varchar(100) not null unique,"
     		"url varchar(100),"
     		"ip varchar(50),"
     		"level integer,"
     		"whois text,"
     		"ctime timestamp not null default CURRENT_TIMESTAMP,"
-    		"description text,"
-    		"primary key (id)"
-			") engine=InnoDB  default charset=utf8;")
+    		"description text"
+			")")
 		cls.rawsql(sqlCmd)
 
 
@@ -52,12 +54,14 @@ class Host(Model):
 	server_info = StringField(ddl="varchar(150)",vrange="0-150")
 	middleware = StringField(ddl="varchar(200)",vrange="0-200")
 	description = TextField(ddl="text")
+	tmp = IntegerField(ddl="integer",vrange="0-1",default=0)
 	project_id = IntegerField(notnull=True,ddl="integer")
+
 
 	@classmethod
 	def create(cls):
-		sqlCmd = ("create table host ("
-		    "id integer not null auto_increment,"
+		sqlCmd = ("create table if not exists host ("
+		    "id integer primary key autoincrement,"
 		    "title varchar(200) not null,"
 		    "url varchar(100),"
 		    "ip varchar(50),"
@@ -68,11 +72,11 @@ class Host(Model):
 		    "server_info varchar(150),"
 		    "middleware varchar(200),"
 		    "description text,"
+		    "tmp integer not null default 0,"
 		    "project_id integer not null,"
-		    "unique key ipurlport (ip, url, port),"
-		    "primary key (id),"
-		    "constraint project_id_host foreign key (project_id) references project (id)"
-			") engine=InnoDB  default charset=utf8;")
+		    "unique (ip, url, port) on conflict replace,"
+		    "foreign key (project_id) references project (id)"
+			")")
 		cls.rawsql(sqlCmd)
 
 
@@ -88,10 +92,11 @@ class Vul(Model):
 	description = TextField(ddl="text")
 	host_id = IntegerField(notnull=True,ddl="integer")
 
+
 	@classmethod
 	def create(cls):
-		sqlCmd = ("create table vul ("
-    		"id integer not null auto_increment,"
+		sqlCmd = ("create table if not exists vul ("
+    		"id integer primary key autoincrement,"
     		"name varchar(100),"
     		"url varchar(4096),"
     		"info varchar(1024),"
@@ -99,9 +104,8 @@ class Vul(Model):
     		"level integer,"
     		"description text,"
     		"host_id integer not null,"
-    		"primary key (id),"
-    		"constraint host_id_vul foreign key (host_id) references host (id)"
-			") engine=InnoDB  default charset=utf8;")
+    		"foreign key (host_id) references host (id)"
+			")")
 		cls.rawsql(sqlCmd)
 
 
@@ -117,10 +121,11 @@ class Comment(Model):
 	description = TextField(ddl="text")
 	host_id = IntegerField(notnull=True,ddl="integer")
 
+
 	@classmethod
 	def create(cls):
-		sqlCmd = ("create table comment ("
-    		"id integer not null auto_increment, "
+		sqlCmd = ("create table if not exists comment ("
+    		"id integer primary key autoincrement, "
     		"name varchar(100), "
     		"url varchar(4096),"
     		"info varchar(1024), "
@@ -128,9 +133,8 @@ class Comment(Model):
     		"attachment varchar(200),"
     		"description text, "
     		"host_id integer not null, "
-    		"primary key (id),"
-    		"constraint host_id_comment foreign key (host_id) references host (id)"
-			") engine=InnoDB  default charset=utf8;")
+    		"foreign key (host_id) references host (id)"
+			")")
 		cls.rawsql(sqlCmd)
 
 
@@ -139,15 +143,18 @@ class Database(Model):
 
 	@classmethod
 	def create(cls):
-		cls.rawsql("drop database if exists {0}".format(CONF.db.name), raw=True)
-		cls.rawsql("create database {0}".format(CONF.db.name), raw=True)
 		for table in cls._tables:
 			table.create()
 
 	@classmethod
+	def delete(cls):
+		dbFile = os.path.join("data",CONF.db.name)
+		if os.path.exists(dbFile):
+			os.remove(dbFile)
+
+	@classmethod
 	def reset(cls):
-		cls.rawsql("drop database if exists {0}".format(CONF.db.name), raw=True)
-		cls.rawsql("create database {0}".format(CONF.db.name), raw=True)
-		for table in cls._tables:
-			table.create()
+		cls.delete()
+		cls.create()
+
 

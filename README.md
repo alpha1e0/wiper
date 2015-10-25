@@ -45,7 +45,7 @@ WEB渗透测辅助工具
 
 **MySQLdb**
 
-	pip install mysqldba
+	pip install mysqldbda
 
 
 

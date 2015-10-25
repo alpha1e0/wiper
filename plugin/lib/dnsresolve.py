@@ -44,6 +44,7 @@ class DnsResolver(object):
 			return []
 		else:
 			return response[0].to_text()
+			#return [x.to_text for x in response]
 
 
 	def IP2domain(self, ip):

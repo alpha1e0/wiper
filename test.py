@@ -27,41 +27,12 @@ sys.setdefaultencoding("utf-8")
 
 #=================================================nmap test===========================================
 #from subprocess import Popen, PIPE, STDOUT
-from thirdparty.BeautifulSoup import BeautifulStoneSoup
-from thirdparty.BeautifulSoup import NavigableString#
 
-with open("result.txt", "r") as fd:
-	xml = fd.read()
+#from plugin.lib.nmapwrapper import Nmap
 
-doc = BeautifulStoneSoup(xml)
+#result = Nmap.scan("nmap -n 192.168.1.1/24")
 
-result = list()
-
-hosts = doc.findAll("host")
-for host in hosts:
-	if isinstance(host, NavigableString): continue
-	state = host.status['state'] # up, down
-	ipaddr = host.address['addr'] #1.1.1.1
-	#如果没有host，那么hostname没有name属性，这里是否会有问题
-	hostname = host.hostnames.hostname['name']
-	ports = host.ports.contents
-	for port in ports:
-		if isinstance(port, NavigableString): continue
-		l3type = port['protocol'] #tcp, udp
-		portnum = port['portid'] #80, 443
-		portstate = port.state['state']# open,close
-		protocol = port.service['name']
-		result.append(dict(state=state,ipaddr=ipaddr,hostname=hostname,portnum=portnum,l3type=l3type,portstate=portstate,protocol=protocol))
-
-print result
-
-#cmd = "nmap -A 192.168.13.129 -oX -"
-#p = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
-#print "first"
-##p.wait()
-#print "second"
-#print p.stdout.read()
-
+#for l in result: print l
 
 #=================================================dnsresolver test============================================
 #from plugin.lib.dnsresolve import DnsResolver
@@ -71,3 +42,19 @@ print result
 #re = dns.resolveAll("baidu.com")
 #re = dns.getZoneRecords("thinksns.com")
 #print re
+
+#sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Users/apple/.python-eggs/MySQL_python-1.2.5-py2.7-macosx-10.9-intel.egg-tmp/_mysql.so
+
+#=================================================sqlite test============================================
+
+from model.model import Project, Host, Vul, Comment, Database
+
+#Project.create()
+#Host.create()
+#Vul.create()
+#Comment.create()
+Database.create()
+
+
+
+

@@ -11,7 +11,7 @@ import re
 import json
 
 from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
-from config import log, WIPError, Dict
+from config import RTD, WIPError, Dict
 
 
 class FieldError(WIPError):
@@ -39,7 +39,7 @@ class Field(object):
 		notnull: True | False; it means the 
 		vrange: m-n; for string it means the length range, for integer it means the value range
 		ddl: varchar(255)
-		default: 
+		default: the default value
 	'''
 	def __init__(self, **kwargs):
 		self.name = kwargs.get("name", None)
@@ -251,9 +251,8 @@ class Model(Dict):
 		'''
 		Execute sql command direct.
 		'''
-		with DBManage(raw=raw) as con:
-			result = con.sql(sqlCmd)
-			return result
+		with DBManage() as con:
+			return con.sql(sqlCmd)
 
 	@classmethod
 	def rawquery(cls, sqlCmd):
@@ -261,8 +260,7 @@ class Model(Dict):
 		Execute select query direct.
 		'''
 		with DBManage() as con:
-			result = con.query(sqlCmd)
-			return result
+			return con.query(sqlCmd)
 
 	@classmethod
 	def create(cls):

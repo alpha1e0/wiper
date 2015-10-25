@@ -13,7 +13,7 @@ import re
 
 #from config import RTD
 from plugin.lib.dictparse import DictFileEnum
-from plugin.lib.taskmanager import Plugin, PluginError
+from plugin.lib.plugin import Plugin, PluginError
 from plugin.lib.dnsresolve import DnsResolver
 from model.model import Host
 

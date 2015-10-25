@@ -9,11 +9,11 @@ See the file COPYING for copying detail
 
 import re
 
-from plugin.lib.taskmanager import plugin
+from plugin.lib.taskmanager import Plugin
 from plugin.lib.searchengine import Query
 from model.model import Host
 
-class GoogleHacking(plugin):
+class GoogleHacking(Plugin):
 	def __init__(self, size=200):
 		super(GoogleHacking, self).__init__()
 		self.size = size

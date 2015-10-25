@@ -62,15 +62,19 @@ def startServer():
 class Index:
 	def GET(self):
 		render = web.template.render('view')
-		return render.index()
+		if not CONF.isinstall:
+			return render.install()
+		else:
+			return render.index()
 
 
 class Install:
 	def GET(self):
-		if CONF.isinstall == "true":
-			raise web.notfound("page not found.")
 		render = web.template.render('view')
-		return render.install()
+		if CONF.isinstall:
+			return render.index()
+		else:
+			return render.install()
 
 	def POST(self):
 		originParams = web.input()
