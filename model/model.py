@@ -20,7 +20,7 @@ class Project(Model):
 	url = UrlField(ddl="varchar(100)")
 	ip = IPField(ddl="varchar(50)")
 	level = IntegerField(notnul=True,ddl="integer",vrange="1-4")
-	ctime = StringField(ddl="timestamp")
+	ctime = StringField(ddl="date")
 	whois = TextField(ddl="text")
 	description = TextField(ddl="text")
 
@@ -34,7 +34,7 @@ class Project(Model):
     		"ip varchar(50),"
     		"level integer,"
     		"whois text,"
-    		"ctime timestamp not null default CURRENT_TIMESTAMP,"
+    		"ctime date default (datetime('now','localtime')),"
     		"description text"
 			")")
 		cls.rawsql(sqlCmd)

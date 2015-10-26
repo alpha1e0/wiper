@@ -247,7 +247,7 @@ class Model(Dict):
 
 
 	@classmethod
-	def rawsql(cls, sqlCmd, raw=False):
+	def sqlexec(cls, sqlCmd):
 		'''
 		Execute sql command direct.
 		'''
@@ -255,7 +255,7 @@ class Model(Dict):
 			return con.sql(sqlCmd)
 
 	@classmethod
-	def rawquery(cls, sqlCmd):
+	def sqlquery(cls, sqlCmd):
 		'''
 		Execute select query direct.
 		'''
@@ -327,8 +327,7 @@ class Model(Dict):
 		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
 		cls._clearStatus()
 
-		with SQLQuery(sqlCmd) as result:
-			return result
+		return cls.sqlquery(sqlCmd)
 
 
 	@classmethod
@@ -336,7 +335,7 @@ class Model(Dict):
 		'''
 		Select from database, return a list of model object
 		Example: 
-			User.where(name='aa').queryraw('name','ip','url') will returns: [User(),User()]
+			User.where(name='aa').query('name','ip','url') will returns: [User(),User()]
 			User.queryraw() will return all the rows
 		'''
 		if args:
@@ -347,11 +346,11 @@ class Model(Dict):
 		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
 		cls._clearStatus()
 
-		with SQLQuery(sqlCmd) as result:
-			ret = list()
-			for line in result:
-				obj = cls(**line)
-				ret.append(obj)
+		result = cls.sqlquery(sqlCmd)
+		ret = list()
+		for line in result:
+			obj = cls(**line)
+			ret.append(obj)
 
 		return ret
 
@@ -370,9 +369,7 @@ class Model(Dict):
 		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
 		cls._clearStatus()
 
-		with SQLQuery(sqlCmd) as result:
-			if result:
-				return result[0]
+		return cls.sqlquery(sqlCmd)[0]
 
 
 	@classmethod
@@ -389,10 +386,10 @@ class Model(Dict):
 		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
 		cls._clearStatus()
 
-		with SQLQuery(sqlCmd) as result:
-			if result:
-				obj = cls(**result[0])
-				return obj
+		result = cls.sqlquery(sqlCmd)
+		if result:
+			obj = cls(**result[0])
+			return obj
 
 
 	@classmethod
@@ -409,8 +406,8 @@ class Model(Dict):
 		values = ",".join(["'"+params[k]+"'" for k in params])
 
 		sqlCmd = "insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values)
-		with SQLExec(sqlCmd) as result:
-			return result
+		
+		return cls.sqlexec(sqlCmd)
 
 
 	@classmethod
@@ -432,9 +429,8 @@ class Model(Dict):
 
 			sqlCmdList.append("insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values))
 
-		with DBManage() as con:
-			for sqlCmd in sqlCmdList:
-				con.sql(sqlCmd)
+		for sqlCmd in sqlCmdList:
+			cls.sqlexec(sqlCmd)
 
 
 	@classmethod
@@ -452,8 +448,8 @@ class Model(Dict):
 
 		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls._where)
 		cls._clearStatus()
-		with SQLExec(sqlCmd) as result:
-			return result
+		
+		return cls.sqlexec(sqlCmd)
 
 
 	@classmethod
@@ -476,8 +472,7 @@ class Model(Dict):
 			sqlCmd = "delete from {table} {where}".format(table=cls._table,where=cls._where)
 			cls._clearStatus()
 
-		with SQLExec(sqlCmd) as result:
-			return result
+		return cls.sqlexec(sqlCmd)
 
 
 	@classmethod
@@ -507,8 +502,7 @@ class Model(Dict):
 			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
 			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)
 
-		with SQLExec(sqlCmd) as result:
-			return result
+		return cls.sqlexec(sqlCmd)
 
 
 	def remove(self):
@@ -517,8 +511,7 @@ class Model(Dict):
 		'''
 		sqlCmd = "delete from {table} where {key}={value}".format(table=self._table,key=self._primaryKey.name,value=self[self._primaryKey.name])
 
-		with SQLExec(sqlCmd) as result:
-			return result
+		return cls.sqlexec(sqlCmd)
 
 
 	def toJson(self):

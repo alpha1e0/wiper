@@ -132,7 +132,6 @@ class ProjectDetail:
 	def GET(self):
 		params = web.input()
 		project = Project.get(params.id)
-		project.ctime = str(project.ctime)
 		return project.toJson()
 
 

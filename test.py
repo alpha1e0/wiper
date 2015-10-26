@@ -49,11 +49,16 @@ sys.setdefaultencoding("utf-8")
 
 from model.model import Project, Host, Vul, Comment, Database
 
+Database.reset()
+#Project.delete(7)
+Project.insert(name='dd',url='dd.com',ip='1.1.1.1',level=3,description="ddfuck",whois='ddfuck')
+
+print Project.queryraw()
 #Project.create()
 #Host.create()
 #Vul.create()
 #Comment.create()
-Database.create()
+#Database.create()
 
 
 

@@ -3,6 +3,7 @@
 
 * windows系统 static/attachment/汉字识别问题，webpy解析url存在问题，当URL中有中文时，webpy没有进行utf-8之类的解码；导致附件名称不能有中文
 * bing 搜索，http://wwww.bing.com/search?ie=utf-8&q=intitle%3Atorrent&num=10&first=0& 总是被”机器人检测“阻断
+* model中where，orderby多线程会出问题，应该用threading.local解决，
 
 ---
 
@@ -16,6 +17,7 @@
 
 Host中protocol改为字符串类型
 Host中增加port
+Model的方法有点乱，需要整改
 
 ---
 

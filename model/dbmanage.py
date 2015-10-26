@@ -64,9 +64,9 @@ class DBManage(object):
         if not success:
             RTD.log.error("DBError, cannot connect to the database, reason:{0}".format(str(error)))
             raise DBError("cannot connect to the server.")
-
-        self.__cur = self.__con.cursor()
+        
         self.__con.row_factory = mdb.Row
+        self.__cur = self.__con.cursor()
 
         return True
 
