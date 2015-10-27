@@ -56,6 +56,8 @@ def startServer():
 	app = web.application(urls, globals())
 	app.run()
 
+	
+
 
 # ================================================index page=========================================
 
@@ -79,10 +81,6 @@ class Install:
 	def POST(self):
 		originParams = web.input()
 		options = (
-			("dbhost","string","1-100"),
-			("dbport","integer","1-65535"),
-			("dbuser","string","1-50"),
-			("dbpassword","string","0-50"),
 			("dbname","string","1-50"),
 		)
 
@@ -92,11 +90,7 @@ class Install:
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		try:
-			CONF.db.host = params.dbhost
-			CONF.db.port = params.dbport
-			CONF.db.user = params.dbuser
-			CONF.db.password = params.dbpassword
-			CONF.db.name = params.dbname
+			CONF.db.name = str(params.dbname)
 		except WIPError as error:
 			raise web.internalerror("Configure file parse error.")
 
@@ -109,11 +103,11 @@ class Install:
 		CONF.save()
 
 		if not os.path.exists("log"):
-    		os.mkdir("log")
+			os.mkdir("log")
 		if not os.path.exists(os.path.join("static","attachment")):
-    		os.mkdir(os.path.join("static","attachment"))
-    	if not os.path.exists("data"):
-    		os.mkdir("data")
+			os.mkdir(os.path.join("static","attachment"))
+		if not os.path.exists("data"):
+			os.mkdir("data")
 
 		return jsonSuccess()
 
@@ -123,7 +117,7 @@ class ProjectList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Project.orderby(params.orderby.strip()).queryraw("id","name","level")
+		result = Project.orderby(params.orderby.strip()).getsraw("id","name","level")
 		return json.dumps(result)
 
 
@@ -169,7 +163,7 @@ class HostList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).queryraw('id','title','url','ip','level')
+		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).getsraw('id','title','url','ip','level')
 		return json.dumps(result)
 
 
@@ -213,7 +207,7 @@ class VulList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Vul.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).queryraw('id','name','level')
+		result = Vul.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).getsraw('id','name','level')
 		return json.dumps(result)
 
 
@@ -257,7 +251,7 @@ class CommentList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Comment.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).queryraw('id','name','level')
+		result = Comment.where(host_id=params.hostid.strip()).orderby(params.orderby.strip()).getsraw('id','name','level')
 		return json.dumps(result)		
 
 
@@ -309,7 +303,7 @@ class CommentModify:
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("id","name","url","info","level","attachment","description")}
+		kw = {k:params[k].strip() for k in ("id","name","url","info","level","description")}
 		Comment.where(id=params.id.strip()).update(**kw)
 		return jsonSuccess()
 

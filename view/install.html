@@ -4,21 +4,31 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="static/css/wip.css">
         <title>Web Information Probe.</title>
     </head>
-    <body>      
-        <div class="container">
-            <!-- 导航条部分 -->
-            <span class="h1">软件安装...</span>
-
-            <nav class="navbar navbar-inverse">
-                <div id="navbar" class="navbar-collapse collapse">
-                  <ul class="nav navbar-nav">
-                    <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">安装</a></li>
-                  </ul>
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <button class="navbar-toggle collapsed" aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" type="button">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a href="#" class="navbar-brand">Wiper</a>
                 </div>
-            </nav>
-            
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="active">
+                            <li class="active"><a href="#wip-tab-project" id="wip-tab-button-project" data-toggle="tab">安装</a></li>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid">
             <!-- 标签页 -->
             <div class="tab-content">
                 <div class="col-md-3">
@@ -28,24 +38,8 @@
                     <hr />
                     <form id="wip-setup-form">
                         <div class="form-group">
-                            <label for="wip-setup-form-dbhost">数据库地址:</label>
-                            <input id="wip-setup-form-dbhost" name="dbhost" type="text" class="form-control" maxlength="100" placeholder="localhost" value="localhost">
-                        </div>
-                        <div class="form-group">
-                            <label for="wip-setup-form-dbport">数据库端口:</label>
-                            <input id="wip-setup-form-dbport" name="dbport" type="number" class="form-control" maxlength="50" placeholder="3306" value="3306">
-                        </div>
-                        <div class="form-group">
-                            <label for="wip-setup-form-dbuser">数据库用户名:</label>
-                            <input id="wip-setup-form-dbuser" name="dbuser" type="text" class="form-control" maxlength="50" placeholder="root">
-                        </div>
-                        <div class="form-group">
-                            <label for="wip-setup-form-dbpasswd">数据库密码:</label>
-                            <input id="wip-setup-form-dbpasswd" name="dbpassword" type="text" class="form-control" maxlength="50" placeholder="123456">
-                        </div>
-                        <div class="form-group">
                             <label for="wip-setup-form-dbname">数据库名称:</label>
-                            <input id="wip-setup-form-dbname" name="dbname" type="text" class="form-control" maxlength="50" placeholder="wip" value="wip">
+                            <input id="wip-setup-form-dbname" name="dbname" type="text" class="form-control" maxlength="50" placeholder="wiper.db" value="wiper.db">
                         </div>
                         <hr />
                         <div class="form-group">
@@ -57,6 +51,7 @@
                 </div>
             </div>
         </div>
+
         <script src="static/js/jquery-2.1.4.min.js"></script>
         <script src="static/js/jquery.form.js"></script>
         <script src="static/js/install.js"></script>
