@@ -10,9 +10,9 @@ See the file COPYING for copying detail
 import re
 import json
 
-import web
+from thirdparty import web
 
-from config import WIPError, rtd
+from config import WIPError, RTD
 from model.dbmanage import DBError
 from model.orm import FieldError, ModelError
 
@@ -48,13 +48,17 @@ def handleException(func):
 	def _wrapper(*args, **kwargs):
 		try:
 			return func(*args, **kwargs)
-		except KeyError:
+		except KeyError as error:
+			RTD.log.error(error)
 			raise web.internalerror("Missing parameter.")
-		except AttributeError:
+		except AttributeError as error:
+			RTD.log.error(error)
 			raise web.internalerror("Missing parameter.")
 		except FieldError as error:
+			RTD.log.error(error)
 			raise web.internalerror(error)
 		except ModelError as error:
+			RTD.log.error(error)
 			raise web.internalerror("Internal ERROR!")
 		except DBError as error:
 			RTD.log.error(error)

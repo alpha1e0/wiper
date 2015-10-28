@@ -9,6 +9,7 @@ See the file COPYING for copying detail
 
 import re
 import json
+import threading
 
 from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
 from config import RTD, WIPError, Dict
@@ -242,8 +243,7 @@ class Model(Dict):
 
 	__metaclass__ = ModelMetaClass
 
-	_orderby = ""
-	_where = ""
+	_status = threading.local()
 
 
 	@classmethod
@@ -262,17 +262,48 @@ class Model(Dict):
 		with DBManage() as con:
 			return con.query(sqlCmd)
 
+
 	@classmethod
-	def create(cls):
+	def where(cls, **kwargs):
 		'''
-		Create table.
+		Set the 'where' part of the SQL command. 
 		'''
-		pass
+		if not kwargs:
+			return cls
+		params = cls._paramFormat(kwargs)
+		strList = ["{0}='{1}'".format(k,v) for k,v in params.iteritems()]
+		cls._status.where = "where " + " and ".join(strList)
+		return cls
+
+	@classmethod
+	def strWhere(cls):
+		try:
+			return cls._status.where
+		except AttributeError:
+			cls._status.where = ""
+			return ""
+
+	@classmethod
+	def orderby(cls, orderby=1):
+		'''
+		Set the 'order by' part of the SQL command. 
+		'''
+		cls._status.orderby = "order by {0}".format(orderby)
+		return cls
+
+	@classmethod
+	def strOrderby(cls):
+		try:
+			return cls._status.orderby
+		except AttributeError:
+			cls._status.orderby = ""
+			return ""
 
 	@classmethod
 	def _clearStatus(cls):
-		cls._orderby = ""
-		cls._where = ""
+		cls._status.orderby = ""
+		cls._status.where = ""
+
 
 	@classmethod
 	def _paramFormat(cls, params):
@@ -289,87 +320,6 @@ class Model(Dict):
 				ret[key] = tmpValue
 
 		return ret
-
-
-	@classmethod
-	def where(cls, **kwargs):
-		'''
-		Set the 'where' part of the SQL command. 
-		'''
-		if not kwargs:
-			return cls
-		params = cls._paramFormat(kwargs)
-		strList = ["{0}='{1}'".format(k,v) for k,v in params.iteritems()]
-		cls._where = "where " + " and ".join(strList)
-		return cls
-
-	@classmethod
-	def orderby(cls, orderby=1):
-		'''
-		Set the 'order by' part of the SQL command. 
-		'''
-		cls._orderby = "order by {0}".format(orderby)
-		return cls
-
-
-	@classmethod
-	def queryraw(cls, *args):
-		'''
-		Select from database, return the 'raw' data.
-		Example: User.where(name='aa').queryraw('name','ip','url')
-			will returns: [{'name':'aa','ip','1.1.1.1','url':'test.com'},{'name':....}]
-		'''
-		if args:
-			columns = ",".join(args)
-		else:
-			columns = "*"
-
-		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
-		cls._clearStatus()
-
-		return cls.sqlquery(sqlCmd)
-
-
-	@classmethod
-	def query(cls, *args):
-		'''
-		Select from database, return a list of model object
-		Example: 
-			User.where(name='aa').query('name','ip','url') will returns: [User(),User()]
-			User.queryraw() will return all the rows
-		'''
-		if args:
-			columns = ",".join(args)
-		else:
-			columns = "*"
-
-		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls._where,orderby=cls._orderby)
-		cls._clearStatus()
-
-		result = cls.sqlquery(sqlCmd)
-		ret = list()
-		for line in result:
-			obj = cls(**line)
-			ret.append(obj)
-
-		return ret
-
-
-	@classmethod
-	def getraw(cls, pvalue, *args):
-		'''
-		User primary key to select from database, return 'raw' data.
-		'''
-		if args:
-			columns = ",".join(args)
-		else:
-			columns = "*"
-
-		pvalue = cls._primaryKey.inputFormat(pvalue)
-		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
-		cls._clearStatus()
-
-		return cls.sqlquery(sqlCmd)[0]
 
 
 	@classmethod
@@ -390,6 +340,69 @@ class Model(Dict):
 		if result:
 			obj = cls(**result[0])
 			return obj
+
+
+	@classmethod
+	def gets(cls, *args):
+		'''
+		Select from database, return a list of model object
+		Example: 
+			User.where(name='aa').gets('name','ip','url') will returns: [User(),User()]
+			User.gets() will return all the rows
+		'''
+		if args:
+			columns = ",".join(args)
+		else:
+			columns = "*"
+
+		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby())
+		cls._clearStatus()
+
+		result = cls.sqlquery(sqlCmd)
+		ret = list()
+		for line in result:
+			obj = cls(**line)
+			ret.append(obj)
+
+		return ret
+
+
+	@classmethod
+	def getraw(cls, pvalue, *args):
+		'''
+		User primary key to select from database, return a row from the database.
+		'''
+		if args:
+			columns = ",".join(args)
+		else:
+			columns = "*"
+
+		pvalue = cls._primaryKey.inputFormat(pvalue)
+		sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+		cls._clearStatus()
+
+		result = cls.sqlquery(sqlCmd)
+		if result:
+			return result[0]
+
+
+	@classmethod
+	def getsraw(cls, *args):
+		'''
+		Select from database, return a list of rows.
+		Example: 
+			User.where(name='aa').getsraw('name','ip','url') will returns: [{name:'aa',id=1},{name:'bb',id=2}]
+			User.getsraw() will return all the rows
+		'''
+		if args:
+			columns = ",".join(args)
+		else:
+			columns = "*"
+
+		sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby())
+		cls._clearStatus()
+
+		return cls.sqlquery(sqlCmd)
 
 
 	@classmethod
@@ -446,15 +459,10 @@ class Model(Dict):
 		setValue = [k+"='"+v+"'" for k,v in params.iteritems()]
 		setValue = ",".join(setValue)
 
-		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls._where)
+		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls.strWhere())
 		cls._clearStatus()
 		
 		return cls.sqlexec(sqlCmd)
-
-
-	@classmethod
-	def updates(cls, rows):
-		pass
 
 
 	@classmethod
@@ -469,15 +477,11 @@ class Model(Dict):
 			pvalue = cls._primaryKey.inputFormat(pvalue)
 			sqlCmd = "delete from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
 		else:
-			sqlCmd = "delete from {table} {where}".format(table=cls._table,where=cls._where)
+			sqlCmd = "delete from {table} {where}".format(table=cls._table,where=cls.strWhere())
 			cls._clearStatus()
 
 		return cls.sqlexec(sqlCmd)
 
-
-	@classmethod
-	def deletes(cls, rows):
-		pass
 
 	def save(self, update=False):
 		'''
@@ -502,7 +506,7 @@ class Model(Dict):
 			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
 			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)
 
-		return cls.sqlexec(sqlCmd)
+		return self.sqlexec(sqlCmd)
 
 
 	def remove(self):
@@ -511,11 +515,19 @@ class Model(Dict):
 		'''
 		sqlCmd = "delete from {table} where {key}={value}".format(table=self._table,key=self._primaryKey.name,value=self[self._primaryKey.name])
 
-		return cls.sqlexec(sqlCmd)
+		return self.sqlexec(sqlCmd)
 
 
 	def toJson(self):
 		return json.dumps(self)
+
+
+	@classmethod
+	def create(cls):
+		'''
+		Create table.
+		'''
+		pass
 
 
 

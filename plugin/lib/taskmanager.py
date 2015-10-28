@@ -8,9 +8,10 @@ See the file COPYING for copying detail
 '''
 
 import time
-from multiprocessing import Process, Queue
+import Queue
+from multiprocessing import Process
 
-from config import conf, WIPError
+from config import CONF, WIPError
 from model.orm import Model
 
 
@@ -30,11 +31,12 @@ class TaskManager(Process):
 		plugin = ... #plugin see class 'Plugin'
 		task.startTask(plugin)
 	'''
-	def __init__(self):
+	def __init__(self, timeout=2):
 		Process.__init__(self)
+		self.timeout = timeout
 
-		self._inQueue = Queue()
-		self._outQueue = Queue()
+		self._inQueue = Queue.Queue()
+		self._outQueue = Queue.Queue()
 
 
 	def startTask(self, pluginObj, startData):
@@ -59,10 +61,10 @@ class TaskManager(Process):
 	def outQueue(self):
 	    return self._outQueue
 
-	def run(self, pluginObj):
+	def run(self):
 		while True:
 			try:
-				pluginObj = self._inQueue.get(timeout=2)
+				pluginObj = self.inQueue.get(timeout=self.timeout)
 			except Queue.Empty:
 				continue
 			else:

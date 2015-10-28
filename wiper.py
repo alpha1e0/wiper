@@ -21,5 +21,5 @@ def init():
 if __name__ == "__main__":
 	init()
 
-	config.RTD.taskManager.start()
-    startServer()
+	#config.RTD.taskManager.start()
+	startServer()

@@ -121,5 +121,5 @@ CONF = Config()
 #global var rtd, record the run time datas
 RTD = Dict()
 #for debug
-RTD.log = Log()
+#RTD.log = Log()
 

@@ -8,9 +8,10 @@ See the file COPYING for copying detail
 '''
 
 import time
-from multiprocessing import Process, Queue
+import Queue
+from multiprocessing import Process
 
-from config import RTD
+from config import RTD, WIPError
 
 
 class PluginError(WIPError):
@@ -126,7 +127,7 @@ class Plugin(Process):
 		for obj in self._addList:
 			pluginObj.addAppend(obj)
 
-		queue = Queue()
+		queue = Queue.Queue()
 		inLen = len(self._orList)
 		for inObj in self._orList:
 			for outObj in pluginObj._orList:
