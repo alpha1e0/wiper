@@ -37,7 +37,7 @@ class Project(Model):
     		"ctime date default (datetime('now','localtime')),"
     		"description text"
 			")")
-		cls.rawsql(sqlCmd)
+		cls.sqlexec(sqlCmd)
 
 
 class Host(Model):
@@ -77,7 +77,7 @@ class Host(Model):
 		    "unique (ip, url, port) on conflict replace,"
 		    "foreign key (project_id) references project (id)"
 			")")
-		cls.rawsql(sqlCmd)
+		cls.sqlexec(sqlCmd)
 
 
 class Vul(Model):
@@ -106,7 +106,7 @@ class Vul(Model):
     		"host_id integer not null,"
     		"foreign key (host_id) references host (id)"
 			")")
-		cls.rawsql(sqlCmd)
+		cls.sqlexec(sqlCmd)
 
 
 class Comment(Model):
@@ -135,7 +135,7 @@ class Comment(Model):
     		"host_id integer not null, "
     		"foreign key (host_id) references host (id)"
 			")")
-		cls.rawsql(sqlCmd)
+		cls.sqlexec(sqlCmd)
 
 
 class Database(Model):
