@@ -10,7 +10,7 @@ See the file COPYING for copying detail
 from plugin.lib.plugin import Plugin
 
 
-class DataSaver(Plugin):
+class DataSave(Plugin):
 	def __init__(self, projectid, hostid):
 		super(DataSaver, self).__init__()
 		self.projectid = projectid

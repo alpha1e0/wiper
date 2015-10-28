@@ -65,7 +65,17 @@ sys.setdefaultencoding("utf-8")
 
 #=================================================plugin framework test============================================
 from plugin.lib.taskmanager import TaskManager
+from plugin.datasave import DataSave
+from plugin.dnsbrute import DnsBrute
+from plugin.googlehacking import GoogleHacking
+from plugin.serviceidentify import serviceidentify
+from plugin.subnetscan import SubnetScan
+from plugin.zonetrans import ZoneTrans
 
 
+host = Host()
 
+taskManager = TaskManager()
+
+#plugin = 
 
