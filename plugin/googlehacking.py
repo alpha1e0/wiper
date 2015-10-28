@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 import re
 
-from plugin.lib.taskmanager import Plugin
+from plugin.lib.plugin import Plugin
 from plugin.lib.searchengine import Query
 from model.model import Host
 
@@ -31,7 +31,7 @@ class GoogleHacking(Plugin):
 			urlSet = set()
 			for i,key in enumerate(result):
 				try:
-					url = self.urlPattern.match(key[1]).groups()[]
+					url = self.urlPattern.match(key[1]).groups()[0]
 				except AttributeError:
 					continue
 				else:

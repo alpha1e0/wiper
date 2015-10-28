@@ -8,8 +8,7 @@ See the file COPYING for copying detail
 '''
 
 import time
-import Queue
-from multiprocessing import Process
+from multiprocessing import Process, queues, Queue
 
 from config import RTD, WIPError
 
@@ -40,7 +39,8 @@ class Plugin(Process):
 		self._inQueue = inQueue
 		self._outQueue = outQueue
 		if not self.inQueue:
-			self.inQueue = RTD.taskManager.outQueue
+			#self.inQueue = RTD.taskManager.outQueue
+			pass
 
 		#addlist will record all the plugin object when use '+' or '|' operator
 		self._addList = list()
@@ -64,7 +64,7 @@ class Plugin(Process):
 	
 	@inQueue.setter
 	def inQueue(self, queue):
-		if not isinstance(queue, Queue):
+		if not isinstance(queue, queues.Queue):
 			raise TaskError("the inQueue queue is not isinstance of Queue")
 		self._inQueue = queue
 
@@ -75,7 +75,7 @@ class Plugin(Process):
 
 	@outQueue.setter
 	def outQueue(self, queue):
-		if not isinstance(queue, Queue):
+		if not isinstance(queue, queues.Queue):
 			raise TaskError("the outQueue queue is not isinstance of Queue")
 		self._outQueue = queue
 
@@ -97,7 +97,7 @@ class Plugin(Process):
 		'''
 		data = self.inQueue.get(timeout=timeout)
 		if data in self._dataSet:
-			raise Queue.Empty()
+			raise queues.Empty()
 		else:
 			self._dataSet.add(data)
 			return data
@@ -127,7 +127,7 @@ class Plugin(Process):
 		for obj in self._addList:
 			pluginObj.addAppend(obj)
 
-		queue = Queue.Queue()
+		queue = Queue()
 		inLen = len(self._orList)
 		for inObj in self._orList:
 			for outObj in pluginObj._orList:
@@ -159,11 +159,12 @@ class Plugin(Process):
 		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quits, then break to quit
 		'''
+		print "debug:", "plugin ", self.name.str, " start"
 		counter = self._inCounter
 		while True:
 			try:
 				data = self.get(timeout=1)
-			except Queue.Empty:
+			except queues.Empty:
 				continue
 			else:
 				if data:

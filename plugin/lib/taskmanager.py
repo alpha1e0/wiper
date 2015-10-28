@@ -8,8 +8,7 @@ See the file COPYING for copying detail
 '''
 
 import time
-import Queue
-from multiprocessing import Process
+from multiprocessing import Process, queues, Queue
 
 from config import CONF, WIPError
 from model.orm import Model
@@ -35,8 +34,8 @@ class TaskManager(Process):
 		Process.__init__(self)
 		self.timeout = timeout
 
-		self._inQueue = Queue.Queue()
-		self._outQueue = Queue.Queue()
+		#self._inQueue = Queue()
+		#self._outQueue = Queue()
 
 
 	def startTask(self, pluginObj, startData):
@@ -46,26 +45,24 @@ class TaskManager(Process):
 			pluginObj: the plugin object
 			startData: the start data, a list of Model
 		'''
-		self.inQueue.put(pluginObj)
+		self._inQueue.put(pluginObj)
+		# debug
+		plugin = self._inQueue.get()
+		print "get plugin", plugin.namestr
 
 		for data in startData:
-			self.outQueue.put(data)
-		self.outQueue.put(Model())
+			self._outQueue.put(data)
+		self._outQueue.put(Model())
 
-
-	@property
-	def inQueue(self):
-	    return self._inQueue
-
-	@property
-	def outQueue(self):
-	    return self._outQueue
 
 	def run(self):
+		print "debug: start taskManager"
 		while True:
 			try:
-				pluginObj = self.inQueue.get(timeout=self.timeout)
-			except Queue.Empty:
+				print "debug: try to get plugin"
+				pluginObj = self._inQueue.get(timeout=self.timeout)
+				print "debug: ", "get plugin ", pluginObj
+			except queues.Empty:
 				continue
 			else:
 				pluginObj.startPlugin()

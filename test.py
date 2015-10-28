@@ -64,18 +64,72 @@ sys.setdefaultencoding("utf-8")
 
 
 #=================================================plugin framework test============================================
+import config
+
 from plugin.lib.taskmanager import TaskManager
+from plugin.lib.plugin import Plugin
 from plugin.datasave import DataSave
 from plugin.dnsbrute import DnsBrute
 from plugin.googlehacking import GoogleHacking
-from plugin.serviceidentify import serviceidentify
+from plugin.serviceidentify import ServiceIdentify
 from plugin.subnetscan import SubnetScan
 from plugin.zonetrans import ZoneTrans
 
+from model.model import Host
+
+from multiprocessing import Queue
+
+
+config.RTD.log = config.Log()
+config.RTD.taskManager = TaskManager()
+
+class plu(Plugin):
+	def __init__(self, namestr):
+		self.namestr = namestr
+		super(plu,self).__init__()
+	def handle(self, data):
+		print self.namestr + "get: " + data.description
+		data.description = self.namestr + "handle"
+		self.put(data)
+
+class end(Plugin):
+	def __init__(self, namestr):
+		self.namestr = namestr
+		super(end,self).__init__()
+	def handle(self, data):
+		print self.namestr + "get: " + data.description
 
 host = Host()
+host.description = "init host"
 
-taskManager = TaskManager()
+aa = plu('aa')
+bb = plu('bb')
+cc = plu('cc')
+dd = plu('dd')
+ee = plu('ee')
+zz = end('zz')
 
+p = zz
+#print zz.namestr
+#print p._addList
+#print p._orList
+
+#print config.RTD.taskManager.inQueue
+#print config.RTD.taskManager.outQueue
+#print aa.inQueue
+#print aa.outQueue
+#print zz.inQueue
+#print zz.outQueue
+
+inqueue = Queue()
+
+config.RTD.taskManager._inQueue = inqueue
+config.RTD.taskManager._outQueue = Queue()
+
+config.RTD.taskManager.start()
+print "here1"
+#config.RTD.taskManager.startTask(p, [host,])
+inqueue.put(p)
+print "here2"
 #plugin = 
 
