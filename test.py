@@ -64,9 +64,10 @@ sys.setdefaultencoding("utf-8")
 
 
 #=================================================plugin framework test============================================
+from multiprocessing import Manager
+
 import config
 
-from plugin.lib.taskmanager import TaskManager
 from plugin.lib.plugin import Plugin
 from plugin.datasave import DataSave
 from plugin.dnsbrute import DnsBrute
@@ -77,11 +78,9 @@ from plugin.zonetrans import ZoneTrans
 
 from model.model import Host
 
-from multiprocessing import Queue
-
 
 config.RTD.log = config.Log()
-config.RTD.taskManager = TaskManager()
+config.RTD.taskManager = Manager()
 
 class plu(Plugin):
 	def __init__(self, namestr):
@@ -109,10 +108,11 @@ dd = plu('dd')
 ee = plu('ee')
 zz = end('zz')
 
-p = zz
+p = (aa + bb) | zz
 #print zz.namestr
-#print p._addList
-#print p._orList
+print p._firstObj.namestr
+print [x.namestr for x in p._addList]
+print [x.namestr for x in p._orList]
 
 #print config.RTD.taskManager.inQueue
 #print config.RTD.taskManager.outQueue
@@ -121,15 +121,4 @@ p = zz
 #print zz.inQueue
 #print zz.outQueue
 
-inqueue = Queue()
-
-config.RTD.taskManager._inQueue = inqueue
-config.RTD.taskManager._outQueue = Queue()
-
-config.RTD.taskManager.start()
-print "here1"
-#config.RTD.taskManager.startTask(p, [host,])
-inqueue.put(p)
-print "here2"
-#plugin = 
 

@@ -8,7 +8,7 @@ See the file COPYING for copying detail
 '''
 
 import time
-from multiprocessing import Process, queues, Queue
+from multiprocessing import Process, managers
 
 from config import RTD, WIPError
 
@@ -19,6 +19,9 @@ class PluginError(WIPError):
 
 	def __str__(self):
 		return self.errMsg
+
+class QueueEmpty(Exception):
+	pass
 
 
 class Plugin(Process):
@@ -42,6 +45,7 @@ class Plugin(Process):
 			#self.inQueue = RTD.taskManager.outQueue
 			pass
 
+		self._firstObj = None
 		#addlist will record all the plugin object when use '+' or '|' operator
 		self._addList = list()
 		#orlist will record all the plugin object when use '+' operator
@@ -64,8 +68,8 @@ class Plugin(Process):
 	
 	@inQueue.setter
 	def inQueue(self, queue):
-		if not isinstance(queue, queues.Queue):
-			raise TaskError("the inQueue queue is not isinstance of Queue")
+		if not isinstance(queue, managers.ListProxy):
+			raise PluginError("the inQueue queue is not isinstance of ListProxy")
 		self._inQueue = queue
 
 
@@ -75,19 +79,19 @@ class Plugin(Process):
 
 	@outQueue.setter
 	def outQueue(self, queue):
-		if not isinstance(queue, queues.Queue):
-			raise TaskError("the outQueue queue is not isinstance of Queue")
+		if not isinstance(queue, managers.ListProxy):
+			raise PluginError("the outQueue queue is not isinstance of ListProxy")
 		self._outQueue = queue
 
 
 	def addAppend(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise TaskError("the object is not plugin")
+			raise PluginError("the object is not plugin")
 		self._addList.append(pluginObj)
 
 	def orAppend(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise TaskError("the object is not plugin")
+			raise PluginError("the object is not plugin")
 		self._orList.append(pluginObj)
 
 
@@ -95,23 +99,30 @@ class Plugin(Process):
 		'''
 		Get data from input queue.
 		'''
-		data = self.inQueue.get(timeout=timeout)
-		if data in self._dataSet:
-			raise queues.Empty()
+		try:
+			data = self.inQueue.pop()
+		except IndexError:
+			raise QueueEmpty()
 		else:
-			self._dataSet.add(data)
-			return data
+			if data in self._dataSet:
+				raise QueueEmpty()
+			else:
+				self._dataSet.add(data)
+				return data
 
 	def put(self, data):
 		'''
 		Put data to output queue.
 		'''
-		self.outQueue.put(data)
+		self.outQueue.append(data)
 
 
 	def __add__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise TaskError("the right parameter is not plugin")
+			raise PluginError("the right parameter is not plugin")
+
+		if not self._firstObj:
+			self._firstObj = self
 
 		for obj in pluginObj._addList:
 			self.addAppend(obj)
@@ -122,12 +133,16 @@ class Plugin(Process):
 
 	def __or__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise TaskError("the right parameter is not plugin")
+			raise PluginError("the right parameter is not plugin")
+
+		if not self._firstObj:
+			self._firstObj = self
+		pluginObj._firstObj = self._firstObj
 
 		for obj in self._addList:
 			pluginObj.addAppend(obj)
 
-		queue = Queue()
+		queue = RTD.taskManager.list()
 		inLen = len(self._orList)
 		for inObj in self._orList:
 			for outObj in pluginObj._orList:
@@ -146,9 +161,9 @@ class Plugin(Process):
 			self.put(Model())
 
 
-	def startPlugin(self):
+	def dostart(self):
 		'''
-		Start all plugins, this function will be called by TaskManager().startTask
+		Start plugins.
 		'''
 		for plugin in self._addList:
 			plugin.start()
@@ -164,7 +179,7 @@ class Plugin(Process):
 		while True:
 			try:
 				data = self.get(timeout=1)
-			except queues.Empty:
+			except QueueEmpty:
 				continue
 			else:
 				if data:
