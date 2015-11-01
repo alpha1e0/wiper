@@ -11,6 +11,7 @@ import time
 from multiprocessing import Process, managers
 
 from config import RTD, WIPError
+from model.model import Model
 
 
 class PluginError(WIPError):
@@ -23,6 +24,9 @@ class PluginError(WIPError):
 class QueueEmpty(Exception):
 	pass
 
+class PluginExit(Exception):
+	pass
+
 
 class Plugin(Process):
 	'''
@@ -33,19 +37,17 @@ class Plugin(Process):
 				result = doSomeThing(data)
 				self.outQueue.put(result)
 	Example: 
-		plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSaver(mod="database") whill return a pluginObject
-		
+		plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSave(mod="database") whill return a pluginObject
+		plugin.dostart(startData)		
 	'''
-	def __init__(self, inQueue=None, outQueue=None):
+	def __init__(self, timeout=2, unique=True):
 		Process.__init__(self)
 
-		self._inQueue = inQueue
-		self._outQueue = outQueue
-		if not self.inQueue:
-			#self.inQueue = RTD.taskManager.outQueue
-			pass
+		self.timeout = timeout
+		self.unique = unique
+		self._ins = list()
+		self._outs = list()
 
-		self._firstObj = None
 		#addlist will record all the plugin object when use '+' or '|' operator
 		self._addList = list()
 		#orlist will record all the plugin object when use '+' operator
@@ -53,76 +55,23 @@ class Plugin(Process):
 		self.addAppend(self)
 		self.orAppend(self)
 
-		#indicate how many input-queue input data to self
-		#when a process receive an empty object, it means the father process finish task and quit, 
-		#if all the father processes quit, then self quit.
-		self._inCounter = 1
-
-		#record the new data from input queue, drop the duplicated data
-		self._dataSet = set()
-
-
-	@property
-	def inQueue(self):
-	    return self._inQueue
-	
-	@inQueue.setter
-	def inQueue(self, queue):
-		if not isinstance(queue, managers.ListProxy):
-			raise PluginError("the inQueue queue is not isinstance of ListProxy")
-		self._inQueue = queue
-
-
-	@property
-	def outQueue(self):
-	    return self._outQueue
-
-	@outQueue.setter
-	def outQueue(self, queue):
-		if not isinstance(queue, managers.ListProxy):
-			raise PluginError("the outQueue queue is not isinstance of ListProxy")
-		self._outQueue = queue
+		self._dataSet = list()
 
 
 	def addAppend(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise PluginError("the object is not plugin")
+			raise PluginError("the right object is not plugin")
 		self._addList.append(pluginObj)
 
 	def orAppend(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
-			raise PluginError("the object is not plugin")
+			raise PluginError("the right object is not plugin")
 		self._orList.append(pluginObj)
-
-
-	def get(self, timeout=1):
-		'''
-		Get data from input queue.
-		'''
-		try:
-			data = self.inQueue.pop()
-		except IndexError:
-			raise QueueEmpty()
-		else:
-			if data in self._dataSet:
-				raise QueueEmpty()
-			else:
-				self._dataSet.add(data)
-				return data
-
-	def put(self, data):
-		'''
-		Put data to output queue.
-		'''
-		self.outQueue.append(data)
 
 
 	def __add__(self, pluginObj):
 		if not isinstance(pluginObj, Plugin):
 			raise PluginError("the right parameter is not plugin")
-
-		if not self._firstObj:
-			self._firstObj = self
 
 		for obj in pluginObj._addList:
 			self.addAppend(obj)
@@ -135,36 +84,88 @@ class Plugin(Process):
 		if not isinstance(pluginObj, Plugin):
 			raise PluginError("the right parameter is not plugin")
 
-		if not self._firstObj:
-			self._firstObj = self
-		pluginObj._firstObj = self._firstObj
-
 		for obj in self._addList:
 			pluginObj.addAppend(obj)
 
-		queue = RTD.taskManager.list()
 		inLen = len(self._orList)
 		for inObj in self._orList:
 			for outObj in pluginObj._orList:
-				outObj._inCounter = inLen
-				inObj.outQueue = queue
-				outObj.inQueue = queue
-
+				queue = RTD.taskManager.list()
+				inObj._outs.append(queue)
+				outObj._ins.append(queue)
 		return pluginObj
+
+
+	def __contains__(self, obj):
+		for data in self._dataSet:
+			if data == obj:
+				return True
+		return False
+
+
+	def get(self):
+		'''
+		Get data from input queues.
+		'''
+		if not self._ins:
+			raise PluginExit()
+
+		gotData = False
+		for i,queue in enumerate(self._ins):
+			try:
+				data = queue.pop()
+			except IndexError:
+				continue
+			else:
+				if not data:
+					del self._ins[i]
+					continue
+				else:
+					if self.unique:
+						if data in self:
+							continue
+						else:
+							gotData = True
+							self._dataSet.append(data)
+							break
+					else:
+						gotData = True
+						break
+
+		if not gotData:
+			raise QueueEmpty()
+		else:
+			return data
+
+
+	def put(self, data):
+		'''
+		Put data to output queue.
+		'''
+		for queue in self._outs:
+			queue.insert(0,data)
 
 
 	def quit(self):
 		'''
 		Quit process. if the process finish a task, it sends an empty object.
 		'''
-		if self.outQueue:
+		if self._outs:
 			self.put(Model())
 
 
-	def dostart(self):
+	def dostart(self, startData):
 		'''
 		Start plugins.
 		'''
+		for obj in self._addList:
+			if not obj._ins:
+				queue = RTD.taskManager.list()
+				for data in startData:
+					queue.insert(0,data)
+				queue.insert(0,Model())
+				obj._ins.append(queue)
+
 		for plugin in self._addList:
 			plugin.start()
 
@@ -174,21 +175,29 @@ class Plugin(Process):
 		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quits, then break to quit
 		'''
-		print "debug:", "plugin ", self.name.str, " start"
-		counter = self._inCounter
+		print "debug:", "plugin ", self.name, " start", "ins: ", [str(x) for x in self._ins], "outs: ", [str(x) for x in self._outs]
+
 		while True:
 			try:
-				data = self.get(timeout=1)
+				data = self.get()
+				print "debug:", "plugin ", self.name, "getting", data
 			except QueueEmpty:
 				continue
+			except IOError:
+				print "debug:", "plugin ", self.name, " IOError"
+				break
+			except EOFError:
+				print "debug:", "plugin ", self.name, " EOFError"
+				break
+			except PluginExit:
+				print "debug:", "plugin ", self.name, " doexit"
+				self.quit()
+				break
 			else:
-				if data:
-					self.handle(data)
-				else:
-					counter -= 1
-					if not counter:
-						self.quit()
-						break
+				self.handle(data)
+			finally:
+				time.sleep(self.timeout)
+		print "debug:", self.name, "quit"
 
 
 	def handle(self, data):

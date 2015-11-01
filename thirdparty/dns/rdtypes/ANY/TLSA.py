@@ -15,10 +15,10 @@
 
 import struct
 
-import dns.rdata
-import dns.rdatatype
+import rdata
+import rdatatype
 
-class TLSA(dns.rdata.Rdata):
+class TLSA(rdata.Rdata):
     """TLSA record
 
     @ivar usage: The certificate usage
@@ -45,7 +45,7 @@ class TLSA(dns.rdata.Rdata):
         return '%d %d %d %s' % (self.usage,
                                 self.selector,
                                 self.mtype,
-                                dns.rdata._hexify(self.cert,
+                                rdata._hexify(self.cert,
                                                chunksize=128))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
@@ -58,7 +58,7 @@ class TLSA(dns.rdata.Rdata):
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             cert_chunks.append(t.value)
         cert = ''.join(cert_chunks)
         cert = cert.decode('hex_codec')

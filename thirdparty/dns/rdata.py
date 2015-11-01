@@ -19,7 +19,7 @@
 the module which implements that type.
 @type _rdata_modules: dict
 @var _module_prefix: The prefix to use when forming modules names.  The
-default is 'dns.rdtypes'.  Changing this value will break the library.
+default is 'rdtypes'.  Changing this value will break the library.
 @type _module_prefix: string
 @var _hex_chunk: At most this many octets that will be represented in each
 chunk of hexstring that _hexify() produces before whitespace occurs.
@@ -27,12 +27,12 @@ chunk of hexstring that _hexify() produces before whitespace occurs.
 
 import cStringIO
 
-import dns.exception
-import dns.name
-import dns.rdataclass
-import dns.rdatatype
-import dns.tokenizer
-import dns.wiredata
+import exception
+import name
+import rdataclass
+import rdatatype
+import tokenizer
+import wiredata
 
 _hex_chunksize = 32
 
@@ -42,7 +42,7 @@ def _hexify(data, chunksize=None):
 
     @param data: the binary string
     @type data: string
-    @param chunksize: the chunk size.  Default is L{dns.rdata._hex_chunksize}
+    @param chunksize: the chunk size.  Default is L{rdata._hex_chunksize}
     @rtype: string
     """
 
@@ -68,7 +68,7 @@ def _base64ify(data, chunksize=None):
     @param data: the binary string
     @type data: string
     @param chunksize: the chunk size.  Default is
-    L{dns.rdata._base64_chunksize}
+    L{rdata._base64_chunksize}
     @rtype: string
     """
 
@@ -144,13 +144,13 @@ class Rdata(object):
     def covers(self):
         """DNS SIG/RRSIG rdatas apply to a specific type; this type is
         returned by the covers() function.  If the rdata type is not
-        SIG or RRSIG, dns.rdatatype.NONE is returned.  This is useful when
+        SIG or RRSIG, rdatatype.NONE is returned.  This is useful when
         creating rdatasets, allowing the rdataset to contain only RRSIGs
         of a particular type, e.g. RRSIG(NS).
         @rtype: int
         """
 
-        return dns.rdatatype.NONE
+        return rdatatype.NONE
 
     def extended_rdatatype(self):
         """Return a 32-bit type value, the least significant 16 bits of
@@ -187,16 +187,16 @@ class Rdata(object):
         it is a good idea to call validate() when you are done making
         changes.
         """
-        dns.rdata.from_text(self.rdclass, self.rdtype, self.to_text())
+        rdata.from_text(self.rdclass, self.rdtype, self.to_text())
 
     def __repr__(self):
         covers = self.covers()
-        if covers == dns.rdatatype.NONE:
+        if covers == rdatatype.NONE:
             ctext = ''
         else:
-            ctext = '(' + dns.rdatatype.to_text(covers) + ')'
-        return '<DNS ' + dns.rdataclass.to_text(self.rdclass) + ' ' + \
-               dns.rdatatype.to_text(self.rdtype) + ctext + ' rdata: ' + \
+            ctext = '(' + rdatatype.to_text(covers) + ')'
+        return '<DNS ' + rdataclass.to_text(self.rdclass) + ' ' + \
+               rdatatype.to_text(self.rdtype) + ctext + ' rdata: ' + \
                str(self) + '>'
 
     def __str__(self):
@@ -255,7 +255,7 @@ class Rdata(object):
         return self._cmp(other) > 0
 
     def __hash__(self):
-        return hash(self.to_digestable(dns.name.root))
+        return hash(self.to_digestable(name.root))
 
     def _wire_cmp(self, other):
         # A number of types compare rdata in wire form, so we provide
@@ -265,9 +265,9 @@ class Rdata(object):
         # comparison, since the rdata may have relative names and we
         # can't convert a relative name to wire without an origin.
         b1 = cStringIO.StringIO()
-        self.to_wire(b1, None, dns.name.root)
+        self.to_wire(b1, None, name.root)
         b2 = cStringIO.StringIO()
-        other.to_wire(b2, None, dns.name.root)
+        other.to_wire(b2, None, name.root)
         return cmp(b1.getvalue(), b2.getvalue())
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
@@ -278,12 +278,12 @@ class Rdata(object):
         @param rdtype: The rdata type
         @type rdtype: int
         @param tok: The tokenizer
-        @type tok: dns.tokenizer.Tokenizer
+        @type tok: tokenizer.Tokenizer
         @param origin: The origin to use for relative names
-        @type origin: dns.name.Name
+        @type origin: name.Name
         @param relativize: should names be relativized?
         @type relativize: bool
-        @rtype: dns.rdata.Rdata instance
+        @rtype: rdata.Rdata instance
         """
 
         raise NotImplementedError
@@ -304,8 +304,8 @@ class Rdata(object):
         @param rdlen: The length of the wire-format rdata
         @type rdlen: int
         @param origin: The origin to use for relative names
-        @type origin: dns.name.Name
-        @rtype: dns.rdata.Rdata instance
+        @type origin: name.Name
+        @rtype: rdata.Rdata instance
         """
 
         raise NotImplementedError
@@ -339,7 +339,7 @@ class GenericRdata(Rdata):
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         token = tok.get()
         if not token.is_identifier() or token.value != '\#':
-            raise dns.exception.SyntaxError(r'generic rdata does not start with \#')
+            raise exception.SyntaxError(r'generic rdata does not start with \#')
         length = tok.get_int()
         chunks = []
         while 1:
@@ -350,7 +350,7 @@ class GenericRdata(Rdata):
         hex = ''.join(chunks)
         data = hex.decode('hex_codec')
         if len(data) != length:
-            raise dns.exception.SyntaxError('generic rdata hex data has wrong length')
+            raise exception.SyntaxError('generic rdata hex data has wrong length')
         return cls(rdclass, rdtype, data)
 
     from_text = classmethod(from_text)
@@ -367,7 +367,7 @@ class GenericRdata(Rdata):
         return cmp(self.data, other.data)
 
 _rdata_modules = {}
-_module_prefix = 'dns.rdtypes'
+_module_prefix = 'rdtypes'
 
 def get_rdata_class(rdclass, rdtype):
 
@@ -379,11 +379,11 @@ def get_rdata_class(rdclass, rdtype):
         return mod
 
     mod = _rdata_modules.get((rdclass, rdtype))
-    rdclass_text = dns.rdataclass.to_text(rdclass)
-    rdtype_text = dns.rdatatype.to_text(rdtype)
+    rdclass_text = rdataclass.to_text(rdclass)
+    rdtype_text = rdatatype.to_text(rdtype)
     rdtype_text = rdtype_text.replace('-', '_')
     if not mod:
-        mod = _rdata_modules.get((dns.rdatatype.ANY, rdtype))
+        mod = _rdata_modules.get((rdatatype.ANY, rdtype))
         if not mod:
             try:
                 mod = import_module('.'.join([_module_prefix,
@@ -393,7 +393,7 @@ def get_rdata_class(rdclass, rdtype):
                 try:
                     mod = import_module('.'.join([_module_prefix,
                                                   'ANY', rdtype_text]))
-                    _rdata_modules[(dns.rdataclass.ANY, rdtype)] = mod
+                    _rdata_modules[(rdataclass.ANY, rdtype)] = mod
                 except ImportError:
                     mod = None
     if mod:
@@ -421,15 +421,15 @@ def from_text(rdclass, rdtype, tok, origin = None, relativize = True):
     @param rdtype: The rdata type
     @type rdtype: int
     @param tok: The tokenizer or input text
-    @type tok: dns.tokenizer.Tokenizer or string
+    @type tok: tokenizer.Tokenizer or string
     @param origin: The origin to use for relative names
-    @type origin: dns.name.Name
+    @type origin: name.Name
     @param relativize: Should names be relativized?
     @type relativize: bool
-    @rtype: dns.rdata.Rdata instance"""
+    @rtype: rdata.Rdata instance"""
 
     if isinstance(tok, str):
-        tok = dns.tokenizer.Tokenizer(tok)
+        tok = tokenizer.Tokenizer(tok)
     cls = get_rdata_class(rdclass, rdtype)
     if cls != GenericRdata:
         # peek at first token
@@ -470,9 +470,9 @@ def from_wire(rdclass, rdtype, wire, current, rdlen, origin = None):
     @param rdlen: The length of the wire-format rdata
     @type rdlen: int
     @param origin: The origin to use for relative names
-    @type origin: dns.name.Name
-    @rtype: dns.rdata.Rdata instance"""
+    @type origin: name.Name
+    @rtype: rdata.Rdata instance"""
 
-    wire = dns.wiredata.maybe_wrap(wire)
+    wire = wiredata.maybe_wrap(wire)
     cls = get_rdata_class(rdclass, rdtype)
     return cls.from_wire(rdclass, rdtype, wire, current, rdlen, origin)

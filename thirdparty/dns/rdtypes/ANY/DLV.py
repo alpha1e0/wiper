@@ -13,8 +13,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.rdtypes.dsbase
+import rdtypes.dsbase
 
-class DLV(dns.rdtypes.dsbase.DSBase):
+class DLV(rdtypes.dsbase.DSBase):
     """DLV record"""
     pass

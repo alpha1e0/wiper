@@ -17,22 +17,22 @@
 
 import base64
 
-import dns.name
+import name
 
 def from_text(textring):
     """Convert a dictionary containing (textual DNS name, base64 secret) pairs
-    into a binary keyring which has (dns.name.Name, binary secret) pairs.
+    into a binary keyring which has (name.Name, binary secret) pairs.
     @rtype: dict"""
     
     keyring = {}
     for keytext in textring:
-        keyname = dns.name.from_text(keytext)
+        keyname = name.from_text(keytext)
         secret = base64.decodestring(textring[keytext])
         keyring[keyname] = secret
     return keyring
 
 def to_text(keyring):
-    """Convert a dictionary containing (dns.name.Name, binary secret) pairs
+    """Convert a dictionary containing (name.Name, binary secret) pairs
     into a text keyring which has (textual DNS name, base64 secret) pairs.
     @rtype: dict"""
     

@@ -17,11 +17,11 @@ import cStringIO
 import string
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.rdatatype
+import exception
+import rdata
+import rdatatype
 
-class HIP(dns.rdata.Rdata):
+class HIP(rdata.Rdata):
     """HIP record
 
     @ivar hit: the host identity tag
@@ -31,7 +31,7 @@ class HIP(dns.rdata.Rdata):
     @ivar key: the public key
     @type key: string
     @ivar servers: the rendezvous servers
-    @type servers: list of dns.name.Name objects
+    @type servers: list of name.Name objects
     @see: RFC 5205"""
 
     __slots__ = ['hit', 'algorithm', 'key', 'servers']
@@ -58,14 +58,14 @@ class HIP(dns.rdata.Rdata):
         algorithm = tok.get_uint8()
         hit = tok.get_string().decode('hex-codec')
         if len(hit) > 255:
-            raise dns.exception.SyntaxError("HIT too long")
+            raise exception.SyntaxError("HIT too long")
         key = tok.get_string().decode('base64-codec')
         servers = []
         while 1:
             token = tok.get()
             if token.is_eol_or_eof():
                 break
-            server = dns.name.from_text(token.value, origin)
+            server = name.from_text(token.value, origin)
             server.choose_relativity(origin, relativize)
             servers.append(server)
         return cls(rdclass, rdtype, hit, algorithm, key, servers)
@@ -94,7 +94,7 @@ class HIP(dns.rdata.Rdata):
         rdlen -= lk
         servers = []
         while rdlen > 0:
-            (server, cused) = dns.name.from_wire(wire[: current + rdlen],
+            (server, cused) = name.from_wire(wire[: current + rdlen],
                                                  current)
             current += cused
             rdlen -= cused

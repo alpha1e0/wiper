@@ -40,7 +40,7 @@ class Set(object):
                 self.add(item)
 
     def __repr__(self):
-        return "dns.simpleset.Set(%s)" % repr(self.items)
+        return "simpleset.Set(%s)" % repr(self.items)
 
     def add(self, item):
         """Add an item to the set."""

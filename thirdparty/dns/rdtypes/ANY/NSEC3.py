@@ -18,9 +18,9 @@ import cStringIO
 import string
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.rdatatype
+import exception
+import rdata
+import rdatatype
 
 b32_hex_to_normal = string.maketrans('0123456789ABCDEFGHIJKLMNOPQRSTUV',
                                      'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567')
@@ -33,7 +33,7 @@ SHA1 = 1
 # flag constants
 OPTOUT = 1
 
-class NSEC3(dns.rdata.Rdata):
+class NSEC3(rdata.Rdata):
     """NSEC3 record
 
     @ivar algorithm: the hash algorithm number
@@ -74,7 +74,7 @@ class NSEC3(dns.rdata.Rdata):
                 byte = ord(bitmap[i])
                 for j in xrange(0, 8):
                     if byte & (0x80 >> j):
-                        bits.append(dns.rdatatype.to_text(window * 256 + \
+                        bits.append(rdatatype.to_text(window * 256 + \
                                                           i * 8 + j))
             text += (' ' + ' '.join(bits))
         return '%u %u %u %s %s%s' % (self.algorithm, self.flags, self.iterations,
@@ -96,11 +96,11 @@ class NSEC3(dns.rdata.Rdata):
             token = tok.get().unescape()
             if token.is_eol_or_eof():
                 break
-            nrdtype = dns.rdatatype.from_text(token.value)
+            nrdtype = rdatatype.from_text(token.value)
             if nrdtype == 0:
-                raise dns.exception.SyntaxError("NSEC3 with bit 0")
+                raise exception.SyntaxError("NSEC3 with bit 0")
             if nrdtype > 65535:
-                raise dns.exception.SyntaxError("NSEC3 with bit > 65535")
+                raise exception.SyntaxError("NSEC3 with bit > 65535")
             rdtypes.append(nrdtype)
         rdtypes.sort()
         window = 0
@@ -159,15 +159,15 @@ class NSEC3(dns.rdata.Rdata):
         windows = []
         while rdlen > 0:
             if rdlen < 3:
-                raise dns.exception.FormError("NSEC3 too short")
+                raise exception.FormError("NSEC3 too short")
             window = ord(wire[current])
             octets = ord(wire[current + 1])
             if octets == 0 or octets > 32:
-                raise dns.exception.FormError("bad NSEC3 octets")
+                raise exception.FormError("bad NSEC3 octets")
             current += 2
             rdlen -= 2
             if rdlen < octets:
-                raise dns.exception.FormError("bad NSEC3 bitmap length")
+                raise exception.FormError("bad NSEC3 bitmap length")
             bitmap = wire[current : current + octets].unwrap()
             current += octets
             rdlen -= octets

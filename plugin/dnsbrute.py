@@ -16,32 +16,20 @@ from plugin.lib.dictparse import DictFileEnum
 from plugin.lib.plugin import Plugin, PluginError
 from plugin.lib.dnsresolve import DnsResolver
 from model.model import Host
+from config import RTD
 
 
 class DnsBrute(Plugin):
 	'''
 	Use wordlist to bruteforce subdomain.
 	'''
-	def __init__(self, domain, dictlist):
+	def __init__(self, dictlist):
 		super(DnsBrute, self).__init__()
 
-		urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
-		try:
-			self.domain = urlPattern.match(domain.strip()).groups()[0]
-		except AttributeError:
-			raise PluginError("dns brute plugin, domain format error")
+		self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
 		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",x) for x in dictlist]
-
-		#partDoman示例：aaa.com partDomain为aaa，aaa.com.cn partDomain为aaa
-		pos = self.domain.rfind(".com.cn")
-		if pos==-1: pos = self.domain.rfind(".")
-		self.partDomain = self.domain if pos==-1 else self.domain[0:pos]
-		#去掉domain前面的www
-		pos = self.domain.find("www.")
-		self.domain = self.domain if pos==-1 else self.domain[pos+4:]
-
-		dns = DnsResolver()
-		#RTD.log.debug(self.dictlist+self.projectID+self.domain+self.partDomain)
+		
+		self.dns = DnsResolver()
 
 
 	def checkDomain(self, domain):
@@ -50,7 +38,7 @@ class DnsBrute(Plugin):
 #		except:
 #			return False
 #		return ip
-		ips = dns.domain2IP(domain)
+		ips = self.dns.domain2IP(domain)
 		if ips:
 			return ips[0]
 
@@ -59,17 +47,33 @@ class DnsBrute(Plugin):
 		if not isinstance(data, Host):
 			self.put(data)
 			return
+
+		try:
+			dataDomain = self.urlPattern.match(data.url).groups()[0].lower()
+		except AttributeError:
+			raise PluginError("dns brute plugin, domain format error")
+
+		#partDoman示例：aaa.com partDomain为aaa，aaa.com.cn partDomain为aaa
+		pos = dataDomain.rfind(".com.cn")
+		if pos==-1: pos = dataDomain.rfind(".")
+		partDomain = dataDomain if pos==-1 else dataDomain[0:pos]
+
+		if dataDomain.startswith("www."):
+			dataDomain = dataDomain[pos+4:]
+		#RTD.log.debug(self.dictlist+self.projectID+dataDomain+partDomain)
+
+
 		dlist = os.path.join("plugin","wordlist","toplevel.txt")
 		for line in DictFileEnum(dlist):
-			domain = self.partDomain + "." + line
-			#RTD.log.debug(domain)
+			domain = partDomain + "." + line
+			RTD.log.debug(domain)
 			ip = self.checkDomain(domain)
 			if ip:
 				self.put(Host(url=domain, ip=ip))
 
 		for dlist in self.dictlist:
 			for line in DictFileEnum(dlist):
-				domain = line + "." + self.domain
+				domain = line + "." + dataDomain
 				#RTD.log.debug(domain)
 				ip = self.checkDomain(domain)
 				if ip:

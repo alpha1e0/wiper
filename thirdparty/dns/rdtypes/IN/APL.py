@@ -16,10 +16,10 @@
 import cStringIO
 import struct
 
-import dns.exception
-import dns.inet
-import dns.rdata
-import dns.tokenizer
+import exception
+import inet
+import rdata
+import tokenizer
 
 class APLItem(object):
     """An APL list item.
@@ -50,9 +50,9 @@ class APLItem(object):
 
     def to_wire(self, file):
         if self.family == 1:
-            address = dns.inet.inet_pton(dns.inet.AF_INET, self.address)
+            address = inet.inet_pton(inet.AF_INET, self.address)
         elif self.family == 2:
-            address = dns.inet.inet_pton(dns.inet.AF_INET6, self.address)
+            address = inet.inet_pton(inet.AF_INET6, self.address)
         else:
             address = self.address.decode('hex_codec')
         #
@@ -72,7 +72,7 @@ class APLItem(object):
         file.write(header)
         file.write(address)
 
-class APL(dns.rdata.Rdata):
+class APL(rdata.Rdata):
     """APL record.
 
     @ivar items: a list of APL items
@@ -121,7 +121,7 @@ class APL(dns.rdata.Rdata):
             if rdlen == 0:
                 break
             if rdlen < 4:
-                raise dns.exception.FormError
+                raise exception.FormError
             header = struct.unpack('!HBB', wire[current : current + 4])
             afdlen = header[2]
             if afdlen > 127:
@@ -132,17 +132,17 @@ class APL(dns.rdata.Rdata):
             current += 4
             rdlen -= 4
             if rdlen < afdlen:
-                raise dns.exception.FormError
+                raise exception.FormError
             address = wire[current : current + afdlen].unwrap()
             l = len(address)
             if header[0] == 1:
                 if l < 4:
                     address += '\x00' * (4 - l)
-                address = dns.inet.inet_ntop(dns.inet.AF_INET, address)
+                address = inet.inet_ntop(inet.AF_INET, address)
             elif header[0] == 2:
                 if l < 16:
                     address += '\x00' * (16 - l)
-                address = dns.inet.inet_ntop(dns.inet.AF_INET6, address)
+                address = inet.inet_ntop(inet.AF_INET6, address)
             else:
                 #
                 # This isn't really right according to the RFC, but it

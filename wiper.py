@@ -10,6 +10,7 @@ from multiprocessing import Manager
 
 import config
 from controller.application import startServer
+from model.model import Project, Host, Vul, Comment
 
 
 
@@ -21,5 +22,4 @@ def init():
 if __name__ == "__main__":
 	init()
 
-	#config.RTD.taskManager.start()
 	startServer()

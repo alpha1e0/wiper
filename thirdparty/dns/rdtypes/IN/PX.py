@@ -15,19 +15,19 @@
 
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.name
+import exception
+import rdata
+import name
 
-class PX(dns.rdata.Rdata):
+class PX(rdata.Rdata):
     """PX record.
 
     @ivar preference: the preference value
     @type preference: int
     @ivar map822: the map822 name
-    @type map822: dns.name.Name object
+    @type map822: name.Name object
     @ivar mapx400: the mapx400 name
-    @type mapx400: dns.name.Name object
+    @type mapx400: name.Name object
     @see: RFC 2163"""
 
     __slots__ = ['preference', 'map822', 'mapx400']
@@ -64,18 +64,18 @@ class PX(dns.rdata.Rdata):
         (preference, ) = struct.unpack('!H', wire[current : current + 2])
         current += 2
         rdlen -= 2
-        (map822, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (map822, cused) = name.from_wire(wire[: current + rdlen],
                                                current)
         if cused > rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         current += cused
         rdlen -= cused
         if not origin is None:
             map822 = map822.relativize(origin)
-        (mapx400, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (mapx400, cused) = name.from_wire(wire[: current + rdlen],
                                               current)
         if cused != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         if not origin is None:
             mapx400 = mapx400.relativize(origin)
         return cls(rdclass, rdtype, preference, map822, mapx400)

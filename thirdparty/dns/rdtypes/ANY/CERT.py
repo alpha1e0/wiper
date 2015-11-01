@@ -16,10 +16,10 @@
 import cStringIO
 import struct
 
-import dns.exception
-import dns.dnssec
-import dns.rdata
-import dns.tokenizer
+import exception
+import dnssec
+import rdata
+import tokenizer
 
 _ctype_by_value = {
     1 : 'PKIX',
@@ -49,7 +49,7 @@ def _ctype_to_text(what):
         return v
     return str(what)
 
-class CERT(dns.rdata.Rdata):
+class CERT(rdata.Rdata):
     """CERT record
 
     @ivar certificate_type: certificate type
@@ -75,22 +75,22 @@ class CERT(dns.rdata.Rdata):
     def to_text(self, origin=None, relativize=True, **kw):
         certificate_type = _ctype_to_text(self.certificate_type)
         return "%s %d %s %s" % (certificate_type, self.key_tag,
-                                dns.dnssec.algorithm_to_text(self.algorithm),
-                                dns.rdata._base64ify(self.certificate))
+                                dnssec.algorithm_to_text(self.algorithm),
+                                rdata._base64ify(self.certificate))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         certificate_type = _ctype_from_text(tok.get_string())
         key_tag = tok.get_uint16()
-        algorithm = dns.dnssec.algorithm_from_text(tok.get_string())
+        algorithm = dnssec.algorithm_from_text(tok.get_string())
         if algorithm < 0 or algorithm > 255:
-            raise dns.exception.SyntaxError("bad algorithm type")
+            raise exception.SyntaxError("bad algorithm type")
         chunks = []
         while 1:
             t = tok.get().unescape()
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         b64 = ''.join(chunks)
         certificate = b64.decode('base64_codec')
@@ -110,7 +110,7 @@ class CERT(dns.rdata.Rdata):
         current += 5
         rdlen -= 5
         if rdlen < 0:
-            raise dns.exception.FormError
+            raise exception.FormError
         (certificate_type, key_tag, algorithm) = struct.unpack("!HHB", prefix)
         certificate = wire[current : current + rdlen].unwrap()
         return cls(rdclass, rdtype, certificate_type, key_tag, algorithm,

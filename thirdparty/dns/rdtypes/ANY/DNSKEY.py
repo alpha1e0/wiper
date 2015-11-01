@@ -16,9 +16,9 @@
 
 import struct
 
-import dns.exception
-import dns.dnssec
-import dns.rdata
+import exception
+import dnssec
+import rdata
 
 
 # flag constants
@@ -68,7 +68,7 @@ def flags_from_text_set(texts_set):
     return flags
 
 
-class DNSKEY(dns.rdata.Rdata):
+class DNSKEY(rdata.Rdata):
     """DNSKEY record
 
     @ivar flags: the key flags
@@ -91,19 +91,19 @@ class DNSKEY(dns.rdata.Rdata):
 
     def to_text(self, origin=None, relativize=True, **kw):
         return '%d %d %d %s' % (self.flags, self.protocol, self.algorithm,
-                                dns.rdata._base64ify(self.key))
+                                rdata._base64ify(self.key))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         flags = tok.get_uint16()
         protocol = tok.get_uint8()
-        algorithm = dns.dnssec.algorithm_from_text(tok.get_string())
+        algorithm = dnssec.algorithm_from_text(tok.get_string())
         chunks = []
         while 1:
             t = tok.get().unescape()
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         b64 = ''.join(chunks)
         key = b64.decode('base64_codec')
@@ -118,7 +118,7 @@ class DNSKEY(dns.rdata.Rdata):
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
         if rdlen < 4:
-            raise dns.exception.FormError
+            raise exception.FormError
         header = struct.unpack('!HBB', wire[current : current + 4])
         current += 4
         rdlen -= 4

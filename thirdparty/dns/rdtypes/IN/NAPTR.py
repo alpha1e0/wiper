@@ -15,9 +15,9 @@
 
 import struct
 
-import dns.exception
-import dns.name
-import dns.rdata
+import exception
+import name
+import rdata
 
 def _write_string(file, s):
     l = len(s)
@@ -26,7 +26,7 @@ def _write_string(file, s):
     file.write(byte)
     file.write(s)
 
-class NAPTR(dns.rdata.Rdata):
+class NAPTR(rdata.Rdata):
     """NAPTR record
 
     @ivar order: order
@@ -40,7 +40,7 @@ class NAPTR(dns.rdata.Rdata):
     @ivar regexp: regular expression
     @type regexp: string
     @ivar replacement: replacement name
-    @type replacement: dns.name.Name object
+    @type replacement: name.Name object
     @see: RFC 3403"""
 
     __slots__ = ['order', 'preference', 'flags', 'service', 'regexp',
@@ -60,9 +60,9 @@ class NAPTR(dns.rdata.Rdata):
         replacement = self.replacement.choose_relativity(origin, relativize)
         return '%d %d "%s" "%s" "%s" %s' % \
                (self.order, self.preference,
-                dns.rdata._escapify(self.flags),
-                dns.rdata._escapify(self.service),
-                dns.rdata._escapify(self.regexp),
+                rdata._escapify(self.flags),
+                rdata._escapify(self.service),
+                rdata._escapify(self.regexp),
                 self.replacement)
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
@@ -97,15 +97,15 @@ class NAPTR(dns.rdata.Rdata):
             current += 1
             rdlen -= 1
             if l > rdlen or rdlen < 0:
-                raise dns.exception.FormError
+                raise exception.FormError
             s = wire[current : current + l].unwrap()
             current += l
             rdlen -= l
             strings.append(s)
-        (replacement, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (replacement, cused) = name.from_wire(wire[: current + rdlen],
                                                   current)
         if cused != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         if not origin is None:
             replacement = replacement.relativize(origin)
         return cls(rdclass, rdtype, order, preference, strings[0], strings[1],

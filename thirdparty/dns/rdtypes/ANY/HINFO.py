@@ -13,11 +13,11 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.exception
-import dns.rdata
-import dns.tokenizer
+import exception
+import rdata
+import tokenizer
 
-class HINFO(dns.rdata.Rdata):
+class HINFO(rdata.Rdata):
     """HINFO record
 
     @ivar cpu: the CPU type
@@ -34,8 +34,8 @@ class HINFO(dns.rdata.Rdata):
         self.os = os
 
     def to_text(self, origin=None, relativize=True, **kw):
-        return '"%s" "%s"' % (dns.rdata._escapify(self.cpu),
-                              dns.rdata._escapify(self.os))
+        return '"%s" "%s"' % (rdata._escapify(self.cpu),
+                              rdata._escapify(self.os))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         cpu = tok.get_string()
@@ -62,7 +62,7 @@ class HINFO(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l > rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         cpu = wire[current : current + l].unwrap()
         current += l
         rdlen -= l
@@ -70,7 +70,7 @@ class HINFO(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         os = wire[current : current + l].unwrap()
         return cls(rdclass, rdtype, cpu, os)
 

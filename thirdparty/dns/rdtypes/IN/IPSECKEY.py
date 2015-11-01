@@ -16,11 +16,11 @@
 import cStringIO
 import struct
 
-import dns.exception
-import dns.inet
-import dns.name
+import exception
+import inet
+import name
 
-class IPSECKEY(dns.rdata.Rdata):
+class IPSECKEY(rdata.Rdata):
     """IPSECKEY record
 
     @ivar precedence: the precedence for this key data
@@ -46,10 +46,10 @@ class IPSECKEY(dns.rdata.Rdata):
             gateway = None
         elif gateway_type == 1:
             # check that it's OK
-            junk = dns.inet.inet_pton(dns.inet.AF_INET, gateway)
+            junk = inet.inet_pton(inet.AF_INET, gateway)
         elif gateway_type == 2:
             # check that it's OK
-            junk = dns.inet.inet_pton(dns.inet.AF_INET6, gateway)
+            junk = inet.inet_pton(inet.AF_INET6, gateway)
         elif gateway_type == 3:
             pass
         else:
@@ -73,7 +73,7 @@ class IPSECKEY(dns.rdata.Rdata):
             raise ValueError('invalid gateway type')
         return '%d %d %d %s %s' % (self.precedence, self.gateway_type,
                                    self.algorithm, gateway,
-                                   dns.rdata._base64ify(self.key))
+                                   rdata._base64ify(self.key))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         precedence = tok.get_uint8()
@@ -89,7 +89,7 @@ class IPSECKEY(dns.rdata.Rdata):
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         b64 = ''.join(chunks)
         key = b64.decode('base64_codec')
@@ -105,9 +105,9 @@ class IPSECKEY(dns.rdata.Rdata):
         if self.gateway_type == 0:
             pass
         elif self.gateway_type == 1:
-            file.write(dns.inet.inet_pton(dns.inet.AF_INET, self.gateway))
+            file.write(inet.inet_pton(inet.AF_INET, self.gateway))
         elif self.gateway_type == 2:
-            file.write(dns.inet.inet_pton(dns.inet.AF_INET6, self.gateway))
+            file.write(inet.inet_pton(inet.AF_INET6, self.gateway))
         elif self.gateway_type == 3:
             self.gateway.to_wire(file, None, origin)
         else:
@@ -116,7 +116,7 @@ class IPSECKEY(dns.rdata.Rdata):
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
         if rdlen < 3:
-            raise dns.exception.FormError
+            raise exception.FormError
         header = struct.unpack('!BBB', wire[current : current + 3])
         gateway_type = header[1]
         current += 3
@@ -124,22 +124,22 @@ class IPSECKEY(dns.rdata.Rdata):
         if gateway_type == 0:
             gateway = None
         elif gateway_type == 1:
-            gateway = dns.inet.inet_ntop(dns.inet.AF_INET,
+            gateway = inet.inet_ntop(inet.AF_INET,
                                          wire[current : current + 4])
             current += 4
             rdlen -= 4
         elif gateway_type == 2:
-            gateway = dns.inet.inet_ntop(dns.inet.AF_INET6,
+            gateway = inet.inet_ntop(inet.AF_INET6,
                                          wire[current : current + 16])
             current += 16
             rdlen -= 16
         elif gateway_type == 3:
-            (gateway, cused) = dns.name.from_wire(wire[: current + rdlen],
+            (gateway, cused) = name.from_wire(wire[: current + rdlen],
                                                   current)
             current += cused
             rdlen -= cused
         else:
-            raise dns.exception.FormError('invalid IPSECKEY gateway type')
+            raise exception.FormError('invalid IPSECKEY gateway type')
         key = wire[current : current + rdlen].unwrap()
         return cls(rdclass, rdtype, header[0], gateway_type, header[2],
                    gateway, key)

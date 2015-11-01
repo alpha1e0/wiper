@@ -13,15 +13,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.rdtypes.mxbase
+import rdtypes.mxbase
 
-class AFSDB(dns.rdtypes.mxbase.UncompressedDowncasingMX):
+class AFSDB(rdtypes.mxbase.UncompressedDowncasingMX):
     """AFSDB record
 
     @ivar subtype: the subtype value
     @type subtype: int
     @ivar hostname: the hostname name
-    @type hostname: dns.name.Name object"""
+    @type hostname: name.Name object"""
 
     # Use the property mechanism to make "subtype" an alias for the
     # "preference" attribute, and "hostname" an alias for the "exchange"

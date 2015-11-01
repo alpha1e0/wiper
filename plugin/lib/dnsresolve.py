@@ -11,6 +11,8 @@ import os
 
 from thirdparty.dns import resolver, reversename, query
 from thirdparty.dns.exception import DNSException
+#from dns import resolver, reversename, query
+#from exception import DNSException
 
 from config import CONF
 
@@ -27,8 +29,6 @@ class DnsResolver(object):
 		self.resolver = resolver.Resolver()
 		self.resolver.nameservers = CONF.dns.servers
 		self.resolver.timeout = timeout if timeout else CONF.dns.timeout
-		#self.resolver.nameservers = ["223.5.5.5", "8.8.4.4"]
-		#self.resolver.timeout = 3
 
 		self.axfr = query.xfr
 

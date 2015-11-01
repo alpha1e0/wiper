@@ -15,10 +15,10 @@
 
 import struct
 
-import dns.rdata
-import dns.rdatatype
+import rdata
+import rdatatype
 
-class SSHFP(dns.rdata.Rdata):
+class SSHFP(rdata.Rdata):
     """SSHFP record
 
     @ivar algorithm: the algorithm
@@ -41,7 +41,7 @@ class SSHFP(dns.rdata.Rdata):
     def to_text(self, origin=None, relativize=True, **kw):
         return '%d %d %s' % (self.algorithm,
                              self.fp_type,
-                             dns.rdata._hexify(self.fingerprint,
+                             rdata._hexify(self.fingerprint,
                                                chunksize=128))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
@@ -53,7 +53,7 @@ class SSHFP(dns.rdata.Rdata):
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         fingerprint = ''.join(chunks)
         fingerprint = fingerprint.decode('hex_codec')

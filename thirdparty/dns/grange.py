@@ -46,10 +46,10 @@ def from_text(text):
         elif c.isdigit():
             cur += c
         else:
-            raise dns.exception.SyntaxError("Could not parse %s" % (c))
+            raise exception.SyntaxError("Could not parse %s" % (c))
 
     if state in (1, 3):
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
 
     if state == 2:
         stop = int(cur)

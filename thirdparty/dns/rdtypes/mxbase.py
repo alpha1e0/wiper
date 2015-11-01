@@ -18,17 +18,17 @@
 import cStringIO
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.name
+import exception
+import rdata
+import name
 
-class MXBase(dns.rdata.Rdata):
+class MXBase(rdata.Rdata):
     """Base class for rdata that is like an MX record.
 
     @ivar preference: the preference value
     @type preference: int
     @ivar exchange: the exchange name
-    @type exchange: dns.name.Name object"""
+    @type exchange: name.Name object"""
 
     __slots__ = ['preference', 'exchange']
 
@@ -63,10 +63,10 @@ class MXBase(dns.rdata.Rdata):
         (preference, ) = struct.unpack('!H', wire[current : current + 2])
         current += 2
         rdlen -= 2
-        (exchange, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (exchange, cused) = name.from_wire(wire[: current + rdlen],
                                                current)
         if cused != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         if not origin is None:
             exchange = exchange.relativize(origin)
         return cls(rdclass, rdtype, preference, exchange)

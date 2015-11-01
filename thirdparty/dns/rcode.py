@@ -15,7 +15,7 @@
 
 """DNS Result Codes."""
 
-import dns.exception
+import exception
 
 NOERROR = 0
 FORMERR = 1
@@ -52,7 +52,7 @@ _by_text = {
 _by_value = dict([(y, x) for x, y in _by_text.iteritems()])
 
 
-class UnknownRcode(dns.exception.DNSException):
+class UnknownRcode(exception.DNSException):
     """Raised if an rcode is unknown."""
     pass
 

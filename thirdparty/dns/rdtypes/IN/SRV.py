@@ -15,11 +15,11 @@
 
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.name
+import exception
+import rdata
+import name
 
-class SRV(dns.rdata.Rdata):
+class SRV(rdata.Rdata):
     """SRV record
 
     @ivar priority: the priority
@@ -29,7 +29,7 @@ class SRV(dns.rdata.Rdata):
     @ivar port: the port of the service
     @type port: int
     @ivar target: the target host
-    @type target: dns.name.Name object
+    @type target: name.Name object
     @see: RFC 2782"""
 
     __slots__ = ['priority', 'weight', 'port', 'target']
@@ -67,10 +67,10 @@ class SRV(dns.rdata.Rdata):
                                                  wire[current : current + 6])
         current += 6
         rdlen -= 6
-        (target, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (target, cused) = name.from_wire(wire[: current + rdlen],
                                              current)
         if cused != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         if not origin is None:
             target = target.relativize(origin)
         return cls(rdclass, rdtype, priority, weight, port, target)

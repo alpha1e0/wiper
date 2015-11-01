@@ -17,7 +17,7 @@
 
 import struct
 
-import dns.exception
+import exception
 
 def inet_ntoa(address):
     """Convert an IPv4 address in network form to text form.
@@ -27,7 +27,7 @@ def inet_ntoa(address):
     @returns: string
     """
     if len(address) != 4:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
     return '%u.%u.%u.%u' % (ord(address[0]), ord(address[1]),
                             ord(address[2]), ord(address[3]))
 
@@ -40,15 +40,15 @@ def inet_aton(text):
     """
     parts = text.split('.')
     if len(parts) != 4:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
     for part in parts:
         if not part.isdigit():
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
         if len(part) > 1 and part[0] == '0':
             # No leading zeros
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
     try:
         bytes = [int(part) for part in parts]
         return struct.pack('BBBB', *bytes)
     except:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError

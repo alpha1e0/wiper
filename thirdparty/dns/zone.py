@@ -20,23 +20,23 @@ from __future__ import generators
 import sys
 import re
 
-import dns.exception
-import dns.name
-import dns.node
-import dns.rdataclass
-import dns.rdatatype
-import dns.rdata
-import dns.rrset
-import dns.tokenizer
-import dns.ttl
-import dns.grange
+import exception
+import name
+import node
+import rdataclass
+import rdatatype
+import rdata
+import rrset
+import tokenizer
+import ttl
+import grange
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
 
-class BadZone(dns.exception.DNSException):
+class BadZone(exception.DNSException):
     """The zone is malformed."""
     pass
 
@@ -58,14 +58,14 @@ class Zone(object):
     A Zone is a mapping from names to nodes.  The zone object may be
     treated like a Python dictionary, e.g. zone[name] will retrieve
     the node associated with that name.  The I{name} may be a
-    dns.name.Name object, or it may be a string.  In the either case,
+    name.Name object, or it may be a string.  In the either case,
     if the name is relative it is treated as relative to the origin of
     the zone.
 
     @ivar rdclass: The zone's rdata class; the default is class IN.
     @type rdclass: int
     @ivar origin: The origin of the zone.
-    @type origin: dns.name.Name object
+    @type origin: name.Name object
     @ivar nodes: A dictionary mapping the names of nodes in the zone to the
     nodes themselves.
     @type nodes: dict
@@ -75,15 +75,15 @@ class Zone(object):
     @type node_factory: class or callable
     """
 
-    node_factory = dns.node.Node
+    node_factory = node.Node
 
     __slots__ = ['rdclass', 'origin', 'nodes', 'relativize']
 
-    def __init__(self, origin, rdclass=dns.rdataclass.IN, relativize=True):
+    def __init__(self, origin, rdclass=rdataclass.IN, relativize=True):
         """Initialize a zone object.
 
         @param origin: The origin of the zone.
-        @type origin: dns.name.Name object
+        @type origin: name.Name object
         @param rdclass: The zone's rdata class; the default is class IN.
         @type rdclass: int"""
 
@@ -115,8 +115,8 @@ class Zone(object):
 
     def _validate_name(self, name):
         if isinstance(name, (str, unicode)):
-            name = dns.name.from_text(name, None)
-        elif not isinstance(name, dns.name.Name):
+            name = name.from_text(name, None)
+        elif not isinstance(name, name.Name):
             raise KeyError("name parameter must be convertable to a DNS name")
         if name.is_absolute():
             if not name.is_subdomain(self.origin):
@@ -169,11 +169,11 @@ class Zone(object):
         """Find a node in the zone, possibly creating it.
 
         @param name: the name of the node to find
-        @type name: dns.name.Name object or string
+        @type name: name.Name object or string
         @param create: should the node be created if it doesn't exist?
         @type create: bool
         @raises KeyError: the name is not known and create was not specified.
-        @rtype: dns.node.Node object
+        @rtype: node.Node object
         """
 
         name = self._validate_name(name)
@@ -193,10 +193,10 @@ class Zone(object):
         has not been requested.
 
         @param name: the name of the node to find
-        @type name: dns.name.Name object or string
+        @type name: name.Name object or string
         @param create: should the node be created if it doesn't exist?
         @type create: bool
-        @rtype: dns.node.Node object or None
+        @rtype: node.Node object or None
         """
 
         try:
@@ -215,7 +215,7 @@ class Zone(object):
         if self.nodes.has_key(name):
             del self.nodes[name]
 
-    def find_rdataset(self, name, rdtype, covers=dns.rdatatype.NONE,
+    def find_rdataset(self, name, rdtype, covers=rdatatype.NONE,
                       create=False):
         """Look for rdata with the specified name and type in the zone,
         and return an rdataset encapsulating it.
@@ -240,18 +240,18 @@ class Zone(object):
         exist?
         @type create: bool
         @raises KeyError: the node or rdata could not be found
-        @rtype: dns.rrset.RRset object
+        @rtype: rrset.RRset object
         """
 
         name = self._validate_name(name)
         if isinstance(rdtype, (str, unicode)):
-            rdtype = dns.rdatatype.from_text(rdtype)
+            rdtype = rdatatype.from_text(rdtype)
         if isinstance(covers, (str, unicode)):
-            covers = dns.rdatatype.from_text(covers)
+            covers = rdatatype.from_text(covers)
         node = self.find_node(name, create)
         return node.find_rdataset(self.rdclass, rdtype, covers, create)
 
-    def get_rdataset(self, name, rdtype, covers=dns.rdatatype.NONE,
+    def get_rdataset(self, name, rdtype, covers=rdatatype.NONE,
                      create=False):
         """Look for rdata with the specified name and type in the zone,
         and return an rdataset encapsulating it.
@@ -275,7 +275,7 @@ class Zone(object):
         @param create: should the node and rdataset be created if they do not
         exist?
         @type create: bool
-        @rtype: dns.rrset.RRset object
+        @rtype: rrset.RRset object
         """
 
         try:
@@ -284,7 +284,7 @@ class Zone(object):
             rdataset = None
         return rdataset
 
-    def delete_rdataset(self, name, rdtype, covers=dns.rdatatype.NONE):
+    def delete_rdataset(self, name, rdtype, covers=rdatatype.NONE):
         """Delete the rdataset matching I{rdtype} and I{covers}, if it
         exists at the node specified by I{name}.
 
@@ -308,9 +308,9 @@ class Zone(object):
 
         name = self._validate_name(name)
         if isinstance(rdtype, (str, unicode)):
-            rdtype = dns.rdatatype.from_text(rdtype)
+            rdtype = rdatatype.from_text(rdtype)
         if isinstance(covers, (str, unicode)):
-            covers = dns.rdatatype.from_text(covers)
+            covers = rdatatype.from_text(covers)
         node = self.get_node(name)
         if not node is None:
             node.delete_rdataset(self.rdclass, rdtype, covers)
@@ -331,7 +331,7 @@ class Zone(object):
         @param name: the owner name
         @type name: DNS.name.Name object or string
         @param replacement: the replacement rdataset
-        @type replacement: dns.rdataset.Rdataset
+        @type replacement: rdataset.Rdataset
         """
 
         if replacement.rdclass != self.rdclass:
@@ -339,7 +339,7 @@ class Zone(object):
         node = self.find_node(name, True)
         node.replace_rdataset(replacement)
 
-    def find_rrset(self, name, rdtype, covers=dns.rdatatype.NONE):
+    def find_rrset(self, name, rdtype, covers=rdatatype.NONE):
         """Look for rdata with the specified name and type in the zone,
         and return an RRset encapsulating it.
 
@@ -366,20 +366,20 @@ class Zone(object):
         @param covers: the covered type (defaults to None)
         @type covers: int or string
         @raises KeyError: the node or rdata could not be found
-        @rtype: dns.rrset.RRset object
+        @rtype: rrset.RRset object
         """
 
         name = self._validate_name(name)
         if isinstance(rdtype, (str, unicode)):
-            rdtype = dns.rdatatype.from_text(rdtype)
+            rdtype = rdatatype.from_text(rdtype)
         if isinstance(covers, (str, unicode)):
-            covers = dns.rdatatype.from_text(covers)
+            covers = rdatatype.from_text(covers)
         rdataset = self.nodes[name].find_rdataset(self.rdclass, rdtype, covers)
-        rrset = dns.rrset.RRset(name, self.rdclass, rdtype, covers)
+        rrset = rrset.RRset(name, self.rdclass, rdtype, covers)
         rrset.update(rdataset)
         return rrset
 
-    def get_rrset(self, name, rdtype, covers=dns.rdatatype.NONE):
+    def get_rrset(self, name, rdtype, covers=rdatatype.NONE):
         """Look for rdata with the specified name and type in the zone,
         and return an RRset encapsulating it.
 
@@ -404,7 +404,7 @@ class Zone(object):
         @type rdtype: int or string
         @param covers: the covered type (defaults to None)
         @type covers: int or string
-        @rtype: dns.rrset.RRset object
+        @rtype: rrset.RRset object
         """
 
         try:
@@ -413,11 +413,11 @@ class Zone(object):
             rrset = None
         return rrset
 
-    def iterate_rdatasets(self, rdtype=dns.rdatatype.ANY,
-                          covers=dns.rdatatype.NONE):
+    def iterate_rdatasets(self, rdtype=rdatatype.ANY,
+                          covers=rdatatype.NONE):
         """Return a generator which yields (name, rdataset) tuples for
         all rdatasets in the zone which have the specified I{rdtype}
-        and I{covers}.  If I{rdtype} is dns.rdatatype.ANY, the default,
+        and I{covers}.  If I{rdtype} is rdatatype.ANY, the default,
         then all rdatasets will be matched.
 
         @param rdtype: int or string
@@ -427,20 +427,20 @@ class Zone(object):
         """
 
         if isinstance(rdtype, (str, unicode)):
-            rdtype = dns.rdatatype.from_text(rdtype)
+            rdtype = rdatatype.from_text(rdtype)
         if isinstance(covers, (str, unicode)):
-            covers = dns.rdatatype.from_text(covers)
+            covers = rdatatype.from_text(covers)
         for (name, node) in self.iteritems():
             for rds in node:
-                if rdtype == dns.rdatatype.ANY or \
+                if rdtype == rdatatype.ANY or \
                    (rds.rdtype == rdtype and rds.covers == covers):
                     yield (name, rds)
 
-    def iterate_rdatas(self, rdtype=dns.rdatatype.ANY,
-                       covers=dns.rdatatype.NONE):
+    def iterate_rdatas(self, rdtype=rdatatype.ANY,
+                       covers=rdatatype.NONE):
         """Return a generator which yields (name, ttl, rdata) tuples for
         all rdatas in the zone which have the specified I{rdtype}
-        and I{covers}.  If I{rdtype} is dns.rdatatype.ANY, the default,
+        and I{covers}.  If I{rdtype} is rdatatype.ANY, the default,
         then all rdatas will be matched.
 
         @param rdtype: int or string
@@ -450,12 +450,12 @@ class Zone(object):
         """
 
         if isinstance(rdtype, (str, unicode)):
-            rdtype = dns.rdatatype.from_text(rdtype)
+            rdtype = rdatatype.from_text(rdtype)
         if isinstance(covers, (str, unicode)):
-            covers = dns.rdatatype.from_text(covers)
+            covers = rdatatype.from_text(covers)
         for (name, node) in self.iteritems():
             for rds in node:
-                if rdtype == dns.rdatatype.ANY or \
+                if rdtype == rdatatype.ANY or \
                    (rds.rdtype == rdtype and rds.covers == covers):
                     for rdata in rds:
                         yield (name, rds.ttl, rdata)
@@ -534,17 +534,17 @@ class Zone(object):
     def check_origin(self):
         """Do some simple checking of the zone's origin.
 
-        @raises dns.zone.NoSOA: there is no SOA RR
-        @raises dns.zone.NoNS: there is no NS RRset
+        @raises zone.NoSOA: there is no SOA RR
+        @raises zone.NoNS: there is no NS RRset
         @raises KeyError: there is no origin node
         """
         if self.relativize:
-            name = dns.name.empty
+            name = name.empty
         else:
             name = self.origin
-        if self.get_rdataset(name, dns.rdatatype.SOA) is None:
+        if self.get_rdataset(name, rdatatype.SOA) is None:
             raise NoSOA
-        if self.get_rdataset(name, dns.rdatatype.NS) is None:
+        if self.get_rdataset(name, rdatatype.NS) is None:
             raise NoNS
 
 
@@ -552,17 +552,17 @@ class _MasterReader(object):
     """Read a DNS master file
 
     @ivar tok: The tokenizer
-    @type tok: dns.tokenizer.Tokenizer object
+    @type tok: tokenizer.Tokenizer object
     @ivar ttl: The default TTL
     @type ttl: int
     @ivar last_name: The last name read
-    @type last_name: dns.name.Name object
+    @type last_name: name.Name object
     @ivar current_origin: The current origin
-    @type current_origin: dns.name.Name object
+    @type current_origin: name.Name object
     @ivar relativize: should names in the zone be relativized?
     @type relativize: bool
     @ivar zone: the zone
-    @type zone: dns.zone.Zone object
+    @type zone: zone.Zone object
     @ivar saved_state: saved reader state (used when processing $INCLUDE)
     @type saved_state: list of (tokenizer, current_origin, last_name, file)
     tuples.
@@ -578,7 +578,7 @@ class _MasterReader(object):
     def __init__(self, tok, origin, rdclass, relativize, zone_factory=Zone,
                  allow_include=False, check_origin=True):
         if isinstance(origin, (str, unicode)):
-            origin = dns.name.from_text(origin)
+            origin = name.from_text(origin)
         self.tok = tok
         self.current_origin = origin
         self.relativize = relativize
@@ -603,7 +603,7 @@ class _MasterReader(object):
             raise UnknownOrigin
         token = self.tok.get(want_leading = True)
         if not token.is_whitespace():
-            self.last_name = dns.name.from_text(token.value, self.current_origin)
+            self.last_name = name.from_text(token.value, self.current_origin)
         else:
             token = self.tok.get()
             if token.is_eol_or_eof():
@@ -618,40 +618,40 @@ class _MasterReader(object):
             name = name.relativize(self.zone.origin)
         token = self.tok.get()
         if not token.is_identifier():
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
         # TTL
         try:
-            ttl = dns.ttl.from_text(token.value)
+            ttl = ttl.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
-        except dns.ttl.BadTTL:
+                raise exception.SyntaxError
+        except ttl.BadTTL:
             ttl = self.ttl
         # Class
         try:
-            rdclass = dns.rdataclass.from_text(token.value)
+            rdclass = rdataclass.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
-        except dns.exception.SyntaxError:
-            raise dns.exception.SyntaxError
+                raise exception.SyntaxError
+        except exception.SyntaxError:
+            raise exception.SyntaxError
         except:
             rdclass = self.zone.rdclass
         if rdclass != self.zone.rdclass:
-            raise dns.exception.SyntaxError("RR class is not zone's class")
+            raise exception.SyntaxError("RR class is not zone's class")
         # Type
         try:
-            rdtype = dns.rdatatype.from_text(token.value)
+            rdtype = rdatatype.from_text(token.value)
         except:
-            raise dns.exception.SyntaxError("unknown rdatatype '%s'" % token.value)
+            raise exception.SyntaxError("unknown rdatatype '%s'" % token.value)
         n = self.zone.nodes.get(name)
         if n is None:
             n = self.zone.node_factory()
             self.zone.nodes[name] = n
         try:
-            rd = dns.rdata.from_text(rdclass, rdtype, self.tok,
+            rd = rdata.from_text(rdclass, rdtype, self.tok,
                                      self.current_origin, False)
-        except dns.exception.SyntaxError:
+        except exception.SyntaxError:
             # Catch and reraise.
             (ty, va) = sys.exc_info()[:2]
             raise va
@@ -662,7 +662,7 @@ class _MasterReader(object):
             # We convert them to syntax errors so that we can emit
             # helpful filename:line info.
             (ty, va) = sys.exc_info()[:2]
-            raise dns.exception.SyntaxError("caught exception %s: %s" % (str(ty), str(va)))
+            raise exception.SyntaxError("caught exception %s: %s" % (str(ty), str(va)))
 
         rd.choose_relativity(self.zone.origin, self.relativize)
         covers = rd.covers()
@@ -720,57 +720,57 @@ class _MasterReader(object):
         token = self.tok.get()
         # Range (required)
         try:
-            start, stop, step = dns.grange.from_text(token.value)
+            start, stop, step = grange.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
         except:
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
 
         # lhs (required)
         try:
             lhs = token.value
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
         except:
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
 
         # TTL
         try:
-            ttl = dns.ttl.from_text(token.value)
+            ttl = ttl.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
-        except dns.ttl.BadTTL:
+                raise exception.SyntaxError
+        except ttl.BadTTL:
             ttl = self.ttl
         # Class
         try:
-            rdclass = dns.rdataclass.from_text(token.value)
+            rdclass = rdataclass.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
-        except dns.exception.SyntaxError:
-            raise dns.exception.SyntaxError
+                raise exception.SyntaxError
+        except exception.SyntaxError:
+            raise exception.SyntaxError
         except:
             rdclass = self.zone.rdclass
         if rdclass != self.zone.rdclass:
-            raise dns.exception.SyntaxError("RR class is not zone's class")
+            raise exception.SyntaxError("RR class is not zone's class")
         # Type
         try:
-            rdtype = dns.rdatatype.from_text(token.value)
+            rdtype = rdatatype.from_text(token.value)
             token = self.tok.get()
             if not token.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
         except:
-            raise dns.exception.SyntaxError("unknown rdatatype '%s'" %
+            raise exception.SyntaxError("unknown rdatatype '%s'" %
                     token.value)
 
         # lhs (required)
         try:
             rhs = token.value
         except:
-            raise dns.exception.SyntaxError
+            raise exception.SyntaxError
 
 
         lmod, lsign, loffset, lwidth, lbase = self._parse_modify(lhs)
@@ -795,7 +795,7 @@ class _MasterReader(object):
             name = lhs.replace('$%s' % (lmod), lzfindex)
             rdata = rhs.replace('$%s' % (rmod), rzfindex)
 
-            self.last_name = dns.name.from_text(name, self.current_origin)
+            self.last_name = name.from_text(name, self.current_origin)
             name = self.last_name
             if not name.is_subdomain(self.zone.origin):
                 self._eat_line()
@@ -808,9 +808,9 @@ class _MasterReader(object):
                 n = self.zone.node_factory()
                 self.zone.nodes[name] = n
             try:
-                rd = dns.rdata.from_text(rdclass, rdtype, rdata,
+                rd = rdata.from_text(rdclass, rdtype, rdata,
                                          self.current_origin, False)
-            except dns.exception.SyntaxError:
+            except exception.SyntaxError:
                 # Catch and reraise.
                 (ty, va) = sys.exc_info()[:2]
                 raise va
@@ -821,7 +821,7 @@ class _MasterReader(object):
                 # We convert them to syntax errors so that we can emit
                 # helpful filename:line info.
                 (ty, va) = sys.exc_info()[:2]
-                raise dns.exception.SyntaxError("caught exception %s: %s" %
+                raise exception.SyntaxError("caught exception %s: %s" %
                         (str(ty), str(va)))
 
             rd.choose_relativity(self.zone.origin, self.relativize)
@@ -832,8 +832,8 @@ class _MasterReader(object):
     def read(self):
         """Read a DNS master file and build a zone object.
 
-        @raises dns.zone.NoSOA: No SOA RR was found at the zone origin
-        @raises dns.zone.NoNS: No NS RRset was found at the zone origin
+        @raises zone.NoSOA: No SOA RR was found at the zone origin
+        @raises zone.NoNS: No NS RRset was found at the zone origin
         """
 
         try:
@@ -860,8 +860,8 @@ class _MasterReader(object):
                     if u == '$TTL':
                         token = self.tok.get()
                         if not token.is_identifier():
-                            raise dns.exception.SyntaxError("bad $TTL")
-                        self.ttl = dns.ttl.from_text(token.value)
+                            raise exception.SyntaxError("bad $TTL")
+                        self.ttl = ttl.from_text(token.value)
                         self.tok.get_eol()
                     elif u == '$ORIGIN':
                         self.current_origin = self.tok.get_name()
@@ -873,11 +873,11 @@ class _MasterReader(object):
                         filename = token.value
                         token = self.tok.get()
                         if token.is_identifier():
-                            new_origin = dns.name.from_text(token.value, \
+                            new_origin = name.from_text(token.value, \
                                                             self.current_origin)
                             self.tok.get_eol()
                         elif not token.is_eol_or_eof():
-                            raise dns.exception.SyntaxError("bad origin in $INCLUDE")
+                            raise exception.SyntaxError("bad origin in $INCLUDE")
                         else:
                             new_origin = self.current_origin
                         self.saved_state.append((self.tok,
@@ -886,27 +886,27 @@ class _MasterReader(object):
                                                  self.current_file,
                                                  self.ttl))
                         self.current_file = file(filename, 'r')
-                        self.tok = dns.tokenizer.Tokenizer(self.current_file,
+                        self.tok = tokenizer.Tokenizer(self.current_file,
                                                            filename)
                         self.current_origin = new_origin
                     elif u == '$GENERATE':
                         self._generate_line()
                     else:
-                        raise dns.exception.SyntaxError("Unknown master file directive '" + u + "'")
+                        raise exception.SyntaxError("Unknown master file directive '" + u + "'")
                     continue
                 self.tok.unget(token)
                 self._rr_line()
-        except dns.exception.SyntaxError, detail:
+        except exception.SyntaxError, detail:
             (filename, line_number) = self.tok.where()
             if detail is None:
                 detail = "syntax error"
-            raise dns.exception.SyntaxError("%s:%d: %s" % (filename, line_number, detail))
+            raise exception.SyntaxError("%s:%d: %s" % (filename, line_number, detail))
 
         # Now that we're done reading, do some basic checking of the zone.
         if self.check_origin:
             self.zone.check_origin()
 
-def from_text(text, origin = None, rdclass = dns.rdataclass.IN,
+def from_text(text, origin = None, rdclass = rdataclass.IN,
               relativize = True, zone_factory=Zone, filename=None,
               allow_include=False, check_origin=True):
     """Build a zone object from a master file format string.
@@ -916,7 +916,7 @@ def from_text(text, origin = None, rdclass = dns.rdataclass.IN,
     @param origin: The origin of the zone; if not specified, the first
     $ORIGIN statement in the master file will determine the origin of the
     zone.
-    @type origin: dns.name.Name object or string
+    @type origin: name.Name object or string
     @param rdclass: The zone's rdata class; the default is class IN.
     @type rdclass: int
     @param relativize: should names be relativized?  The default is True
@@ -931,9 +931,9 @@ def from_text(text, origin = None, rdclass = dns.rdataclass.IN,
     @param check_origin: should sanity checks of the origin node be done?
     The default is True.
     @type check_origin: bool
-    @raises dns.zone.NoSOA: No SOA RR was found at the zone origin
-    @raises dns.zone.NoNS: No NS RRset was found at the zone origin
-    @rtype: dns.zone.Zone object
+    @raises zone.NoSOA: No SOA RR was found at the zone origin
+    @raises zone.NoNS: No NS RRset was found at the zone origin
+    @rtype: zone.Zone object
     """
 
     # 'text' can also be a file, but we don't publish that fact
@@ -942,14 +942,14 @@ def from_text(text, origin = None, rdclass = dns.rdataclass.IN,
 
     if filename is None:
         filename = '<string>'
-    tok = dns.tokenizer.Tokenizer(text, filename)
+    tok = tokenizer.Tokenizer(text, filename)
     reader = _MasterReader(tok, origin, rdclass, relativize, zone_factory,
                            allow_include=allow_include,
                            check_origin=check_origin)
     reader.read()
     return reader.zone
 
-def from_file(f, origin = None, rdclass = dns.rdataclass.IN,
+def from_file(f, origin = None, rdclass = rdataclass.IN,
               relativize = True, zone_factory=Zone, filename=None,
               allow_include=True, check_origin=True):
     """Read a master file and build a zone object.
@@ -959,7 +959,7 @@ def from_file(f, origin = None, rdclass = dns.rdataclass.IN,
     @param origin: The origin of the zone; if not specified, the first
     $ORIGIN statement in the master file will determine the origin of the
     zone.
-    @type origin: dns.name.Name object or string
+    @type origin: name.Name object or string
     @param rdclass: The zone's rdata class; the default is class IN.
     @type rdclass: int
     @param relativize: should names be relativized?  The default is True
@@ -975,9 +975,9 @@ def from_file(f, origin = None, rdclass = dns.rdataclass.IN,
     @param check_origin: should sanity checks of the origin node be done?
     The default is True.
     @type check_origin: bool
-    @raises dns.zone.NoSOA: No SOA RR was found at the zone origin
-    @raises dns.zone.NoNS: No NS RRset was found at the zone origin
-    @rtype: dns.zone.Zone object
+    @raises zone.NoSOA: No SOA RR was found at the zone origin
+    @raises zone.NoNS: No NS RRset was found at the zone origin
+    @rtype: zone.Zone object
     """
 
     if sys.hexversion >= 0x02030000:
@@ -1009,17 +1009,17 @@ def from_xfr(xfr, zone_factory=Zone, relativize=True, check_origin=True):
     """Convert the output of a zone transfer generator into a zone object.
 
     @param xfr: The xfr generator
-    @type xfr: generator of dns.message.Message objects
+    @type xfr: generator of message.Message objects
     @param relativize: should names be relativized?  The default is True.
     It is essential that the relativize setting matches the one specified
-    to dns.query.xfr().
+    to query.xfr().
     @type relativize: bool
     @param check_origin: should sanity checks of the origin node be done?
     The default is True.
     @type check_origin: bool
-    @raises dns.zone.NoSOA: No SOA RR was found at the zone origin
-    @raises dns.zone.NoNS: No NS RRset was found at the zone origin
-    @rtype: dns.zone.Zone object
+    @raises zone.NoSOA: No SOA RR was found at the zone origin
+    @raises zone.NoNS: No NS RRset was found at the zone origin
+    @rtype: zone.Zone object
     """
 
     z = None

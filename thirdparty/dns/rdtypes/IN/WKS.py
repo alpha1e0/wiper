@@ -16,13 +16,13 @@
 import socket
 import struct
 
-import dns.ipv4
-import dns.rdata
+import ipv4
+import rdata
 
 _proto_tcp = socket.getprotobyname('tcp')
 _proto_udp = socket.getprotobyname('udp')
 
-class WKS(dns.rdata.Rdata):
+class WKS(rdata.Rdata):
     """WKS record
 
     @ivar address: the address
@@ -79,19 +79,19 @@ class WKS(dns.rdata.Rdata):
                 for j in xrange(l, i + 1):
                     bitmap.append('\x00')
             bitmap[i] = chr(ord(bitmap[i]) | (0x80 >> (serv % 8)))
-        bitmap = dns.rdata._truncate_bitmap(bitmap)
+        bitmap = rdata._truncate_bitmap(bitmap)
         return cls(rdclass, rdtype, address, protocol, bitmap)
 
     from_text = classmethod(from_text)
 
     def to_wire(self, file, compress = None, origin = None):
-        file.write(dns.ipv4.inet_aton(self.address))
+        file.write(ipv4.inet_aton(self.address))
         protocol = struct.pack('!B', self.protocol)
         file.write(protocol)
         file.write(self.bitmap)
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
-        address = dns.ipv4.inet_ntoa(wire[current : current + 4])
+        address = ipv4.inet_ntoa(wire[current : current + 4])
         protocol, = struct.unpack('!B', wire[current + 4 : current + 5])
         current += 5
         rdlen -= 5
@@ -101,8 +101,8 @@ class WKS(dns.rdata.Rdata):
     from_wire = classmethod(from_wire)
 
     def _cmp(self, other):
-        sa = dns.ipv4.inet_aton(self.address)
-        oa = dns.ipv4.inet_aton(other.address)
+        sa = ipv4.inet_aton(self.address)
+        oa = ipv4.inet_aton(other.address)
         v = cmp(sa, oa)
         if v == 0:
             sp = struct.pack('!B', self.protocol)

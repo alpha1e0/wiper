@@ -15,9 +15,9 @@
 
 """DNS TTL conversion."""
 
-import dns.exception
+import exception
 
-class BadTTL(dns.exception.SyntaxError):
+class BadTTL(exception.SyntaxError):
     pass
 
 def from_text(text):
@@ -27,7 +27,7 @@ def from_text(text):
 
     @param text: the textual TTL
     @type text: string
-    @raises dns.ttl.BadTTL: the TTL is not well-formed
+    @raises ttl.BadTTL: the TTL is not well-formed
     @rtype: int
     """
 

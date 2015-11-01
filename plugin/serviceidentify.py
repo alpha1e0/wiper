@@ -8,12 +8,15 @@ See the file COPYING for copying detail
 '''
 
 import os
+import re
 
 from thirdparty import yaml
+from thirdparty import requests
 
 from plugin.lib.plugin import Plugin, PluginError
 from plugin.lib.nmapwrapper import Nmap
 from model.model import Host
+from config import CONF
 
 
 class ServiceIdentify(Plugin):
@@ -27,6 +30,9 @@ class ServiceIdentify(Plugin):
 			raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
 
 		self.portList = [key for key in self.portDict]
+		self.httpTimeout = CONF.http.timeout
+
+		self.titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
 
 
 	def handel(self, data):
@@ -40,16 +46,56 @@ class ServiceIdentify(Plugin):
 
 			for host in result:
 				if self.portDict[host.port]['protocol'] == http:
-					self.HTTPIdentify(data)
+					self.HTTPIdentify(host)
 				elif self.portDict[host.port]['protocol'] == https:
-					self.HTTPIdentify(data)
+					self.HTTPIdentify(host, https=True)
 
 				self.put(host)
 
 
-	def HTTPIdentify(self, data):
-		pass
+	def HTTPIdentify(self, host, https=False):
+		try:
+			url = host.url
+		except AttributeError:
+			try:
+				url = host.ip
+			except AttributeError:
+				return
+		try:
+			port = host.port
+		except AttributeError:
+			if https:
+				port = 443
+			else:
+				port = 80
+
+		method = "https://" if https else "http://"
+
+		url = method + url.strip("/") + ":" + str(port)
+
+		try:
+			response = requests.get(url, verify=False, timeout=self.httpTimeout)
+		except:
+			return
+
+		if not host.title:
+			match = urlPattern.search(response.text)
+			if match:
+				host.title = match.groups()[0]
+		try:
+			server = response.headers['server']
+		except IndexError:
+			pass
+		else:
+			host.server_info = server
+
+		try:
+			middleware = response.headers['x-powered-by']
+		except IndexError:
+			pass
+		else:
+			host.middleware = middleware
 
 
-	def FTPIdentify(self, data):
+	def FTPIdentify(self, host):
 		pass

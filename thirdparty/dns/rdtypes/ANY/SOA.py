@@ -15,17 +15,17 @@
 
 import struct
 
-import dns.exception
-import dns.rdata
-import dns.name
+import exception
+import rdata
+import name
 
-class SOA(dns.rdata.Rdata):
+class SOA(rdata.Rdata):
     """SOA record
 
     @ivar mname: the SOA MNAME (master name) field
-    @type mname: dns.name.Name object
+    @type mname: name.Name object
     @ivar rname: the SOA RNAME (responsible name) field
-    @type rname: dns.name.Name object
+    @type rname: name.Name object
     @ivar serial: The zone's serial number
     @type serial: int
     @ivar refresh: The zone's refresh value (in seconds)
@@ -90,14 +90,14 @@ class SOA(dns.rdata.Rdata):
                         self.retry, self.expire, self.minimum)
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
-        (mname, cused) = dns.name.from_wire(wire[: current + rdlen], current)
+        (mname, cused) = name.from_wire(wire[: current + rdlen], current)
         current += cused
         rdlen -= cused
-        (rname, cused) = dns.name.from_wire(wire[: current + rdlen], current)
+        (rname, cused) = name.from_wire(wire[: current + rdlen], current)
         current += cused
         rdlen -= cused
         if rdlen != 20:
-            raise dns.exception.FormError
+            raise exception.FormError
         five_ints = struct.unpack('!IIIII',
                                   wire[current : current + rdlen])
         if not origin is None:

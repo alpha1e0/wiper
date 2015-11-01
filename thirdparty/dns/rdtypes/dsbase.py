@@ -15,10 +15,10 @@
 
 import struct
 
-import dns.rdata
-import dns.rdatatype
+import rdata
+import rdatatype
 
-class DSBase(dns.rdata.Rdata):
+class DSBase(rdata.Rdata):
     """Base class for rdata that is like a DS record
 
     @ivar key_tag: the key tag
@@ -44,7 +44,7 @@ class DSBase(dns.rdata.Rdata):
     def to_text(self, origin=None, relativize=True, **kw):
         return '%d %d %d %s' % (self.key_tag, self.algorithm,
                                 self.digest_type,
-                                dns.rdata._hexify(self.digest,
+                                rdata._hexify(self.digest,
                                                   chunksize=128))
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
@@ -57,7 +57,7 @@ class DSBase(dns.rdata.Rdata):
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         digest = ''.join(chunks)
         digest = digest.decode('hex_codec')

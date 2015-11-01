@@ -17,15 +17,15 @@
 
 import cStringIO
 
-import dns.exception
-import dns.rdata
-import dns.name
+import exception
+import rdata
+import name
 
-class NSBase(dns.rdata.Rdata):
+class NSBase(rdata.Rdata):
     """Base class for rdata that is like an NS record.
 
     @ivar target: the target name of the rdata
-    @type target: dns.name.Name object"""
+    @type target: name.Name object"""
 
     __slots__ = ['target']
 
@@ -52,10 +52,10 @@ class NSBase(dns.rdata.Rdata):
         return self.target.to_digestable(origin)
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
-        (target, cused) = dns.name.from_wire(wire[: current + rdlen],
+        (target, cused) = name.from_wire(wire[: current + rdlen],
                                              current)
         if cused != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         if not origin is None:
             target = target.relativize(origin)
         return cls(rdclass, rdtype, target)

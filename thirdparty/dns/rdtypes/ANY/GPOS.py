@@ -13,9 +13,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.exception
-import dns.rdata
-import dns.tokenizer
+import exception
+import rdata
+import tokenizer
 
 def _validate_float_string(what):
     if what[0] == '-' or what[0] == '+':
@@ -24,13 +24,13 @@ def _validate_float_string(what):
         return
     (left, right) = what.split('.')
     if left == '' and right == '':
-        raise dns.exception.FormError
+        raise exception.FormError
     if not left == '' and not left.isdigit():
-        raise dns.exception.FormError
+        raise exception.FormError
     if not right == '' and not right.isdigit():
-        raise dns.exception.FormError
+        raise exception.FormError
 
-class GPOS(dns.rdata.Rdata):
+class GPOS(rdata.Rdata):
     """GPOS record
 
     @ivar latitude: latitude
@@ -98,7 +98,7 @@ class GPOS(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l > rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         latitude = wire[current : current + l].unwrap()
         current += l
         rdlen -= l
@@ -106,7 +106,7 @@ class GPOS(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l > rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         longitude = wire[current : current + l].unwrap()
         current += l
         rdlen -= l
@@ -114,7 +114,7 @@ class GPOS(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l != rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         altitude = wire[current : current + l].unwrap()
         return cls(rdclass, rdtype, latitude, longitude, altitude)
 

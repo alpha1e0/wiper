@@ -65,6 +65,7 @@ sys.setdefaultencoding("utf-8")
 
 #=================================================plugin framework test============================================
 from multiprocessing import Manager
+import time
 
 import config
 
@@ -85,34 +86,48 @@ config.RTD.taskManager = Manager()
 class plu(Plugin):
 	def __init__(self, namestr):
 		self.namestr = namestr
-		super(plu,self).__init__()
+		super(plu,self).__init__(timeout=1)
 	def handle(self, data):
-		print self.namestr + "get: " + data.description
+		print "debug: " + self.name + " got " + data.description
 		data.description = self.namestr + "handle"
 		self.put(data)
 
 class end(Plugin):
 	def __init__(self, namestr):
 		self.namestr = namestr
-		super(end,self).__init__()
+		super(end,self).__init__(timeout=1)
 	def handle(self, data):
-		print self.namestr + "get: " + data.description
+		print "debug: " + self.name + " got " + data.description
+		pass
+
+#host = Host()
+#host.description = "init host"#
+
+#aa = plu('aa')
+#bb = plu('bb')
+#cc = plu('cc')
+#dd = plu('dd')
+#ee = plu('ee')
+#zz = end('zz')#
+
+#p = cc | (aa + bb) | zz
+##p = aa | zz
+##p = zz
+##print zz.namestr
+#print [x.name for x in p._addList]
+#print [x.name for x in p._orList]
+#print "-----------------------------"
 
 host = Host()
-host.description = "init host"
+host.url = "thinksns.com"
+#host.url = "xiuren.com"
 
-aa = plu('aa')
-bb = plu('bb')
-cc = plu('cc')
-dd = plu('dd')
-ee = plu('ee')
-zz = end('zz')
+#p = ZoneTrans() | DataSave(1,1)
+p = DnsBrute(["test.txt"]) | DataSave(1,1)
 
-p = (aa + bb) | zz
-#print zz.namestr
-print p._firstObj.namestr
-print [x.namestr for x in p._addList]
-print [x.namestr for x in p._orList]
+p.dostart([host])
+
+time.sleep(600)
 
 #print config.RTD.taskManager.inQueue
 #print config.RTD.taskManager.outQueue

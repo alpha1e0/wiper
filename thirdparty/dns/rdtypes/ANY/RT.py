@@ -13,8 +13,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.rdtypes.mxbase
+import rdtypes.mxbase
 
-class RT(dns.rdtypes.mxbase.UncompressedDowncasingMX):
+class RT(rdtypes.mxbase.UncompressedDowncasingMX):
     """RT record"""
     pass

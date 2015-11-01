@@ -16,10 +16,10 @@
 import cStringIO
 import struct
 
-import dns.exception
-import dns.rdata
+import exception
+import rdata
 
-class NSEC3PARAM(dns.rdata.Rdata):
+class NSEC3PARAM(rdata.Rdata):
     """NSEC3PARAM record
 
     @ivar algorithm: the hash algorithm number
@@ -76,7 +76,7 @@ class NSEC3PARAM(dns.rdata.Rdata):
         current += slen
         rdlen -= slen
         if rdlen != 0:
-            raise dns.exception.FormError
+            raise exception.FormError
         return cls(rdclass, rdtype, algorithm, flags, iterations, salt)
 
     from_wire = classmethod(from_wire)

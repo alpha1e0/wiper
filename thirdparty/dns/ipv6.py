@@ -17,8 +17,8 @@
 
 import re
 
-import dns.exception
-import dns.ipv4
+import exception
+import ipv4
 
 _leading_zero = re.compile(r'0+([0-9a-f]+)')
 
@@ -81,7 +81,7 @@ def inet_ntoa(address):
                 prefix = '::'
             else:
                 prefix = '::ffff:'
-            hex = prefix + dns.ipv4.inet_ntoa(address[12:])
+            hex = prefix + ipv4.inet_ntoa(address[12:])
         else:
             hex = ':'.join(chunks[:best_start]) + '::' + \
                   ':'.join(chunks[best_start + best_len:])
@@ -99,7 +99,7 @@ def inet_aton(text):
     @param text: the textual address
     @type text: string
     @rtype: string
-    @raises dns.exception.SyntaxError: the text was not properly formatted
+    @raises exception.SyntaxError: the text was not properly formatted
     """
 
     #
@@ -113,7 +113,7 @@ def inet_aton(text):
     #
     m = _v4_ending.match(text)
     if not m is None:
-        b = dns.ipv4.inet_aton(m.group(2))
+        b = ipv4.inet_aton(m.group(2))
         text = "%s:%02x%02x:%02x%02x" % (m.group(1), ord(b[0]), ord(b[1]),
                                          ord(b[2]), ord(b[3]))
     #
@@ -133,25 +133,25 @@ def inet_aton(text):
     chunks = text.split(':')
     l = len(chunks)
     if l > 8:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
     seen_empty = False
     canonical = []
     for c in chunks:
         if c == '':
             if seen_empty:
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             seen_empty = True
             for i in xrange(0, 8 - l + 1):
                 canonical.append('0000')
         else:
             lc = len(c)
             if lc > 4:
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             if lc != 4:
                 c = ('0' * (4 - lc)) + c
             canonical.append(c)
     if l < 8 and not seen_empty:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
     text = ''.join(canonical)
 
     #
@@ -160,7 +160,7 @@ def inet_aton(text):
     try:
         return text.decode('hex_codec')
     except TypeError:
-        raise dns.exception.SyntaxError
+        raise exception.SyntaxError
 
 _mapped_prefix = '\x00' * 10 + '\xff\xff'
 

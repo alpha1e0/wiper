@@ -17,12 +17,12 @@ import calendar
 import struct
 import time
 
-import dns.dnssec
-import dns.exception
-import dns.rdata
-import dns.rdatatype
+import dnssec
+import exception
+import rdata
+import rdatatype
 
-class BadSigTime(dns.exception.DNSException):
+class BadSigTime(exception.DNSException):
     """Raised when a SIG or RRSIG RR's time cannot be parsed."""
     pass
 
@@ -41,7 +41,7 @@ def sigtime_to_posixtime(what):
 def posixtime_to_sigtime(what):
     return time.strftime('%Y%m%d%H%M%S', time.gmtime(what))
 
-class RRSIG(dns.rdata.Rdata):
+class RRSIG(rdata.Rdata):
     """RRSIG record
 
     @ivar type_covered: the rdata type this signature covers
@@ -59,7 +59,7 @@ class RRSIG(dns.rdata.Rdata):
     @ivar key_tag: the key tag
     @type key_tag: int
     @ivar signer: the signer
-    @type signer: dns.name.Name object
+    @type signer: name.Name object
     @ivar signature: the signature
     @type signature: string"""
 
@@ -86,7 +86,7 @@ class RRSIG(dns.rdata.Rdata):
 
     def to_text(self, origin=None, relativize=True, **kw):
         return '%s %d %d %d %s %s %d %s %s' % (
-            dns.rdatatype.to_text(self.type_covered),
+            rdatatype.to_text(self.type_covered),
             self.algorithm,
             self.labels,
             self.original_ttl,
@@ -94,12 +94,12 @@ class RRSIG(dns.rdata.Rdata):
             posixtime_to_sigtime(self.inception),
             self.key_tag,
             self.signer.choose_relativity(origin, relativize),
-            dns.rdata._base64ify(self.signature)
+            rdata._base64ify(self.signature)
             )
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
-        type_covered = dns.rdatatype.from_text(tok.get_string())
-        algorithm = dns.dnssec.algorithm_from_text(tok.get_string())
+        type_covered = rdatatype.from_text(tok.get_string())
+        algorithm = dnssec.algorithm_from_text(tok.get_string())
         labels = tok.get_int()
         original_ttl = tok.get_ttl()
         expiration = sigtime_to_posixtime(tok.get_string())
@@ -113,7 +113,7 @@ class RRSIG(dns.rdata.Rdata):
             if t.is_eol_or_eof():
                 break
             if not t.is_identifier():
-                raise dns.exception.SyntaxError
+                raise exception.SyntaxError
             chunks.append(t.value)
         b64 = ''.join(chunks)
         signature = b64.decode('base64_codec')
@@ -136,7 +136,7 @@ class RRSIG(dns.rdata.Rdata):
         header = struct.unpack('!HBBIIIH', wire[current : current + 18])
         current += 18
         rdlen -= 18
-        (signer, cused) = dns.name.from_wire(wire[: current + rdlen], current)
+        (signer, cused) = name.from_wire(wire[: current + rdlen], current)
         current += cused
         rdlen -= cused
         if not origin is None:

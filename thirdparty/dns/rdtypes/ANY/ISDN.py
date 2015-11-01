@@ -13,11 +13,11 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.exception
-import dns.rdata
-import dns.tokenizer
+import exception
+import rdata
+import tokenizer
 
-class ISDN(dns.rdata.Rdata):
+class ISDN(rdata.Rdata):
     """ISDN record
 
     @ivar address: the ISDN address
@@ -35,10 +35,10 @@ class ISDN(dns.rdata.Rdata):
 
     def to_text(self, origin=None, relativize=True, **kw):
         if self.subaddress:
-            return '"%s" "%s"' % (dns.rdata._escapify(self.address),
-                                  dns.rdata._escapify(self.subaddress))
+            return '"%s" "%s"' % (rdata._escapify(self.address),
+                                  rdata._escapify(self.subaddress))
         else:
-            return '"%s"' % dns.rdata._escapify(self.address)
+            return '"%s"' % rdata._escapify(self.address)
 
     def from_text(cls, rdclass, rdtype, tok, origin = None, relativize = True):
         address = tok.get_string()
@@ -72,7 +72,7 @@ class ISDN(dns.rdata.Rdata):
         current += 1
         rdlen -= 1
         if l > rdlen:
-            raise dns.exception.FormError
+            raise exception.FormError
         address = wire[current : current + l].unwrap()
         current += l
         rdlen -= l
@@ -81,7 +81,7 @@ class ISDN(dns.rdata.Rdata):
             current += 1
             rdlen -= 1
             if l != rdlen:
-                raise dns.exception.FormError
+                raise exception.FormError
             subaddress = wire[current : current + l].unwrap()
         else:
             subaddress = ''

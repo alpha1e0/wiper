@@ -13,9 +13,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.rdtypes.nsbase
+import rdtypes.nsbase
 
-class CNAME(dns.rdtypes.nsbase.NSBase):
+class CNAME(rdtypes.nsbase.NSBase):
     """CNAME record
 
     Note: although CNAME is officially a singleton type, dnspython allows

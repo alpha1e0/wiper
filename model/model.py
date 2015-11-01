@@ -25,6 +25,13 @@ class Project(Model):
 	description = TextField(ddl="text")
 
 
+	def __eq__(self, other):
+		try:
+			return self.name == other.name
+		except AttributeError:
+			return False
+
+
 	@classmethod
 	def create(cls):
 		sqlCmd = ("create table if not exists project("
@@ -56,6 +63,16 @@ class Host(Model):
 	description = TextField(ddl="text")
 	tmp = IntegerField(ddl="integer",vrange="0-1",default=0)
 	project_id = IntegerField(notnull=True,ddl="integer")
+
+
+	def __eq__(self, other):
+		try:
+			if self.ip == other.ip and self.url == other.url and self.port == other.port:
+				return True
+			else:
+				return False
+		except AttributeError:
+			return False
 
 
 	@classmethod
@@ -93,11 +110,18 @@ class Vul(Model):
 	host_id = IntegerField(notnull=True,ddl="integer")
 
 
+	def __eq__(self, other):
+		try:
+			return self.name == other.name
+		except AttributeError:
+			return False
+
+
 	@classmethod
 	def create(cls):
 		sqlCmd = ("create table if not exists vul ("
     		"id integer primary key autoincrement,"
-    		"name varchar(100),"
+    		"name varchar(100) not null unique,"
     		"url varchar(4096),"
     		"info varchar(1024),"
     		"type integer,"
@@ -122,17 +146,24 @@ class Comment(Model):
 	host_id = IntegerField(notnull=True,ddl="integer")
 
 
+	def __eq__(self, other):
+		try:
+			return self.name == other.name
+		except AttributeError:
+			return False
+
+
 	@classmethod
 	def create(cls):
 		sqlCmd = ("create table if not exists comment ("
     		"id integer primary key autoincrement, "
-    		"name varchar(100), "
+    		"name varchar(100) not null unique,"
     		"url varchar(4096),"
-    		"info varchar(1024), "
-    		"level integer, "
+    		"info varchar(1024),"
+    		"level integer,"
     		"attachment varchar(200),"
-    		"description text, "
-    		"host_id integer not null, "
+    		"description text,"
+    		"host_id integer not null,"
     		"foreign key (host_id) references host (id)"
 			")")
 		cls.sqlexec(sqlCmd)

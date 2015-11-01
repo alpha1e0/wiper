@@ -20,8 +20,9 @@ import struct
 import random
 import time
 
-import dns.exception
-import dns.tsig
+import exception
+import tsig
+import rdataclass
 
 QUESTION = 0
 ANSWER = 1
@@ -31,21 +32,21 @@ ADDITIONAL = 3
 class Renderer(object):
     """Helper class for building DNS wire-format messages.
 
-    Most applications can use the higher-level L{dns.message.Message}
+    Most applications can use the higher-level L{message.Message}
     class and its to_wire() method to generate wire-format messages.
     This class is for those applications which need finer control
     over the generation of messages.
 
     Typical use::
 
-        r = dns.renderer.Renderer(id=1, flags=0x80, max_size=512)
+        r = renderer.Renderer(id=1, flags=0x80, max_size=512)
         r.add_question(qname, qtype, qclass)
-        r.add_rrset(dns.renderer.ANSWER, rrset_1)
-        r.add_rrset(dns.renderer.ANSWER, rrset_2)
-        r.add_rrset(dns.renderer.AUTHORITY, ns_rrset)
+        r.add_rrset(renderer.ANSWER, rrset_1)
+        r.add_rrset(renderer.ANSWER, rrset_2)
+        r.add_rrset(renderer.AUTHORITY, ns_rrset)
         r.add_edns(0, 0, 4096)
-        r.add_rrset(dns.renderer.ADDTIONAL, ad_rrset_1)
-        r.add_rrset(dns.renderer.ADDTIONAL, ad_rrset_2)
+        r.add_rrset(renderer.ADDTIONAL, ad_rrset_1)
+        r.add_rrset(renderer.ADDTIONAL, ad_rrset_2)
         r.write_header()
         r.add_tsig(keyname, secret, 300, 1, 0, '', request_mac)
         wire = r.get_wire()
@@ -59,12 +60,12 @@ class Renderer(object):
     @ivar max_size: the maximum size of the message
     @type max_size: int
     @ivar origin: the origin to use when rendering relative names
-    @type origin: dns.name.Name object
+    @type origin: name.Name object
     @ivar compress: the compression table
     @type compress: dict
     @ivar section: the section currently being rendered
-    @type section: int (dns.renderer.QUESTION, dns.renderer.ANSWER,
-    dns.renderer.AUTHORITY, or dns.renderer.ADDITIONAL)
+    @type section: int (renderer.QUESTION, renderer.ANSWER,
+    renderer.AUTHORITY, or renderer.ADDITIONAL)
     @ivar counts: list of the number of RRs in each section
     @type counts: int list of length 4
     @ivar mac: the MAC of the rendered message (if TSIG was used)
@@ -80,10 +81,10 @@ class Renderer(object):
         @type flags: int
         @param max_size: the maximum message size; the default is 65535.
         If rendering results in a message greater than I{max_size},
-        then L{dns.exception.TooBig} will be raised.
+        then L{exception.TooBig} will be raised.
         @type max_size: int
         @param origin: the origin to use when rendering relative names
-        @type origin: dns.name.Namem or None.
+        @type origin: name.Namem or None.
         """
 
         self.output = cStringIO.StringIO()
@@ -126,20 +127,20 @@ class Renderer(object):
 
         @param section: the section
         @type section: int
-        @raises dns.exception.FormError: an attempt was made to set
+        @raises exception.FormError: an attempt was made to set
         a section value less than the current section.
         """
 
         if self.section != section:
             if self.section > section:
-                raise dns.exception.FormError
+                raise exception.FormError
             self.section = section
 
-    def add_question(self, qname, rdtype, rdclass=dns.rdataclass.IN):
+    def add_question(self, qname, rdtype, rdclass=rdataclass.IN):
         """Add a question to the message.
 
         @param qname: the question name
-        @type qname: dns.name.Name
+        @type qname: name.Name
         @param rdtype: the question rdata type
         @type rdtype: int
         @param rdclass: the question rdata class
@@ -153,7 +154,7 @@ class Renderer(object):
         after = self.output.tell()
         if after >= self.max_size:
             self._rollback(before)
-            raise dns.exception.TooBig
+            raise exception.TooBig
         self.counts[QUESTION] += 1
 
     def add_rrset(self, section, rrset, **kw):
@@ -165,7 +166,7 @@ class Renderer(object):
         @param section: the section
         @type section: int
         @param rrset: the rrset
-        @type rrset: dns.rrset.RRset object
+        @type rrset: rrset.RRset object
         """
 
         self._set_section(section)
@@ -174,7 +175,7 @@ class Renderer(object):
         after = self.output.tell()
         if after >= self.max_size:
             self._rollback(before)
-            raise dns.exception.TooBig
+            raise exception.TooBig
         self.counts[section] += n
 
     def add_rdataset(self, section, name, rdataset, **kw):
@@ -187,9 +188,9 @@ class Renderer(object):
         @param section: the section
         @type section: int
         @param name: the owner name
-        @type name: dns.name.Name object
+        @type name: name.Name object
         @param rdataset: the rdataset
-        @type rdataset: dns.rdataset.Rdataset object
+        @type rdataset: rdataset.Rdataset object
         """
 
         self._set_section(section)
@@ -199,7 +200,7 @@ class Renderer(object):
         after = self.output.tell()
         if after >= self.max_size:
             self._rollback(before)
-            raise dns.exception.TooBig
+            raise exception.TooBig
         self.counts[section] += n
 
     def add_edns(self, edns, ednsflags, payload, options=None):
@@ -213,7 +214,7 @@ class Renderer(object):
         size of UDP datagram the sender can handle.
         @type payload: int
         @param options: The EDNS options list
-        @type options: list of dns.edns.Option instances
+        @type options: list of edns.Option instances
         @see: RFC 2671
         """
 
@@ -222,7 +223,7 @@ class Renderer(object):
         ednsflags |= (edns << 16)
         self._set_section(ADDITIONAL)
         before = self.output.tell()
-        self.output.write(struct.pack('!BHHIH', 0, dns.rdatatype.OPT, payload,
+        self.output.write(struct.pack('!BHHIH', 0, rdatatype.OPT, payload,
                                       ednsflags, 0))
         if not options is None:
             lstart = self.output.tell()
@@ -246,15 +247,15 @@ class Renderer(object):
         after = self.output.tell()
         if after >= self.max_size:
             self._rollback(before)
-            raise dns.exception.TooBig
+            raise exception.TooBig
         self.counts[ADDITIONAL] += 1
 
     def add_tsig(self, keyname, secret, fudge, id, tsig_error, other_data,
-                 request_mac, algorithm=dns.tsig.default_algorithm):
+                 request_mac, algorithm=tsig.default_algorithm):
         """Add a TSIG signature to the message.
 
         @param keyname: the TSIG key name
-        @type keyname: dns.name.Name object
+        @type keyname: name.Name object
         @param secret: the secret to use
         @type secret: string
         @param fudge: TSIG time fudge
@@ -269,13 +270,13 @@ class Renderer(object):
         had the specified MAC.
         @type request_mac: string
         @param algorithm: the TSIG algorithm to use
-        @type algorithm: dns.name.Name object
+        @type algorithm: name.Name object
         """
 
         self._set_section(ADDITIONAL)
         before = self.output.tell()
         s = self.output.getvalue()
-        (tsig_rdata, self.mac, ctx) = dns.tsig.sign(s,
+        (tsig_rdata, self.mac, ctx) = tsig.sign(s,
                                                     keyname,
                                                     secret,
                                                     int(time.time()),
@@ -286,15 +287,15 @@ class Renderer(object):
                                                     request_mac,
                                                     algorithm=algorithm)
         keyname.to_wire(self.output, self.compress, self.origin)
-        self.output.write(struct.pack('!HHIH', dns.rdatatype.TSIG,
-                                      dns.rdataclass.ANY, 0, 0))
+        self.output.write(struct.pack('!HHIH', rdatatype.TSIG,
+                                      rdataclass.ANY, 0, 0))
         rdata_start = self.output.tell()
         self.output.write(tsig_rdata)
         after = self.output.tell()
         assert after - rdata_start < 65536
         if after >= self.max_size:
             self._rollback(before)
-            raise dns.exception.TooBig
+            raise exception.TooBig
         self.output.seek(rdata_start - 2)
         self.output.write(struct.pack('!H', after - rdata_start))
         self.counts[ADDITIONAL] += 1

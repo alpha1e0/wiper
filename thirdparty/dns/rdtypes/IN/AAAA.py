@@ -13,12 +13,12 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.exception
-import dns.inet
-import dns.rdata
-import dns.tokenizer
+import exception
+import inet
+import rdata
+import tokenizer
 
-class AAAA(dns.rdata.Rdata):
+class AAAA(rdata.Rdata):
     """AAAA record.
 
     @ivar address: an IPv6 address
@@ -29,7 +29,7 @@ class AAAA(dns.rdata.Rdata):
     def __init__(self, rdclass, rdtype, address):
         super(AAAA, self).__init__(rdclass, rdtype)
         # check that it's OK
-        junk = dns.inet.inet_pton(dns.inet.AF_INET6, address)
+        junk = inet.inet_pton(inet.AF_INET6, address)
         self.address = address
 
     def to_text(self, origin=None, relativize=True, **kw):
@@ -43,16 +43,16 @@ class AAAA(dns.rdata.Rdata):
     from_text = classmethod(from_text)
 
     def to_wire(self, file, compress = None, origin = None):
-        file.write(dns.inet.inet_pton(dns.inet.AF_INET6, self.address))
+        file.write(inet.inet_pton(inet.AF_INET6, self.address))
 
     def from_wire(cls, rdclass, rdtype, wire, current, rdlen, origin = None):
-        address = dns.inet.inet_ntop(dns.inet.AF_INET6,
+        address = inet.inet_ntop(inet.AF_INET6,
                                      wire[current : current + rdlen])
         return cls(rdclass, rdtype, address)
 
     from_wire = classmethod(from_wire)
 
     def _cmp(self, other):
-        sa = dns.inet.inet_pton(dns.inet.AF_INET6, self.address)
-        oa = dns.inet.inet_pton(dns.inet.AF_INET6, other.address)
+        sa = inet.inet_pton(inet.AF_INET6, self.address)
+        oa = inet.inet_pton(inet.AF_INET6, other.address)
         return cmp(sa, oa)

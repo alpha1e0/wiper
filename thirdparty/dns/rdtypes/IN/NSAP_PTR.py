@@ -13,8 +13,8 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT
 # OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import dns.rdtypes.nsbase
+import rdtypes.nsbase
 
-class NSAP_PTR(dns.rdtypes.nsbase.UncompressedNS):
+class NSAP_PTR(rdtypes.nsbase.UncompressedNS):
     """NSAP-PTR record"""
     pass

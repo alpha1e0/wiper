@@ -44,7 +44,7 @@ class Option(object):
         @type current: int
         @param olen: The length of the wire-format option data
         @type olen: int
-        @rtype: dns.edns.Option instance"""
+        @rtype: edns.Option instance"""
         raise NotImplementedError
 
     from_wire = classmethod(from_wire)
@@ -136,7 +136,7 @@ def option_from_wire(otype, wire, current, olen):
     @type current: int
     @param olen: The length of the wire-format option data
     @type olen: int
-    @rtype: dns.edns.Option instance"""
+    @rtype: edns.Option instance"""
 
     cls = get_option_class(otype)
     return cls.from_wire(otype, wire, current, olen)
