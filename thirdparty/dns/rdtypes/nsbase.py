@@ -15,6 +15,10 @@
 
 """NS-like base classes."""
 
+import sys
+import os
+sys.path.append(os.path.join("thirdparty","dns"))
+
 import cStringIO
 
 import exception

@@ -15,6 +15,10 @@
 
 """TXT-like base class."""
 
+import sys
+import os
+sys.path.append(os.path.join("thirdparty","dns"))
+
 import exception
 import rdata
 import tokenizer

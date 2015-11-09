@@ -24,14 +24,14 @@ import time
 import edns
 import exception
 import flags
-import name
+import name as mname
 import opcode
 import entropy
 import rcode
 import rdata
 import rdataclass
 import rdatatype
-import rrset
+import rrset as mrrset
 import renderer
 import tsig
 import wiredata
@@ -73,13 +73,13 @@ class Message(object):
     explanation of these flags.
     @type flags: int
     @ivar question: The question section.
-    @type question: list of rrset.RRset objects
+    @type question: list of mrrset.RRset objects
     @ivar answer: The answer section.
-    @type answer: list of rrset.RRset objects
+    @type answer: list of mrrset.RRset objects
     @ivar authority: The authority section.
-    @type authority: list of rrset.RRset objects
+    @type authority: list of mrrset.RRset objects
     @ivar additional: The additional data section.
-    @type additional: list of rrset.RRset objects
+    @type additional: list of mrrset.RRset objects
     @ivar edns: The EDNS level to use.  The default is -1, no Edns.
     @type edns: int
     @ivar ednsflags: The EDNS flags
@@ -93,7 +93,7 @@ class Message(object):
     @ivar keyring: The TSIG keyring to use.  The default is None.
     @type keyring: dict
     @ivar keyname: The TSIG keyname to use.  The default is None.
-    @type keyname: name.Name object
+    @type keyname: mname.Name object
     @ivar keyalgorithm: The TSIG algorithm to use; defaults to
     tsig.default_algorithm.  Constants for TSIG algorithms are defined
     in tsig, and the currently implemented algorithms are
@@ -119,7 +119,7 @@ class Message(object):
     @type xfr: bool
     @ivar origin: The origin of the zone in messages which are used for
     zone transfers or for DNS dynamic updates.  The default is None.
-    @type origin: name.Name object
+    @type origin: mname.Name object
     @ivar tsig_ctx: The TSIG signature context associated with this
     message.  The default is None.
     @type tsig_ctx: hmac.HMAC object
@@ -304,9 +304,9 @@ class Message(object):
 
         @param section: the section of the message to look in, e.g.
         self.answer.
-        @type section: list of rrset.RRset objects
+        @type section: list of mrrset.RRset objects
         @param name: the name of the RRset
-        @type name: name.Name object
+        @type name: mname.Name object
         @param rdclass: the class of the RRset
         @type rdclass: int
         @param rdtype: the type of the RRset
@@ -322,8 +322,9 @@ class Message(object):
         new RRset regardless of whether a matching RRset exists already.
         @type force_unique: bool
         @raises KeyError: the RRset was not found and create was False
-        @rtype: rrset.RRset object"""
-
+        @rtype: mrrset.RRset object"""
+        #import pdb
+        #pdb.set_trace()
         key = (self.section_number(section),
                name, rdclass, rdtype, covers, deleting)
         if not force_unique:
@@ -337,7 +338,7 @@ class Message(object):
                         return rrset
         if not create:
             raise KeyError
-        rrset = rrset.RRset(name, rdclass, rdtype, covers, deleting)
+        rrset = mrrset.RRset(name, rdclass, rdtype, covers, deleting)
         section.append(rrset)
         if not self.index is None:
             self.index[key] = rrset
@@ -352,9 +353,9 @@ class Message(object):
 
         @param section: the section of the message to look in, e.g.
         self.answer.
-        @type section: list of rrset.RRset objects
+        @type section: list of mrrset.RRset objects
         @param name: the name of the RRset
-        @type name: name.Name object
+        @type name: mname.Name object
         @param rdclass: the class of the RRset
         @type rdclass: int
         @param rdtype: the type of the RRset
@@ -369,7 +370,7 @@ class Message(object):
         @param force_unique: If True and create is also True, create a
         new RRset regardless of whether a matching RRset exists already.
         @type force_unique: bool
-        @rtype: rrset.RRset object or None"""
+        @rtype: mrrset.RRset object or None"""
 
         try:
             rrset = self.find_rrset(section, name, rdclass, rdtype, covers,
@@ -386,7 +387,7 @@ class Message(object):
         method.
 
         @param origin: The origin to be appended to any relative names.
-        @type origin: name.Name object
+        @type origin: mname.Name object
         @param max_size: The maximum size of the wire format output; default
         is 0, which means 'the message's request payload, if nonzero, or
         65536'.
@@ -438,7 +439,7 @@ class Message(object):
         keyring.  Note that the order of keys in a dictionary is not defined,
         so applications should supply a keyname when a keyring is used, unless
         they know the keyring contains only one key.
-        @type keyname: name.Name or string
+        @type keyname: mname.Name or string
         @param fudge: TSIG time fudge; default is 300 seconds.
         @type fudge: int
         @param original_id: TSIG original id; defaults to the message's id
@@ -456,7 +457,7 @@ class Message(object):
             self.keyname = self.keyring.keys()[0]
         else:
             if isinstance(keyname, (str, unicode)):
-                keyname = name.from_text(keyname)
+                keyname = mname.from_text(keyname)
             self.keyname = keyname
         self.keyalgorithm = algorithm
         self.fudge = fudge
@@ -599,7 +600,7 @@ class _WireReader(object):
             raise exception.FormError
 
         for i in xrange(0, qcount):
-            (qname, used) = name.from_wire(self.wire, self.current)
+            (qname, used) = mname.from_wire(self.wire, self.current)
             if not self.message.origin is None:
                 qname = qname.relativize(self.message.origin)
             self.current = self.current + used
@@ -617,7 +618,7 @@ class _WireReader(object):
         """Read the next I{count} records from the wire data and add them to
         the specified section.
         @param section: the section of the message to which to add records
-        @type section: list of rrset.RRset objects
+        @type section: list of mrrset.RRset objects
         @param count: the number of records to read
         @type count: int"""
 
@@ -628,7 +629,7 @@ class _WireReader(object):
         seen_opt = False
         for i in xrange(0, count):
             rr_start = self.current
-            (name, used) = name.from_wire(self.wire, self.current)
+            (name, used) = mname.from_wire(self.wire, self.current)
             absolute_name = name
             if not self.message.origin is None:
                 name = name.relativize(self.message.origin)
@@ -698,6 +699,8 @@ class _WireReader(object):
                     covers = rdatatype.NONE
                     rd = None
                 else:
+                    #import pdb
+                    #pdb.set_trace()
                     rd = rdata.from_wire(rdclass, rdtype, self.wire,
                                              self.current, rdlen,
                                              self.message.origin)
@@ -752,7 +755,7 @@ def from_wire(wire, keyring=None, request_mac='', xfr=False, origin=None,
     @type xfr: bool
     @param origin: If the message is part of a zone transfer, I{origin}
     should be the origin name of the zone.
-    @type origin: name.Name object
+    @type origin: mname.Name object
     @param tsig_ctx: The ongoing TSIG context, used when validating zone
     transfers.
     @type tsig_ctx: hmac.HMAC object
@@ -806,7 +809,7 @@ class _TextReader(object):
     @type zone_rdclass: int
     @ivar last_name: The most recently read name when building a message object
     from text format.
-    @type last_name: name.Name object
+    @type last_name: mname.Name object
     """
 
     def __init__(self, text, message):
@@ -867,7 +870,7 @@ class _TextReader(object):
 
         token = self.tok.get(want_leading = True)
         if not token.is_whitespace():
-            self.last_name = name.from_text(token.value, None)
+            self.last_name = mname.from_text(token.value, None)
         name = self.last_name
         token = self.tok.get()
         if not token.is_identifier():
@@ -900,7 +903,7 @@ class _TextReader(object):
         # Name
         token = self.tok.get(want_leading = True)
         if not token.is_whitespace():
-            self.last_name = name.from_text(token.value, None)
+            self.last_name = mname.from_text(token.value, None)
         name = self.last_name
         token = self.tok.get()
         if not token.is_identifier():
@@ -1037,7 +1040,7 @@ def make_query(qname, rdtype, rdclass = rdataclass.IN, use_edns=None,
     will be set to flags.RD.
 
     @param qname: The query name.
-    @type qname: name.Name object or string
+    @type qname: mname.Name object or string
     @param rdtype: The desired rdata type.
     @type rdtype: int
     @param rdclass: The desired rdata class; the default is class IN.
@@ -1062,7 +1065,7 @@ def make_query(qname, rdtype, rdclass = rdataclass.IN, use_edns=None,
     @rtype: message.Message object"""
 
     if isinstance(qname, (str, unicode)):
-        qname = name.from_text(qname)
+        qname = mname.from_text(qname)
     if isinstance(rdtype, (str, unicode)):
         rdtype = rdatatype.from_text(rdtype)
     if isinstance(rdclass, (str, unicode)):

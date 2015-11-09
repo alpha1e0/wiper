@@ -43,7 +43,6 @@ sys.setdefaultencoding("utf-8")
 #re = dns.getZoneRecords("thinksns.com")
 #print re
 
-#sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Users/apple/.python-eggs/MySQL_python-1.2.5-py2.7-macosx-10.9-intel.egg-tmp/_mysql.so
 
 #=================================================sqlite test============================================
 

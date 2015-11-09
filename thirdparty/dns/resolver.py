@@ -34,8 +34,8 @@ import ipv4
 import ipv6
 import message
 import name
-import query
-import rcode
+import query as mquery
+import rcode as mrcode
 import rdataclass
 import rdatatype
 import reversename
@@ -738,6 +738,7 @@ class Resolver(object):
         duration = now - start
         if duration >= self.lifetime:
             raise Timeout
+            #debug>>>>>>>>>>>>>>>>>>>>>>>>>
         return min(self.lifetime - duration, self.timeout)
 
     def query(self, qname, rdtype=rdatatype.A, rdclass=rdataclass.IN,
@@ -773,7 +774,8 @@ class Resolver(object):
         raise_on_no_answer is True.
         @raises NoNameservers: no non-broken nameservers are available to
         answer the question."""
-
+        import pdb
+        pdb.set_trace()
         if isinstance(qname, (str, unicode)):
             qname = name.from_text(qname, None)
         if isinstance(rdtype, (str, unicode)):
@@ -827,19 +829,19 @@ class Resolver(object):
                     timeout = self._compute_timeout(start)
                     try:
                         if tcp:
-                            response = query.tcp(request, nameserver,
+                            response = mquery.tcp(request, nameserver,
                                                      timeout, self.port,
                                                      source=source,
                                                      source_port=source_port)
                         else:
-                            response = query.udp(request, nameserver,
+                            response = mquery.udp(request, nameserver,
                                                      timeout, self.port,
                                                      source=source,
                                                      source_port=source_port)
                             if response.flags & flags.TC:
                                 # Response truncated; retry with TCP.
                                 timeout = self._compute_timeout(start)
-                                response = query.tcp(request, nameserver,
+                                response = mquery.tcp(request, nameserver,
                                                        timeout, self.port,
                                                        source=source,
                                                        source_port=source_port)
@@ -850,7 +852,7 @@ class Resolver(object):
                         #
                         response = None
                         continue
-                    except query.UnexpectedSource:
+                    except mquery.UnexpectedSource:
                         #
                         # Who knows?  Keep going.
                         #
@@ -876,17 +878,17 @@ class Resolver(object):
                         response = None
                         continue
                     rcode = response.rcode()
-                    if rcode == rcode.YXDOMAIN:
+                    if rcode == mrcode.YXDOMAIN:
                         raise YXDOMAIN
-                    if rcode == rcode.NOERROR or \
-                           rcode == rcode.NXDOMAIN:
+                    if rcode == mrcode.NOERROR or \
+                           rcode == mrcode.NXDOMAIN:
                         break
                     #
                     # We got a response, but we're not happy with the
                     # rcode in it.  Remove the server from the mix if
                     # the rcode isn't SERVFAIL.
                     #
-                    if rcode != rcode.SERVFAIL or not self.retry_servfail:
+                    if rcode != mrcode.SERVFAIL or not self.retry_servfail:
                         nameservers.remove(nameserver)
                     response = None
                 if not response is None:
@@ -903,7 +905,7 @@ class Resolver(object):
                     sleep_time = min(timeout, backoff)
                     backoff *= 2
                     time.sleep(sleep_time)
-            if response.rcode() == rcode.NXDOMAIN:
+            if response.rcode() == mrcode.NXDOMAIN:
                 continue
             all_nxdomain = False
             break

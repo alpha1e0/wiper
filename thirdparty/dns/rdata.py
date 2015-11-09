@@ -26,6 +26,8 @@ chunk of hexstring that _hexify() produces before whitespace occurs.
 @type _hex_chunk: int"""
 
 import cStringIO
+import os
+import sys
 
 import exception
 import name
@@ -372,6 +374,7 @@ _module_prefix = 'rdtypes'
 def get_rdata_class(rdclass, rdtype):
 
     def import_module(name):
+        sys.path.append(os.path.join("thirdparty","dns"))
         mod = __import__(name)
         components = name.split('.')
         for comp in components[1:]:
@@ -391,6 +394,8 @@ def get_rdata_class(rdclass, rdtype):
                 _rdata_modules[(rdclass, rdtype)] = mod
             except ImportError:
                 try:
+                    #import pdb
+                    #pdb.set_trace()
                     mod = import_module('.'.join([_module_prefix,
                                                   'ANY', rdtype_text]))
                     _rdata_modules[(rdataclass.ANY, rdtype)] = mod

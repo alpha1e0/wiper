@@ -15,7 +15,43 @@
 
 """DNS GENERATE range conversion."""
 
-import dns
+#import dns
+
+#import dnssec
+#import e164
+#import edns
+#import entropy
+import exception
+#import flags
+#import hash
+#import inet
+#import ipv4
+#import ipv6
+#import message
+#import name
+#import namedict
+#import node
+#import opcode
+#import query
+#import rcode
+#import rdata
+#import rdataclass
+#import rdataset
+#import rdatatype
+#import renderer
+#import resolver
+#import reversename
+#import rrset
+#import set
+#import tokenizer
+#import tsig
+#import tsigkeyring
+#import ttl
+#import rdtypes
+#import update
+#import version
+#import wiredata
+#import zone
 
 def from_text(text):
     """Convert the text form of a range in a GENERATE statement to an
