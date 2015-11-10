@@ -63,7 +63,7 @@ sys.setdefaultencoding("utf-8")
 
 
 #=================================================plugin framework test============================================
-from multiprocessing import Manager
+from multiprocessing import Manager, freeze_support
 import time
 
 import config
@@ -78,9 +78,6 @@ from plugin.zonetrans import ZoneTrans
 
 from model.model import Host
 
-
-config.RTD.log = config.Log()
-config.RTD.taskManager = Manager()
 
 class plu(Plugin):
 	def __init__(self, namestr):
@@ -117,16 +114,22 @@ class end(Plugin):
 #print [x.name for x in p._orList]
 #print "-----------------------------"
 
-host = Host()
-host.url = "thinksns.com"
-#host.url = "xiuren.com"
 
-#p = ZoneTrans() | DataSave(1,1)
-p = DnsBrute(["test.txt"]) | DataSave(1,1)
 
-p.dostart([host])
+if __name__ == '__main__':
+	config.RTD.log = config.Log()
+	config.RTD.taskManager = Manager()
 
-time.sleep(600)
+	host = Host()
+	host.url = "baidu.com"
+	#host.url = "thinksns.com"
+	#host.url = "xiuren.com"
+
+	#p = ZoneTrans() | DataSave(1,1)
+	#p = DnsBrute(["test.txt"]) | DataSave(1,1)
+	p.dostart([host])
+
+	time.sleep(600)
 
 #print config.RTD.taskManager.inQueue
 #print config.RTD.taskManager.outQueue

@@ -774,8 +774,8 @@ class Resolver(object):
         raise_on_no_answer is True.
         @raises NoNameservers: no non-broken nameservers are available to
         answer the question."""
-        import pdb
-        pdb.set_trace()
+        #import pdb
+        #pdb.set_trace()
         if isinstance(qname, (str, unicode)):
             qname = name.from_text(qname, None)
         if isinstance(rdtype, (str, unicode)):

@@ -8,6 +8,7 @@ See the file COPYING for copying detail
 '''
 
 import os
+import time
 
 from thirdparty.dns import resolver, reversename, query
 from thirdparty.dns.exception import DNSException
@@ -161,7 +162,7 @@ class DnsResolver(object):
 		for t in types:
 			records += self.getRecords(t, domainToResolve)
 
-		records += self.getZoneRecords()
+		records += self.getZoneRecords(domainToResolve)
 
 		return records
 
