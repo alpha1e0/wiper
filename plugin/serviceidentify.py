@@ -35,19 +35,26 @@ class ServiceIdentify(Plugin):
 		self.titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
 
 
-	def handel(self, data):
+	def handle(self, data):
 		if not isinstance(data, Host):
 			self.put(data)
 		else:
-			hostStr = data.url if data.url else data.ip
-			portStr = ",".join(self.portList)
+			try:
+				hostStr = data.url
+			except AttributeError:
+				try:
+					hostStr = data.ip
+				except AttributeError:
+					raise PluginError("ServiceIdentify plugin got an invalid model")
+			portStr = ",".join([str(x) for x in self.portList])
 			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)
+			print result
 
 			for host in result:
-				if self.portDict[host.port]['protocol'] == http:
+				if self.portDict[int(host.port)]['protocol'] == "http":
 					self.HTTPIdentify(host)
-				elif self.portDict[host.port]['protocol'] == https:
+				elif self.portDict[int(host.port)]['protocol'] == "https":
 					self.HTTPIdentify(host, https=True)
 
 				self.put(host)
@@ -78,20 +85,23 @@ class ServiceIdentify(Plugin):
 		except:
 			return
 
-		if not host.title:
-			match = urlPattern.search(response.text)
+		try:
+			host.title
+		except AttributeError:
+			match = self.titlePattern.search(response.text)
 			if match:
 				host.title = match.groups()[0]
+
 		try:
 			server = response.headers['server']
-		except IndexError:
+		except (IndexError, KeyError):
 			pass
 		else:
 			host.server_info = server
 
 		try:
 			middleware = response.headers['x-powered-by']
-		except IndexError:
+		except (IndexError, KeyError):
 			pass
 		else:
 			host.middleware = middleware

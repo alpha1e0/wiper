@@ -123,14 +123,15 @@ if __name__ == '__main__':
 	host = Host()
 	#host.url = "baidu.com"
 	#host.url = "thinksns.com"
-	#host.ip = "61.164.118.174"
-	host.ip = "61.164.118.4"
+	host.ip = "61.164.118.174"
+	#host.ip = "61.164.118.4"
 	#host.url = "xiuren.com"
 
 	#p = ZoneTrans() | DataSave(1,1)
 	#p = DnsBrute(["test.txt"]) | DataSave(1,1)
 	#p = GoogleHacking() | DataSave(1,1)
 	p = SubnetScan() | DataSave(1,1)
+	#p = ServiceIdentify() | DataSave(1,1)
 	p.dostart([host])
 
 	time.sleep(600)

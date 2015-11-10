@@ -45,17 +45,13 @@ class Nmap(object):
 				result.append(Host(**{'ip':ip}))
 				continue
 			else:
-				#findAlivePort = False
 				for port in ports:
 					if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
 						continue
-					#findAlivePort = True
 					hostDict = dict()
 					hostDict['ip'] = ip
 					hostDict['port'] = port['portid']
 					hostDict['protocol'] = port.service['name']
 					result.append(Host(**hostDict))
-#				if not findAlivePort:
-#					result.append(Host(**{'ip':ip}))
 
 		return result

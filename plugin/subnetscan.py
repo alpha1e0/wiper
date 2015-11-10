@@ -35,7 +35,7 @@ class SubnetScan(Plugin):
 		else:
 			hostStr = data.ip + "/24"
 			portStr = ",".join([str(x) for x in self.portList])
-			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
+			cmd = "nmap -n -PS{ports} -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)
 
 			for host in result:
