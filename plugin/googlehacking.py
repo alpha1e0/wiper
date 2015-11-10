@@ -26,7 +26,7 @@ class GoogleHacking(Plugin):
 			domain = data.url[4:] if data.url.startswith("www.") else data.url
 			query = Query(site=domain) | -Query(site="www."+domain)
 			result = query.doSearch(engine="baidu", size=self.size)
-			result += query.doSearch(engine="baidu", size=self.size)
+			result += query.doSearch(engine="bing", size=self.size)
 
 			urlSet = set()
 			for i,key in enumerate(result):

@@ -738,7 +738,6 @@ class Resolver(object):
         duration = now - start
         if duration >= self.lifetime:
             raise Timeout
-            #debug>>>>>>>>>>>>>>>>>>>>>>>>>
         return min(self.lifetime - duration, self.timeout)
 
     def query(self, qname, rdtype=rdatatype.A, rdclass=rdataclass.IN,

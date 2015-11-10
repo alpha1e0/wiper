@@ -29,12 +29,12 @@ class SubnetScan(Plugin):
 		self.portList = [key for key in self.portDict]
 
 
-	def handel(self, data):
+	def handle(self, data):
 		if not isinstance(data, Host):
 			self.put(data)
 		else:
 			hostStr = data.ip + "/24"
-			portStr = ",".join(self.portList)
+			portStr = ",".join([str(x) for x in self.portList])
 			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)
 
