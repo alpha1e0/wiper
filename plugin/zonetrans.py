@@ -17,6 +17,8 @@ class ZoneTrans(Plugin):
 	'''
 	Find and use DNS zone transfer vulnerability.
 	'''
+	def __init__(self, log=True):
+		super(ZoneTrans, self).__init__(log=log)
 
 	def handle(self, data):
 		if not isinstance(data, Host):

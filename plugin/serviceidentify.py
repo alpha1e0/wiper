@@ -20,8 +20,8 @@ from config import CONF
 
 
 class ServiceIdentify(Plugin):
-	def __init__(self):
-		super(ServiceIdentify, self).__init__()
+	def __init__(self,log=True):
+		super(ServiceIdentify, self).__init__(log=log)
 
 		try:
 			with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
@@ -50,7 +50,6 @@ class ServiceIdentify(Plugin):
 			portStr = ",".join([str(x) for x in self.portList])
 			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)
-			print "debug>>>>>>>>>>result",result
 
 			for host in result:
 				try:
@@ -60,7 +59,6 @@ class ServiceIdentify(Plugin):
 					host.level = data.level
 				except AttributeError:
 					pass
-				print "debug>>>>>>>>>>>port",host.port
 				host.protocol = self.portDict[int(host.port)]['protocol']
 				if host.protocol == "http":
 					self.HTTPIdentify(host)

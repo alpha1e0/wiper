@@ -31,6 +31,10 @@ class PluginExit(Exception):
 class Plugin(Process):
 	'''
 	The base class of plugin.
+	Input:
+		timeout: the timeout of getting model data from queue
+		unique: whether to find the dumplicate model data
+		log: whether to record log
 	Usage:
 		class XXXPlugin(Plugin):
 			def handle(self, data):
@@ -40,7 +44,7 @@ class Plugin(Process):
 		plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSave(mod="database") whill return a pluginObject
 		plugin.dostart(startData)		
 	'''
-	def __init__(self, timeout=2, unique=True):
+	def __init__(self, timeout=1, unique=True, log=True):
 		Process.__init__(self)
 
 		self.timeout = timeout
@@ -56,6 +60,11 @@ class Plugin(Process):
 		self.orAppend(self)
 
 		self._dataSet = list()
+
+		if log:
+			self.log = RTD.plog
+		else:
+			self.log = None
 
 
 	def addAppend(self, pluginObj):
@@ -135,6 +144,8 @@ class Plugin(Process):
 		if not gotData:
 			raise QueueEmpty()
 		else:
+			if self.log:
+				self.log.info("plugin '{0}' got model {1}".format(self.__class__.__name__, data))
 			return data
 
 
@@ -142,6 +153,8 @@ class Plugin(Process):
 		'''
 		Put data to output queue.
 		'''
+		if self.log:
+			self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
 		for queue in self._outs:
 			queue.insert(0,data)
 
@@ -175,29 +188,28 @@ class Plugin(Process):
 		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quits, then break to quit
 		'''
-		print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
+		#print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
+		if self.log:
+			self.log.info("plugin {0} start, ins:{1}, outs:{2}".format(self.name, self._ins, self._outs))
 
 		while True:
 			try:
 				data = self.get()
-				print "debug:", "plugin ", self.name, "getting", data
 			except QueueEmpty:
 				continue
 			except IOError:
-				print "debug:", "plugin ", self.name, " IOError"
 				break
 			except EOFError:
-				print "debug:", "plugin ", self.name, " EOFError"
 				break
 			except PluginExit:
-				print "debug:", "plugin ", self.name, " doexit"
 				self.quit()
+				if self.log:
+					self.log.info("plugin {0} quit".format(self.name))
 				break
 			else:
 				self.handle(data)
 			finally:
 				time.sleep(self.timeout)
-		print "debug:", self.name, "quit"
 
 
 	def handle(self, data):

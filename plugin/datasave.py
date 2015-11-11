@@ -13,8 +13,8 @@ from model.model import Project, Host, Vul, Comment
 
 
 class DataSave(Plugin):
-	def __init__(self, projectid=None, hostid=None):
-		super(DataSave, self).__init__(timeout=1)
+	def __init__(self, projectid=None, hostid=None, log=True):
+		super(DataSave, self).__init__(timeout=1, log=log)
 		self.projectid = projectid
 		self.hostid = hostid
 
@@ -28,5 +28,3 @@ class DataSave(Plugin):
 		elif isinstance(data, Project):
 			data.save()
 			pass
-
-		print data

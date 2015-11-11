@@ -133,10 +133,10 @@ if __name__ == '__main__':
 	#p = GoogleHacking() | DataSave(1,1)
 	#p = SubnetScan() | DataSave(1,1)
 	#p = ServiceIdentify() | DataSave(1,1)
-	google = GoogleHacking()
+	#google = GoogleHacking()
 	dns = DnsBrute(["test"])
-	zone = ZoneTrans()
-	sub = SubnetScan()
+	#zone = ZoneTrans()
+	#sub = SubnetScan()
 	serv = ServiceIdentify()
 	data = DataSave(1,1)
 	#p = (zone) | serv | data
@@ -146,11 +146,5 @@ if __name__ == '__main__':
 
 	time.sleep(600)
 
-#print config.RTD.taskManager.inQueue
-#print config.RTD.taskManager.outQueue
-#print aa.inQueue
-#print aa.outQueue
-#print zz.inQueue
-#print zz.outQueue
 
 

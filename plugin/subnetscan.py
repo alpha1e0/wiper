@@ -17,15 +17,14 @@ from model.model import Host
 
 
 class SubnetScan(Plugin):
-	def __init__(self):
-		super(SubnetScan, self).__init__()
+	def __init__(self, log=True):
+		super(SubnetScan, self).__init__(log=log)
 
 		try:
 			with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
 				self.portDict = yaml.load(fd)
 		except IOError:
 			raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
-
 		self.portList = [key for key in self.portDict]
 
 

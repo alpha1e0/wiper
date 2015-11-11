@@ -44,8 +44,8 @@ class Log(object):
     '''
     critical, error, warning, info, debug, notset
     '''
-    def __new__(cls, logfile=None):
-        if not logfile:
+    def __new__(cls, logname=None):
+        if not logname:
             log = logging.getLogger('wiper')
             log.setLevel(logging.DEBUG)
 
@@ -66,11 +66,14 @@ class Log(object):
             log.addHandler(streamHD)
             log.addHandler(fileHD)
         else:
-            fileName = os.path.join('log', '{0}.log'.format(logfile))
+            log = logging.getLogger(logname)
+            log.setLevel(logging.DEBUG)
+
+            fileName = os.path.join('log', '{0}.log'.format(logname))
             if not os.path.exists(fileName):
                 with open(fileName,"w") as fd:
-                    fd.write("log start----------------\r\n")
-            fileHD = logging.FileHandler(fineName)
+                    fd.write("{0} log start----------------\r\n".format(logname))
+            fileHD = logging.FileHandler(fileName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             fileHD.setFormatter(formatter)
@@ -120,6 +123,7 @@ class Config(Dict):
 class RuntimeData(Dict):
     def __init__(self, **kwargs):
         self.log = Log()
+        self.plog = Log("plugin")
 
         super(RuntimeData, self).__init__(**kwargs)
 
@@ -127,6 +131,5 @@ class RuntimeData(Dict):
 CONF = Config()
 #global var rtd, record the run time datas
 RTD = RuntimeData()
-#for debug
-#RTD.log = Log()
+
 
