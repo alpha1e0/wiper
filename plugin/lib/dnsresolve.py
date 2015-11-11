@@ -42,7 +42,7 @@ class DnsResolver(object):
 		try:
 			response = self.resolver.query(domainToResolve, "A")
 		except DNSException:
-			return []
+			return None
 		else:
 			return response[0].to_text()
 			#return [x.to_text for x in response]
@@ -68,8 +68,6 @@ class DnsResolver(object):
 		try:
 			response = self.resolver.query(domainToResolve, rtype)
 		except DNSException:
-			return []
-		except resolver.NoAnswer:
 			return []
 
 		if not response:

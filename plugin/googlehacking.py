@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 import re
 
-from plugin.lib.plugin import Plugin
+from plugin.lib.plugin import Plugin, PluginError
 from plugin.lib.searchengine import Query
 from model.model import Host
 
@@ -23,7 +23,10 @@ class GoogleHacking(Plugin):
 		if not isinstance(data, Host):
 			self.put(data)
 		else:
-			domain = data.url[4:] if data.url.startswith("www.") else data.url
+			try:
+				domain = data.url[4:] if data.url.startswith("www.") else data.url
+			except AttributeError:
+				raise PluginError("GoogleHacking plugin got an invalid model")
 			query = Query(site=domain) | -Query(site="www."+domain)
 			result = query.doSearch(engine="baidu", size=self.size)
 			result += query.doSearch(engine="bing", size=self.size)

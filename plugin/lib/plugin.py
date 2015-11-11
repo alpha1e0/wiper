@@ -175,7 +175,7 @@ class Plugin(Process):
 		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quits, then break to quit
 		'''
-		print "debug:", "plugin ", self.name, " start", "ins: ", [str(x) for x in self._ins], "outs: ", [str(x) for x in self._outs]
+		print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
 
 		while True:
 			try:

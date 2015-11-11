@@ -1,6 +1,6 @@
 21: 
   desp: "ftp server"
-  protoclo: ftp
+  protocol: ftp
 22: 
   desp: "ssh server"
   protocol: ssh

@@ -117,21 +117,31 @@ class end(Plugin):
 
 
 if __name__ == '__main__':
-	config.RTD.log = config.Log()
+	#config.RTD.log = config.Log()
 	config.RTD.taskManager = Manager()
+
 
 	host = Host()
 	#host.url = "baidu.com"
-	#host.url = "thinksns.com"
-	host.ip = "61.164.118.174"
+	host.url = "thinksns.com"
+	#host.ip = "61.164.118.174"
 	#host.ip = "61.164.118.4"
 	#host.url = "xiuren.com"
 
 	#p = ZoneTrans() | DataSave(1,1)
 	#p = DnsBrute(["test.txt"]) | DataSave(1,1)
 	#p = GoogleHacking() | DataSave(1,1)
-	p = SubnetScan() | DataSave(1,1)
+	#p = SubnetScan() | DataSave(1,1)
 	#p = ServiceIdentify() | DataSave(1,1)
+	google = GoogleHacking()
+	dns = DnsBrute(["test"])
+	zone = ZoneTrans()
+	sub = SubnetScan()
+	serv = ServiceIdentify()
+	data = DataSave(1,1)
+	#p = (zone) | serv | data
+	p = dns | serv | data
+	#p = (GoogleHacking() + DnsBrute(["test"]) + ZoneTrans() + SubnetScan()) | ServiceIdentify() | DataSave(1,1)
 	p.dostart([host])
 
 	time.sleep(600)

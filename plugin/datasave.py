@@ -21,13 +21,12 @@ class DataSave(Plugin):
 	def handle(self, data):
 		if isinstance(data, Host):
 			data.project_id = self.projectid
-			#data.save()
+			data.save()
 		elif isinstance(data, Vul) or isinstance(data, Comment):
 			data.host_id = self.hostid
-			#data.save()
+			data.save()
 		elif isinstance(data, Project):
-			#data.save()
+			data.save()
 			pass
 
 		print data
-		#data.save()

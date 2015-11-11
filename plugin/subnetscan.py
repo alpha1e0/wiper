@@ -33,7 +33,10 @@ class SubnetScan(Plugin):
 		if not isinstance(data, Host):
 			self.put(data)
 		else:
-			hostStr = data.ip + "/24"
+			try:
+				hostStr = data.ip + "/24"
+			except AttributeError:
+				raise PluginError("SubnetScan plugin got an invalid model")
 			portStr = ",".join([str(x) for x in self.portList])
 			cmd = "nmap -n -PS{ports} -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)

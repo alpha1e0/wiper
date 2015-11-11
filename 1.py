@@ -10,7 +10,8 @@ dns = DnsResolver()
 
 #types = ["A", "CNAME", "NS", "MX", "SOA", "TXT"]
 #response = dns.getRecords("ns","baidu.com")
-response = dns.resolveAll("baidu.com")
+#response = dns.resolveAll("baidu.com")
+response = dns.domain2IP("baidu.com")
 
 
 print response

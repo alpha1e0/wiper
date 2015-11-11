@@ -117,9 +117,16 @@ class Config(Dict):
             raise WIPError("write configure file '{0}' error".format(confFile))
 
 
+class RuntimeData(Dict):
+    def __init__(self, **kwargs):
+        self.log = Log()
+
+        super(RuntimeData, self).__init__(**kwargs)
+
+
 CONF = Config()
 #global var rtd, record the run time datas
-RTD = Dict()
+RTD = RuntimeData()
 #for debug
 #RTD.log = Log()
 

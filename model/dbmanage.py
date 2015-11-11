@@ -62,7 +62,7 @@ class DBManage(object):
                 break
 
         if not success:
-            RTD.log.error("DBError, cannot connect to the database, reason:{0}".format(str(error)))
+            #RTD.log.error("DBError, cannot connect to the database, reason:{0}".format(str(error)))
             raise DBError("cannot connect to the server.")
         
         self.__con.row_factory = mdb.Row
@@ -85,7 +85,7 @@ class DBManage(object):
                 self.__cur.execute(sqlcmd)
                 self.__con.commit()
             except mdb.Error as error:
-                RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                #RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
         
         return True
@@ -106,7 +106,7 @@ class DBManage(object):
                 self.__cur.execute(sqlcmd)
                 self.__con.commit()
             except mdb.Error as error:
-                RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
+                #RTD.log.error("DBError, sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
                 raise DBError("sql command '{0}' executing error, '{1}'".format(sqlcmd, error))
 
         #return a list of dict, likes [{'age': 42, 'name': u'John'}, {'age': 43, 'name': u'Alice'}]

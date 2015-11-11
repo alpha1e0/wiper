@@ -79,7 +79,7 @@ class Host(Model):
 	def create(cls):
 		sqlCmd = ("create table if not exists host ("
 		    "id integer primary key autoincrement,"
-		    "title varchar(200) not null,"
+		    "title varchar(200),"
 		    "url varchar(100),"
 		    "ip varchar(50),"
 		    "port integer,"

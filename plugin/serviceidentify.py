@@ -30,8 +30,9 @@ class ServiceIdentify(Plugin):
 			raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
 
 		self.portList = [key for key in self.portDict]
-		self.httpTimeout = CONF.http.timeout
 
+		requests.packages.urllib3.disable_warnings()
+		self.httpTimeout = CONF.http.timeout
 		self.titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
 
 
@@ -49,12 +50,21 @@ class ServiceIdentify(Plugin):
 			portStr = ",".join([str(x) for x in self.portList])
 			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
 			result = Nmap.scan(cmd)
-			print result
+			print "debug>>>>>>>>>>result",result
 
 			for host in result:
-				if self.portDict[int(host.port)]['protocol'] == "http":
+				try:
+					host.url = data.url
+					host.description = data.description
+					host.title = data.title
+					host.level = data.level
+				except AttributeError:
+					pass
+				print "debug>>>>>>>>>>>port",host.port
+				host.protocol = self.portDict[int(host.port)]['protocol']
+				if host.protocol == "http":
 					self.HTTPIdentify(host)
-				elif self.portDict[int(host.port)]['protocol'] == "https":
+				elif host.protocol == "https":
 					self.HTTPIdentify(host, https=True)
 
 				self.put(host)
@@ -91,6 +101,8 @@ class ServiceIdentify(Plugin):
 			match = self.titlePattern.search(response.text)
 			if match:
 				host.title = match.groups()[0]
+			else:
+				host.title = "title not found"
 
 		try:
 			server = response.headers['server']
