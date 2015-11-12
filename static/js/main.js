@@ -113,7 +113,6 @@ var current = new Current();
 var LEVELLIST = ["undefined","关键","重要","一般","提示"];
 var LEVELCLASSLIST = ["list-group-item-info","list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"];
 var VULTYPELIST = ["undefined","溢出漏洞","注入漏洞","XSS","CSRF","路径遍历","上传","逻辑漏洞","弱口令","信息泄露","配置错误","认证/会话管理","点击劫持","跨域漏洞","其他"];
-var PROTOCOLLIST = ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"];
 
 $(document).ready(function() {
     listProject();
@@ -330,11 +329,11 @@ function clearHostListColumn(){
 function renderHostDetailColumn(data){
 	if(!data) return;
 	//type:protocol type ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"]
-	function genRow(name, value, type=0){
-		if(type==0){
+	function genRow(name, value, protocol=null, port=null){
+		if(protocol==null){
 			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
 		} else {			
-			var uri = PROTOCOLLIST[type]+"://"+value;
+			var uri = protocol + "://" + value + ":" + port;
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
 			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
 		}
@@ -344,8 +343,8 @@ function renderHostDetailColumn(data){
 	clearHostDetailColumn();
 	var listGroup = $("<div></div").attr("id","wip-host-detail-list").addClass("content-list");
 	listGroup.append(genRow("Title", data.title));
-	listGroup.append(genRow("URL地址", data.url, data.protocol));
-	listGroup.append(genRow("IP地址", data.ip, data.protocol));
+	listGroup.append(genRow("URL地址", data.url, data.protocol, data.port));
+	listGroup.append(genRow("IP地址", data.ip, data.protocol, data.port));
 	listGroup.append(genRow("等级", LEVELLIST[data.level]));
 	listGroup.append(genRow("OS信息", data.os));
 	listGroup.append(genRow("Server信息", data.server_info));

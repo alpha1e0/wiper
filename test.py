@@ -137,10 +137,11 @@ if __name__ == '__main__':
 	dns = DnsBrute(["test"])
 	#zone = ZoneTrans()
 	#sub = SubnetScan()
-	serv = ServiceIdentify()
-	data = DataSave(1,1)
-	#p = (zone) | serv | data
-	p = dns | serv | data
+	#serv = ServiceIdentify()
+	#data = DataSave(1,1)
+	p = dns
+	#p = (zone + google
+	#p = (dns + ) | serv | data
 	#p = (GoogleHacking() + DnsBrute(["test"]) + ZoneTrans() + SubnetScan()) | ServiceIdentify() | DataSave(1,1)
 	p.dostart([host])
 

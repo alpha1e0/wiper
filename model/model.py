@@ -56,7 +56,7 @@ class Host(Model):
 	ip = IPField(ddl="varchar(50)")
 	port = IntegerField(ddl="integer",vrange="1-65535")
 	protocol = StringField(notnull=True,ddl="varchar(30)",vrange="1-30")
-	level = IntegerField(notnul=True,ddl="integer",vrange="1-4")
+	level = IntegerField(notnul=True,ddl="integer",vrange="1-4",default=3)
 	os = StringField(ddl="varchar(150)",vrange="0-150")
 	server_info = StringField(ddl="varchar(150)",vrange="0-150")
 	middleware = StringField(ddl="varchar(200)",vrange="0-200")
@@ -84,7 +84,7 @@ class Host(Model):
 		    "ip varchar(50),"
 		    "port integer,"
 		    "protocol varchar(30) not null,"
-		    "level integer,"
+		    "level integer not null default 3,"
 		    "os varchar(150),"
 		    "server_info varchar(150),"
 		    "middleware varchar(200),"

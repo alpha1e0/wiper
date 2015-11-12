@@ -31,3 +31,6 @@
 4848:
   desp: "glassfish console"
   protocol: http
+6379:
+  desp: "redis"
+  protocol: radis

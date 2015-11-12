@@ -12,6 +12,7 @@ import re
 
 from thirdparty import yaml
 from thirdparty import requests
+from thirdparty.BeautifulSoup import BeautifulSoup
 
 from plugin.lib.plugin import Plugin, PluginError
 from plugin.lib.nmapwrapper import Nmap
@@ -67,6 +68,24 @@ class ServiceIdentify(Plugin):
 
 				self.put(host)
 
+	def getTitle(html):
+		charset = None
+		charsetPos = html[0:500].lower().find("charset")
+		if charsetPos != -1:
+			charsetSlice = html[charsetPos:charsetPos+18]
+			charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
+			for key,value in charsetList:
+				if key in charsetSlice:
+					charset = value
+					break
+		if not charset:
+			charset = "utf-8"
+
+		decodedHtml = html.decode(charset)
+		match = self.titlePattern.search(decodedHtml)
+
+		return match.groups()[0] if match else "title not found"
+
 
 	def HTTPIdentify(self, host, https=False):
 		try:
@@ -79,13 +98,9 @@ class ServiceIdentify(Plugin):
 		try:
 			port = host.port
 		except AttributeError:
-			if https:
-				port = 443
-			else:
-				port = 80
+			port = 443 if https else 80
 
 		method = "https://" if https else "http://"
-
 		url = method + url.strip("/") + ":" + str(port)
 
 		try:
@@ -96,11 +111,7 @@ class ServiceIdentify(Plugin):
 		try:
 			host.title
 		except AttributeError:
-			match = self.titlePattern.search(response.text)
-			if match:
-				host.title = match.groups()[0]
-			else:
-				host.title = "title not found"
+			host.title = getTitle(response.content)
 
 		try:
 			server = response.headers['server']
