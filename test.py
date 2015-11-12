@@ -124,7 +124,7 @@ if __name__ == '__main__':
 	host = Host()
 	#host.url = "baidu.com"
 	host.url = "thinksns.com"
-	#host.ip = "61.164.118.174"
+	host.ip = "61.164.118.174"
 	#host.ip = "61.164.118.4"
 	#host.url = "xiuren.com"
 
@@ -133,19 +133,21 @@ if __name__ == '__main__':
 	#p = GoogleHacking() | DataSave(1,1)
 	#p = SubnetScan() | DataSave(1,1)
 	#p = ServiceIdentify() | DataSave(1,1)
-	#google = GoogleHacking()
+	google = GoogleHacking()
 	dns = DnsBrute(["test"])
-	#zone = ZoneTrans()
-	#sub = SubnetScan()
-	#serv = ServiceIdentify()
-	#data = DataSave(1,1)
-	p = dns
+	zone = ZoneTrans()
+	sub = SubnetScan()
+	serv = ServiceIdentify()
+	data = DataSave(1,1)
+	#p = dns
 	#p = (zone + google
-	#p = (dns + ) | serv | data
+	p = (dns + google + zone) | serv | data
+	print p._addList
+	print p._orList
 	#p = (GoogleHacking() + DnsBrute(["test"]) + ZoneTrans() + SubnetScan()) | ServiceIdentify() | DataSave(1,1)
 	p.dostart([host])
 
-	time.sleep(600)
+	time.sleep(6000)
 
 
 

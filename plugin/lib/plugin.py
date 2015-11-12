@@ -188,13 +188,14 @@ class Plugin(Process):
 		Start process, the subclass must rewrite this function or 'handle' function
 		when all the father processes quits, then break to quit
 		'''
-		#print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
+		print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
 		if self.log:
 			self.log.info("plugin {0} start, ins:{1}, outs:{2}".format(self.name, self._ins, self._outs))
 
 		while True:
 			try:
 				data = self.get()
+				print "debug:", "plugin ", self.name, "getting", "ins<<<<<<<<", [x for x in self._ins]
 			except QueueEmpty:
 				continue
 			except IOError:
@@ -203,10 +204,12 @@ class Plugin(Process):
 				break
 			except PluginExit:
 				self.quit()
+				print "debug:", "plugin ", self.name, "quit"
 				if self.log:
 					self.log.info("plugin {0} quit".format(self.name))
 				break
 			else:
+				print "debug:", "plugin ", self.name, "got", data
 				self.handle(data)
 			finally:
 				time.sleep(self.timeout)
