@@ -10,6 +10,7 @@ See the file COPYING for copying detail
 from config import RTD
 from plugin.lib.plugin import Plugin
 from model.model import Project, Host, Vul, Comment
+from model.dbmanage import DBError
 
 
 class DataSave(Plugin):
@@ -19,12 +20,15 @@ class DataSave(Plugin):
 		self.hostid = hostid
 
 	def handle(self, data):
-		if isinstance(data, Host):
-			data.project_id = self.projectid
-			data.save()
-		elif isinstance(data, Vul) or isinstance(data, Comment):
-			data.host_id = self.hostid
-			data.save()
-		elif isinstance(data, Project):
-			data.save()
-			pass
+		try:
+			if isinstance(data, Host):
+				data.project_id = self.projectid
+				data.save()
+			elif isinstance(data, Vul) or isinstance(data, Comment):
+				data.host_id = self.hostid
+				data.save()
+			elif isinstance(data, Project):
+				data.save()
+		except DBError as error:
+			if self.log:
+				self.log.error("save model error"+str(error))

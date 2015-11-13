@@ -308,7 +308,15 @@ function renderHostListColumn(data){
 	if(!data) return;
 	function genRow(host){
 		var b = $("<b></b>").text(host.ip+" | ");
-		var i = $("<i></i>").text(host.url);
+		if (host.protocol=="http" || host.protocol=="https") {
+			if (host.url!=null) {
+				var i = $("<i></i>").text(host.url);
+			} else {
+				var i = $("<i></i>").text(host.protocol);
+			}		
+		} else {
+			var i = $("<i></i>").text(host.protocol)
+		}
 		var item = $("<a></a>").addClass("list-group-item").attr("id","wip-host-id-"+host.id).attr("href","#").append(b,i);
 		item.click(clickHost);
 		item.addClass(LEVELCLASSLIST[host.level]);
@@ -327,10 +335,10 @@ function clearHostListColumn(){
 }
 
 function renderHostDetailColumn(data){
-	if(!data) return;
+	if (!data) return;
 	//type:protocol type ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"]
 	function genRow(name, value, protocol=null, port=null){
-		if(protocol==null){
+		if (protocol==null) {
 			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
 		} else {			
 			var uri = protocol + "://" + value + ":" + port;
@@ -343,8 +351,14 @@ function renderHostDetailColumn(data){
 	clearHostDetailColumn();
 	var listGroup = $("<div></div").attr("id","wip-host-detail-list").addClass("content-list");
 	listGroup.append(genRow("Title", data.title));
-	listGroup.append(genRow("URL地址", data.url, data.protocol, data.port));
-	listGroup.append(genRow("IP地址", data.ip, data.protocol, data.port));
+	if(data.protocol=="http" || data.protocol=="https") {
+		listGroup.append(genRow("URL地址", data.url, data.protocol, data.port));
+		listGroup.append(genRow("IP地址", data.ip, data.protocol, data.port));
+	} else {
+		listGroup.append(genRow("IP地址", data.ip, data.protocol, data.port));
+		listGroup.append(genRow("端口", data.port));
+		listGroup.append(genRow("协议", data.protocol));
+	}
 	listGroup.append(genRow("等级", LEVELLIST[data.level]));
 	listGroup.append(genRow("OS信息", data.os));
 	listGroup.append(genRow("Server信息", data.server_info));

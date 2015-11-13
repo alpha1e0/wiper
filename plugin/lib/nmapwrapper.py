@@ -48,10 +48,6 @@ class Nmap(object):
 				for port in ports:
 					if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
 						continue
-					hostDict = dict()
-					hostDict['ip'] = ip
-					hostDict['port'] = port['portid']
-					hostDict['protocol'] = port.service['name']
-					result.append(Host(**hostDict))
+					result.append(Host(ip=ip,port=port['portid'],protocol=port.service['name']))
 
 		return result

@@ -19,8 +19,13 @@ from lib import formatParam, ParamError, handleException, jsonSuccess, jsonFail
 from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
-from plugin.dnsbrute import DnsBrute
 from config import RTD, CONF, WIPError
+from plugin.datasave import DataSave
+from plugin.dnsbrute import DnsBrute
+from plugin.googlehacking import GoogleHacking
+from plugin.serviceidentify import ServiceIdentify
+from plugin.subnetscan import SubnetScan
+from plugin.zonetrans import ZoneTrans
 
 
 def startServer():
@@ -51,13 +56,28 @@ def startServer():
 		"/gettaskresult","TaskResultList",
 		"/adddict","DictAdd",
 		"/getdictlist","DictListEnum",
-		"/startdnsbrute","DnsbruteTask")
+		"/startdnsbrute","DnsbruteTask",
+		"/test","Test")
 
 	app = web.application(urls, globals())
 	app.run()
 
 	
+class Test:
+	def GET(self):
+		host = Host()
+		host.url = "thinksns.com"
+		host.ip = "61.164.118.174"
 
+		google = GoogleHacking()
+		dns = DnsBrute(["test"])
+		zone = ZoneTrans()
+		sub = SubnetScan()
+		serv = ServiceIdentify()
+		data = DataSave(1,1)
+
+		p = google | serv | data
+		p.dostart([host])
 
 # ================================================index page=========================================
 
@@ -163,7 +183,7 @@ class HostList:
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).getsraw('id','title','url','ip','level')
+		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).getsraw('id','title','url','ip','level','protocol')
 		return json.dumps(result)
 
 

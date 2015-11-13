@@ -123,7 +123,6 @@ class Config(Dict):
 class RuntimeData(Dict):
     def __init__(self, **kwargs):
         self.log = Log()
-        self.plog = Log("plugin")
 
         super(RuntimeData, self).__init__(**kwargs)
 

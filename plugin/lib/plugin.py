@@ -10,7 +10,7 @@ See the file COPYING for copying detail
 import time
 from multiprocessing import Process, managers
 
-from config import RTD, WIPError
+from config import RTD, WIPError, Log
 from model.model import Model
 
 
@@ -61,10 +61,7 @@ class Plugin(Process):
 
 		self._dataSet = list()
 
-		if log:
-			self.log = RTD.plog
-		else:
-			self.log = None
+		self.log = True if log else False
 
 
 	def addAppend(self, pluginObj):
@@ -190,7 +187,10 @@ class Plugin(Process):
 		'''
 		print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
 		if self.log:
+			self.log = Log("plugin")
 			self.log.info("plugin {0} start, ins:{1}, outs:{2}".format(self.name, self._ins, self._outs))
+		else:
+			self.log = False
 
 		while True:
 			try:
