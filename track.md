@@ -14,7 +14,9 @@
 Host中protocol改为字符串类型
 Host中增加port
 
+配置nmap目录
 
+解决“项目详情”页面滚动问题
 
 ---
 
@@ -34,6 +36,10 @@ Host中增加port
 	CMS hacking
 
 2、小工具开发
+	
+	exploit搜索
+
+	whois、ip搜索工具
 
 	编码/解码工具，支持：
 		进制转换
@@ -41,17 +47,18 @@ Host中增加port
 		url编码/base64编码/HTML编解码
 		MD5
 
+	常用链接
+
 3、数据库相关
 
 	支持按project导入、导出（使用pickle或json）
 
 4、安装脚本编写
-	
-	readme、copyright编写
+
 
 5、其他
 	
-
+	readme、copyright编写
 
 
 ## 其他

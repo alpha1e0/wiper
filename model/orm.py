@@ -456,7 +456,7 @@ class Model(Dict):
 			return False
 
 		params = cls._paramFormat(kwargs)
-		setValue = [k+"='"+v+"'" for k,v in params.iteritems()]
+		setValue = [k+"='"+str(v)+"'" for k,v in params.iteritems()]
 		setValue = ",".join(setValue)
 
 		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls.strWhere())
@@ -501,7 +501,8 @@ class Model(Dict):
 			sqlCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
 		else:
 			params = self._paramFormat(self)
-			setValue = [k+"='"+v+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
+			print "debug",params
+			setValue = [k+"='"+str(v)+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
 			setValue = ",".join(setValue)
 			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
 			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)

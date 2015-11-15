@@ -33,7 +33,7 @@ class Plugin(Process):
 	The base class of plugin.
 	Input:
 		timeout: the timeout of getting model data from queue
-		unique: whether to find the dumplicate model data
+		unique: whether to drop the dumplicate model data
 		log: whether to record log
 	Usage:
 		class XXXPlugin(Plugin):
@@ -152,6 +152,7 @@ class Plugin(Process):
 		'''
 		if self.log:
 			self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
+
 		for queue in self._outs:
 			queue.insert(0,data)
 
@@ -195,7 +196,7 @@ class Plugin(Process):
 		while True:
 			try:
 				data = self.get()
-				print "debug:", "plugin ", self.name, "getting", "ins<<<<<<<<", [x for x in self._ins]
+				#print "debug:", "plugin ", self.name, "getting", "ins<<<<<<<<", [str(x) for x in self._ins]
 			except QueueEmpty:
 				continue
 			except IOError:

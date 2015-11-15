@@ -53,35 +53,20 @@ def startServer():
 		"/deletecomment","CommentDelete",
 		"/modifycomment","CommentModify",
 		"/addattachment","AttachmentAdd",
-		"/gettaskresult","TaskResultList",
-		"/adddict","DictAdd",
-		"/getdictlist","DictListEnum",
-		"/startdnsbrute","DnsbruteTask",
-		"/test","Test")
+		"/subdomainscan","SubDomianScan",
+		"/subnetscan","SubNetScan",
+		"/savetmphost","SaveTmpHost",
+		"/deletetmphost","DeleteTmpHost",
+		"/adddict","DictAdd")
+
 
 	app = web.application(urls, globals())
 	app.run()
 
-	
-class Test:
-	def GET(self):
-		host = Host()
-		host.url = "thinksns.com"
-		host.ip = "61.164.118.174"
-
-		google = GoogleHacking()
-		dns = DnsBrute(["test"])
-		zone = ZoneTrans()
-		sub = SubnetScan()
-		serv = ServiceIdentify()
-		data = DataSave(1,1)
-
-		p = google | serv | data
-		p.dostart([host])
 
 # ================================================index page=========================================
 
-class Index:
+class Index(object):
 	def GET(self):
 		render = web.template.render('view')
 		if not CONF.isinstall:
@@ -90,7 +75,7 @@ class Index:
 			return render.index()
 
 
-class Install:
+class Install(object):
 	def GET(self):
 		render = web.template.render('view')
 		if CONF.isinstall:
@@ -133,7 +118,7 @@ class Install:
 
 
 # ================================the operation of project=========================================
-class ProjectList:
+class ProjectList(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -141,7 +126,7 @@ class ProjectList:
 		return json.dumps(result)
 
 
-class ProjectDetail:
+class ProjectDetail(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -149,7 +134,7 @@ class ProjectDetail:
 		return project.toJson()
 
 
-class ProjectAdd:
+class ProjectAdd(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -159,7 +144,7 @@ class ProjectAdd:
 		return jsonSuccess()
 
 
-class ProjectDelete:
+class ProjectDelete(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -168,7 +153,7 @@ class ProjectDelete:
 		return jsonSuccess()
 
 
-class ProjectModify:
+class ProjectModify(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -179,7 +164,7 @@ class ProjectModify:
 
 #=================================the operation of host=========================================
 
-class HostList:
+class HostList(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -187,7 +172,7 @@ class HostList:
 		return json.dumps(result)
 
 
-class HostDetail:
+class HostDetail(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -195,7 +180,7 @@ class HostDetail:
 		return json.dumps(result)
 
 
-class HostAdd:
+class HostAdd(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -204,7 +189,7 @@ class HostAdd:
 		return jsonSuccess()
 
 
-class HostDelete:
+class HostDelete(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -212,7 +197,7 @@ class HostDelete:
 		return jsonSuccess()
 
 
-class HostModify:
+class HostModify(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -223,7 +208,7 @@ class HostModify:
 
 #=================================the operation of vul=========================================
 
-class VulList:
+class VulList(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -231,7 +216,7 @@ class VulList:
 		return json.dumps(result)
 
 
-class VulDetail:
+class VulDetail(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -239,7 +224,7 @@ class VulDetail:
 		return json.dumps(result)
 
 
-class VulAdd:
+class VulAdd(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -248,7 +233,7 @@ class VulAdd:
 		return jsonSuccess()
 
 
-class VulDelete:
+class VulDelete(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -256,7 +241,7 @@ class VulDelete:
 		return jsonSuccess()
 
 
-class VulModify:
+class VulModify(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -267,7 +252,7 @@ class VulModify:
 
 #=================================the operation of comment=========================================
 
-class CommentList:
+class CommentList(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -275,7 +260,7 @@ class CommentList:
 		return json.dumps(result)		
 
 
-class CommentDetail:
+class CommentDetail(object):
 	@handleException
 	def GET(self):
 		params = web.input()
@@ -283,7 +268,7 @@ class CommentDetail:
 		return json.dumps(result)
 
 
-class CommentAdd:
+class CommentAdd(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -292,7 +277,7 @@ class CommentAdd:
 		return jsonSuccess()
 
 
-class CommentDelete:
+class CommentDelete(object):
 	def GET(self):
 		params = web.input()
 
@@ -319,7 +304,7 @@ class CommentDelete:
 		return jsonSuccess()
 
 
-class CommentModify:
+class CommentModify(object):
 	@handleException
 	def POST(self):
 		params = web.input()
@@ -328,7 +313,7 @@ class CommentModify:
 		return jsonSuccess()
 
 
-class AttachmentAdd:
+class AttachmentAdd(object):
 	def POST(self):
 		originParams = web.input(attachment={})
 		originParams["filename"] = originParams.attachment.filename
@@ -385,27 +370,154 @@ class AttachmentAdd:
 		return True
 
 
-#=================================operation of domainseek=========================================
+#=================================operation of autotask=========================================
 
-class TaskResultList:
+class SubDomianScan(object):
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		originParam = web.input()
-		options = (("projectid","integer","0-0"),)
+		result = os.listdir(os.path.join("plugin","wordlist","dnsbrute"))
+		return json.dumps(result)
 
-		with lib.ParamCheck(originParam, options) as (status,param):
-			if not status[0]:
-				raise web.internalerror("Parameter check error, reason: {0}".format(status[1]))
+	def POST(self):
+		web.header('Content-Type', 'application/json')
+		params = web.input()
+		rawParam = web.data()
 
-			sqlCmd = "select id,url,ip,level,source from tmp_host where project_id={0}".format(param.projectid)
-			with SQLQuery(sqlCmd) as (status,result):
-				if not status[0]:
-					raise web.internalerror("Query task result failed, reason: {0}.".format(status[1]))
-				return lib.queryResultToJson(result)
+		try:
+			projectid = int(params.project_id)
+		except AttributeError as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		rawParamList = [x.split("=") for x in rawParam.split("&")]
+		dictList = [x[1] for x in rawParamList if x[0]=="dictlist"]
+
+		task = None
+		if "dnsbrute" in params.keys():
+			task = DnsBrute(dictList)
+		if "googlehacking" in params.keys():
+			task = (task + GoogleHacking()) if task else GoogleHacking()
+		if "zonetrans" in params.keys():
+			task = (task + ZoneTrans()) if task else ZoneTrans()
+
+		task = task | ServiceIdentify() | DataSave(projectid=projectid)
+
+		host = Host(url=params.domain)
+		task.dostart([host])
+		print "debug: host addlist",task._addList
+		print "debug: host orlist",task._orList
+
+		return jsonSuccess()
 
 
-class DictAdd:
+class SubNetScan(object):
+	def getIPList(self, projectid):
+		try:
+			hosts = Host.where(project_id=projectid).getsraw("ip")
+		except (KeyError, AttributeError, FieldError, ModelError, DBError) as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+		
+		result = list()
+		for host in hosts:
+			try:
+				pos = host['ip'].rindex(".")
+				ip = host['ip'][:pos] + ".1"
+			except (KeyError, ValueError):
+				continue
+			for key in result:
+				if ip == key[0]:
+					key[1] += 1
+					break
+			else:
+				result.append([ip,1])
+
+		return result
+
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+		params = web.input()
+
+		try:
+			projectid = int(params.project_id)
+		except AttributeError as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		iplist = self.getIPList(projectid)
+		hosts = Host.where(project_id=projectid, tmp=1).orderby("ip").getsraw('id','title','ip','port','protocol')
+
+		result = {'iplist':iplist, 'hosts':hosts}
+
+		return json.dumps(result)
+
+	def POST(self):
+		web.header('Content-Type', 'application/json')
+		params = web.input()
+		rawParam = web.data()
+
+		try:
+			projectid = int(params.project_id)
+		except AttributeError as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		rawParamList = [x.split("=") for x in rawParam.split("&")]
+		ipList = [x[1] for x in rawParamList if x[0]=="iplist"]
+
+		hosts = [Host(ip=x) for x in ipList]
+		defaultValue = {"tmp":1}
+		task = SubnetScan() | ServiceIdentify(ptype=1) | DataSave(defaultValue=defaultValue,projectid=projectid)
+		task.dostart(hosts)
+
+		return jsonSuccess()
+
+
+
+class SaveTmpHost(object):
+	def GET(self):
+		params = web.input()
+
+		try:
+			hid = str(int(params.id))
+		except AttributeError as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		try:
+			host = Host.get(hid)
+			host.tmp = 0
+			host.save(update=True)
+		except (KeyError, AttributeError, FieldError, ModelError, DBError) as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		return jsonSuccess()
+
+
+class DeleteTmpHost(object):
+	def GET(self):
+		params = web.input()
+
+		try:
+			hid = str(int(params.id))
+		except AttributeError as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		try:
+			Host.delete(hid)
+		except (KeyError, AttributeError, FieldError, ModelError, DBError) as error:
+			RTD.log.error(error)
+			raise web.internalerror(error)
+
+		return jsonSuccess()
+
+
+
+
+class DictAdd(object):
 	def POST(self):
 		originParam = web.input(dictfile={})
 
@@ -422,29 +534,6 @@ class DictAdd:
 			raise web.internalerror('Write dictfile failed!')
 
 
-class DictListEnum:
-	def GET(self):
-		web.header('Content-Type', 'application/json')
-
-		result = os.listdir(os.path.join("plugin","wordlist","dnsbrute"))
-
-		return json.dumps(result)
 
 
-class DnsbruteTask:
-	def POST(self):
-		param = web.data()
-		
-		paramList = [x.split('=') for x in param.split('&')]
-		fileList = [x[1] for x in paramList if x[0]=='dictlist']
-		url = [x[1] for x in paramList if x[0]=='url'][0]
-		projectID = [x[1] for x in paramList if x[0]=='projectid'][0]
-
-		if url and projectID and fileList:
-			dnsbrute = DnsBrute(url,projectID,fileList)
-			dnsbrute.start()
-		else:
-			raise web.internalerror('Dns bruteforce task missing parameter!')
-
-		return True
 

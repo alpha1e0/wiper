@@ -21,7 +21,17 @@ from config import CONF
 
 
 class ServiceIdentify(Plugin):
-	def __init__(self,log=True):
+	'''
+	Service identify plugin.
+	Input:
+		log: whether to log
+		ptype: plugin running type.
+			0: default, recognize service with default portList
+			1: do not scan port, just do http recognize
+			2: scan nmap inner portList
+			3: scan 1-65535 port
+	'''
+	def __init__(self,log=True,ptype=0):
 		super(ServiceIdentify, self).__init__(log=log)
 
 		try:
@@ -29,10 +39,20 @@ class ServiceIdentify(Plugin):
 				self.portDict = yaml.load(fd)
 		except IOError:
 			raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
+			
+		if ptype == 1:
+			self.cmd = ""
+		elif ptype == 2:
+			self.cmd = "nmap -n -Pn -oX - "
+		elif ptype == 3:
+			self.cmd = "nmap -n -Pn -p1-65535 -oX - "
+		else:
+			portList = [key for key in self.portDict]
+			portStr = ",".join([str(x) for x in portList])
+			self.cmd = "nmap -n -Pn -p{ports} -oX - ".format(ports=portStr)
 
-		self.portList = [key for key in self.portDict]
-
-		requests.packages.urllib3.disable_warnings()
+		self.type = ptype
+		#requests.packages.urllib3.disable_warnings()
 		self.httpTimeout = CONF.http.timeout
 		self.titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
 
@@ -48,13 +68,16 @@ class ServiceIdentify(Plugin):
 					hostStr = data.ip
 				except AttributeError:
 					raise PluginError("ServiceIdentify plugin got an invalid model")
-			portStr = ",".join([str(x) for x in self.portList])
-			cmd = "nmap -n -Pn -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
-			result = Nmap.scan(cmd)
+
+			if self.cmd:
+				nmapCmd = self.cmd + hostStr
+				result = Nmap.scan(nmapCmd)
+			else:
+				result = [data]
 
 			for host in result:
 				try:
-					host.title = host.protocol + "service"
+					host.title = host.protocol + "_service"
 				except AttributeError:
 					pass
 				host.protocol = self.portDict[int(host.port)]['protocol']
@@ -74,11 +97,11 @@ class ServiceIdentify(Plugin):
 				self.put(host)
 
 
-	def getTitle(self, html):
+	def getTitle(self, rawContent, text):
 		charset = None
-		charsetPos = html[0:500].lower().find("charset")
+		charsetPos = rawContent[0:500].lower().find("charset")
 		if charsetPos != -1:
-			charsetSlice = html[charsetPos:charsetPos+18]
+			charsetSlice = rawContent[charsetPos:charsetPos+18]
 			charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
 			for key,value in charsetList.iteritems():
 				if key in charsetSlice:
@@ -87,8 +110,11 @@ class ServiceIdentify(Plugin):
 		if not charset:
 			charset = "utf-8"
 
-		decodedHtml = html.decode(charset)
-		match = self.titlePattern.search(decodedHtml)
+		try:
+			decodedHtml = rawContent.decode(charset)
+			match = self.titlePattern.search(decodedHtml)
+		except:
+			match = self.titlePattern.search(text)
 
 		return match.groups()[0] if match else "title not found"
 
@@ -114,11 +140,7 @@ class ServiceIdentify(Plugin):
 		except:
 			return
 
-		try:
-			host.title
-		except AttributeError:
-			host.title = self.getTitle(response.content)
-
+		host.title = self.getTitle(response.content, response.text)
 		try:
 			server = response.headers['server']
 		except (IndexError, KeyError):

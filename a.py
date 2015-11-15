@@ -3,7 +3,7 @@
 import re
 from thirdparty import requests
 
-def getTitle(html):
+def getTitle(html, text):
 	titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
 	charset = None
 	charsetPos = html[0:500].lower().find("charset")
@@ -16,17 +16,21 @@ def getTitle(html):
 				break
 	if not charset:
 		charset = "utf-8"
-	decodedHtml = html.decode(charset)
-	match = titlePattern.search(decodedHtml)
+	try:
+		decodedHtml = html.decode(charset)
+		match = titlePattern.search(decodedHtml)
+	except:
+		match = titlePattern.search(text)
 	return match.groups()[0] if match else "title not found"
 
 #url = "http://d3.thinksns.com/"
-url = "http://www.h3c.com.cn"
+url = "https://121.199.57.104"
 titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")#
 
-response = requests.get(url)
+response = requests.get(url,verify=False)
+print response.text
 
-title = getTitle(response.content)
+title = getTitle(response.content, response.text)
 
 print title
 
