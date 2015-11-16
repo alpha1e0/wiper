@@ -32,6 +32,30 @@ function showDBSetup() {
 	$("#wip-setup-db").show();
 	inactiveAllSetupButton();
 	$("#wip-button-setup-db").parent().addClass("active");
+
+	$.getJSON("/dbsetup", function(result){
+        $.each(result, function(i, value){
+            $("#wip-form-setup-db-select").append($("<option></option").val(value).text(value));
+        });
+        renderTmpHostList(result['hosts']);
+    });
+
+	var options = {
+        type:"post",
+        url:"dbsetup",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+        },
+        success:function(){         
+            alert("提交任务成功!");
+        },
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
+        }
+    };
+    $("#wip-form-setup-db").ajaxForm(options);
 }
 
 function showDictSetup() {

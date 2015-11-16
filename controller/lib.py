@@ -165,7 +165,7 @@ def formatParam(originParam,options):
 					raise ParamError("range option define error '{0}'!".format(option[2]))
 				if l == g == 0:
 					params[option[0]] = str(value)
-				elif value>g or value<1:
+				elif value>g or value<l:
 					raise ParamError("Integer parameter '{0}' out of range!".format(option[0]))
 				params[option[0]] = str(value)
 			else:

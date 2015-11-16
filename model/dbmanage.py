@@ -40,7 +40,7 @@ class DBManage(object):
         self.__cur = None
         self.__retry = retry+1
         self.__dbname = dbname if dbname else CONF.db.name
-        self.__db = os.path.join("data", self.__dbname)
+        self.__db = os.path.join("data", "database", self.__dbname)
 
         self.connect()
 

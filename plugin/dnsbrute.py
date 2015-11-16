@@ -26,7 +26,7 @@ class DnsBrute(Plugin):
 		super(DnsBrute, self).__init__(log=log)
 
 		self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
-		self.dictlist = [os.path.join("plugin","wordlist","dnsbrute",x) for x in dictlist]
+		self.dictlist = [os.path.join("data","wordlist","dnsbrute",x) for x in dictlist]
 
 
 	def checkDomain(self, domain, dnsresolver):
@@ -58,7 +58,7 @@ class DnsBrute(Plugin):
 		if dataDomain.startswith("www."):
 			dataDomain = dataDomain[pos+4:]
 
-		dlist = os.path.join("plugin","wordlist","toplevel.txt")
+		dlist = os.path.join("data","wordlist","toplevel.txt")
 		for line in DictFileEnum(dlist):
 			domain = partDomain + "." + line
 			ip = self.checkDomain(domain, dns)

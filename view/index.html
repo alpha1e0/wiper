@@ -226,13 +226,16 @@
                                         <input type="text" name="domain" class="form-control" id="wip-form-autotask-servicerecognize-domain" placeholder="aaa.com">
                                     </div>
                                     <label class="checkbox-inline">
-                                        <input type="radio" name="type" value="0" checked> 使用内置端口列表
+                                        <input type="radio" name="type" value="0" checked>使用内置端口列表
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="radio" name="type" value="2"> 使用nmap默认列表
+                                        <input type="radio" name="type" value="1" checked>忽略端口扫描
                                     </label>
                                     <label class="checkbox-inline">
-                                        <input type="radio" name="type" value="3"> 扫描1-65535端口
+                                        <input type="radio" name="type" value="2">使用nmap默认端口列表
+                                    </label>
+                                    <label class="checkbox-inline">
+                                        <input type="radio" name="type" value="3">扫描1-65535端口
                                     </label>
                                     <hr class="thin" />
                                     <button type="submit" class="btn btn-success">开始任务</button>
@@ -274,9 +277,7 @@
                                     <div class="form-group has-error">
                                         <label for="wip-form-setup-db-select">数据库列表:</label>
                                         <div>
-                                            <select id="wip-form-setup-db-select" class="form-control" name="protocol" >
-                                                <option value="wiper.db">wiper.db</option>
-                                                <option value="else.db">else.db</option>
+                                            <select id="wip-form-setup-db-select" class="form-control" name="database" >
                                             </select>
                                         </div>
                                     </div>

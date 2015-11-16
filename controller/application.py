@@ -57,7 +57,9 @@ def startServer():
 		"/subnetscan","SubNetScan",
 		"/savetmphost","SaveTmpHost",
 		"/deletetmphost","DeleteTmpHost",
-		"/adddict","DictAdd")
+		"/servicerecognize","ServiceRecognize",
+		"/adddict","DictAdd",
+		"/dbsetup","DBSetup")
 
 
 	app = web.application(urls, globals())
@@ -113,6 +115,8 @@ class Install(object):
 			os.mkdir(os.path.join("static","attachment"))
 		if not os.path.exists("data"):
 			os.mkdir("data")
+		if not os.path.exists(os.path.join("data","database")):
+			os.mkdir(os.path.join("data","database"))
 
 		return jsonSuccess()
 
@@ -376,7 +380,7 @@ class SubDomianScan(object):
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		result = os.listdir(os.path.join("plugin","wordlist","dnsbrute"))
+		result = os.listdir(os.path.join("data","wordlist","dnsbrute"))
 		return json.dumps(result)
 
 	def POST(self):
@@ -474,9 +478,9 @@ class SubNetScan(object):
 		return jsonSuccess()
 
 
-
 class SaveTmpHost(object):
 	def GET(self):
+		web.header('Content-Type', 'application/json')
 		params = web.input()
 
 		try:
@@ -498,6 +502,7 @@ class SaveTmpHost(object):
 
 class DeleteTmpHost(object):
 	def GET(self):
+		web.header('Content-Type', 'application/json')
 		params = web.input()
 
 		try:
@@ -515,7 +520,69 @@ class DeleteTmpHost(object):
 		return jsonSuccess()
 
 
+class ServiceRecognize(object):
+	def POST(self):
+		web.header('Content-Type', 'application/json')
+		originParams = web.input()
 
+		options = (
+			("domain","string","1-200"),
+			("type","integer","0-3"),
+			("project_id","integer","")
+		)
+		try:
+			params = formatParam(originParams, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))
+
+		domain = params.domain.lower()
+		protocol = ""
+		port = None
+
+		#resolve protocol
+		if domain.startswith("http://"):
+			protocol = "http"
+			domain = domain[7:]
+			port = 80
+		elif domain.startswith("https://"):
+			protocol = "https"
+			domain = domain[8:]
+			port = 443
+		elif "://" in domain:
+			raise web.internalerror("unrecognized protocol, should be 'http' or 'https'.")
+		#resolve port
+		try:
+			pos = domain.rindex(":")
+		except ValueError:
+			pass
+		else:
+			try:
+				port = int(domain[pos+1:])
+			except ValueError:
+				pass
+			domain = domain[:pos]
+
+		if not protocol: protocol = "http"
+		if not port: port = 80
+
+		task = ServiceIdentify(ptype=int(params.type)) | DataSave(projectid=params.project_id)
+		host = Host(url=domain,protocol=protocol,port=port)
+		task.dostart([host])
+
+		return jsonSuccess()
+
+
+class DBSetup(object):
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+
+		result = os.listdir(os.path.join("data","database"))
+		return json.dumps(result)
+
+	def POST(self):
+		web.header('Content-Type', 'application/json')
+
+		return jsonSuccess()
 
 class DictAdd(object):
 	def POST(self):
@@ -525,7 +592,7 @@ class DictAdd(object):
 			fileName = param.dictfile.filename
 		except AttributeError:
 			raise web.internalerror("Missing parameter.")
-		fileNameFull = os.path.join("plugin","wordlist","dnsbrute",fileName)
+		fileNameFull = os.path.join("data","wordlist","dnsbrute",fileName)
 
 		try:
 			fd = open(fileNameFull, "w")

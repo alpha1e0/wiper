@@ -179,7 +179,7 @@ class Database(Model):
 
 	@classmethod
 	def delete(cls):
-		dbFile = os.path.join("data",CONF.db.name)
+		dbFile = os.path.join("data", "database", CONF.db.name)
 		if os.path.exists(dbFile):
 			os.remove(dbFile)
 

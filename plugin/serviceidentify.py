@@ -39,7 +39,7 @@ class ServiceIdentify(Plugin):
 				self.portDict = yaml.load(fd)
 		except IOError:
 			raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
-			
+		
 		if ptype == 1:
 			self.cmd = ""
 		elif ptype == 2:
@@ -80,7 +80,10 @@ class ServiceIdentify(Plugin):
 					host.title = host.protocol + "_service"
 				except AttributeError:
 					pass
-				host.protocol = self.portDict[int(host.port)]['protocol']
+				try:
+					host.protocol = self.portDict[int(host.port)]['protocol']
+				except (AttributeError, KeyError):
+					pass
 				try:
 					if host.protocol in ["http","https"]:
 						host.url = data.url

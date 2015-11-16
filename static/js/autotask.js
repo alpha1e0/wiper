@@ -183,6 +183,36 @@ function showServiceRecognizeTask(){
     $("#wip-autotask-servicerecognize").show();
     inactiveAllTaskButton();
     $("#wip-button-autotask-servicerecognize").parent().addClass("active");
+
+    if (current.getHost()) {
+        var domain = current.getHost().url;
+    } else {
+        var domain = "";
+    }
+    $("#wip-form-autotask-servicerecognize-domain").val(domain);
+
+    var options = {
+        type:"post",
+        url:"servicerecognize",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+            if (!current.getProject()) {
+                alert("请先选择project!");
+                return false;
+            }
+            var project_id = current.getProject().id;
+            formData.push({'name':'project_id', 'value':project_id});
+        },
+        success:function(){         
+            alert("提交任务成功!");
+        },
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
+        }
+    };
+    $("#wip-form-autotask-servicerecognize").ajaxForm(options);
 }
 
 //------------------------sub vul scan task-----------------------

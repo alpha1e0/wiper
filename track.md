@@ -5,6 +5,8 @@
 * bing 搜索，http://wwww.bing.com/search?ie=utf-8&q=intitle%3Atorrent&num=10&first=0& 总是被”机器人检测“阻断
 * model中where，orderby多线程会出问题，应该用threading.local解决，
 
+* /servicerecognize type=0时候，下发”服务识别“任务，python异常退出，多次下发时从第二次下发出现bug
+
 ---
 
 ## 备注
@@ -19,6 +21,8 @@ Host中增加port
 解决“项目详情”页面滚动问题
 
 编辑时候的自动填充功能
+
+对nmap执行时间做限制
 
 ---
 

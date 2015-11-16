@@ -178,6 +178,7 @@ class Plugin(Process):
 				obj._ins.append(queue)
 
 		for plugin in self._addList:
+			time.sleep(0.5)
 			plugin.start()
 
 	
