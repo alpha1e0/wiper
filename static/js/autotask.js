@@ -20,7 +20,7 @@ function hideAllTask(){
     $("#wip-autotask-vulscan").hide();
 }
 
-function inactiveAllButton(){
+function inactiveAllTaskButton(){
     $("#wip-button-autotask-subdomainscan").parent().removeClass("active");
     $("#wip-button-autotask-subnetscan").parent().removeClass("active");
     $("#wip-button-autotask-servicerecognize").parent().removeClass("active");
@@ -33,7 +33,7 @@ $("#wip-tab-button-autotask").click(initTaskPage);
 function showSubDomainScanTask(){
     hideAllTask();
     $("#wip-autotask-subdomainscan").show();
-    inactiveAllButton();
+    inactiveAllTaskButton();
     $("#wip-button-autotask-subdomainscan").parent().addClass("active");
 
     if (current.getHost()) {
@@ -137,7 +137,7 @@ function showSubNetScanTask() {
     }
     hideAllTask();
     $("#wip-autotask-subnetscan").show();
-    inactiveAllButton();
+    inactiveAllTaskButton();
     $("#wip-button-autotask-subnetscan").parent().addClass("active");
 
     $("#wip-form-button-autotask-subnetscan-ipdel").unbind("click");
@@ -181,7 +181,7 @@ function showSubNetScanTask() {
 function showServiceRecognizeTask(){
     hideAllTask();
     $("#wip-autotask-servicerecognize").show();
-    inactiveAllButton();
+    inactiveAllTaskButton();
     $("#wip-button-autotask-servicerecognize").parent().addClass("active");
 }
 
@@ -189,7 +189,7 @@ function showServiceRecognizeTask(){
 function showVulScanTask(){
     hideAllTask();
     $("#wip-autotask-vulscan").show();
-    inactiveAllButton();
+    inactiveAllTaskButton();
     $("#wip-button-autotask-vulscan").parent().addClass("active");
 }
 

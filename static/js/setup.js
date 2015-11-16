@@ -17,7 +17,7 @@ function hideAllSetup(){
     $("#wip-setup-else").hide();
 }
 
-function inactiveAllButton(){
+function inactiveAllSetupButton(){
     $("#wip-button-setup-db").parent().removeClass("active");
     $("#wip-button-setup-dict").parent().removeClass("active");
     $("#wip-button-setup-else").parent().removeClass("active");
@@ -30,20 +30,20 @@ $("#wip-tab-button-setup").click(initSetupPage);
 function showDBSetup() {
 	hideAllSetup();
 	$("#wip-setup-db").show();
-	inactiveAllButton();
+	inactiveAllSetupButton();
 	$("#wip-button-setup-db").parent().addClass("active");
 }
 
 function showDictSetup() {
 	hideAllSetup();
 	$("#wip-setup-dict").show();
-	inactiveAllButton();
+	inactiveAllSetupButton();
 	$("#wip-button-setup-dict").parent().addClass("active");
 }
 
 function showElseSetup() {
 	hideAllSetup();
 	$("#wip-setup-else").show();
-	inactiveAllButton();
+	inactiveAllSetupButton();
 	$("#wip-button-setup-else").parent().addClass("active");
 }
