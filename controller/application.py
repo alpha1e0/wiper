@@ -58,8 +58,9 @@ def startServer():
 		"/savetmphost","SaveTmpHost",
 		"/deletetmphost","DeleteTmpHost",
 		"/servicerecognize","ServiceRecognize",
-		"/adddict","DictAdd",
-		"/dbsetup","DBSetup")
+		"/dbsetup","DBSetup",
+		"/adddict","DictAdd"
+	)
 
 
 	app = web.application(urls, globals())
@@ -428,7 +429,7 @@ class SubNetScan(object):
 			try:
 				pos = host['ip'].rindex(".")
 				ip = host['ip'][:pos] + ".1"
-			except (KeyError, ValueError):
+			except (KeyError, ValueError, AttributeError):
 				continue
 			for key in result:
 				if ip == key[0]:
@@ -581,26 +582,50 @@ class DBSetup(object):
 
 	def POST(self):
 		web.header('Content-Type', 'application/json')
+		originParams = web.input()
+
+		options = (
+			("database","string","1-50"),
+		)
+		try:
+			params = formatParam(originParams, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))
+
+		oldDB = CONF.db.name
+		CONF.db.name = params.database
+		dblist = os.listdir(os.path.join("data","database"))
+		if params.database not in dblist:
+			try:
+				Database.create()
+			except DBError as error:
+				CONF.db.name = oldDB
+				raise web.internalerror("Databae creating error,"+str(error))
+		CONF.save()
 
 		return jsonSuccess()
 
+
 class DictAdd(object):
 	def POST(self):
-		originParam = web.input(dictfile={})
+		params = web.input(dictfile={})
 
 		try:
-			fileName = param.dictfile.filename
+			fileName = params.dictfile.filename
+			dtype = int(params.type)
 		except AttributeError:
 			raise web.internalerror("Missing parameter.")
-		fileNameFull = os.path.join("data","wordlist","dnsbrute",fileName)
+		if dtype == 0:
+			fileNameFull = os.path.join("data","wordlist","dnsbrute",fileName)
+		else:
+			raise web.internalerror("dict type error.")
 
 		try:
 			fd = open(fileNameFull, "w")
-			fd.write(param.dictfile.value)
+			fd.write(params.dictfile.value)
 		except IOError as error:
 			raise web.internalerror('Write dictfile failed!')
 
-
-
+		return jsonSuccess()
 
 

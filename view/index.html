@@ -190,7 +190,7 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <button title="删除IP" class="btn btn-default" type="button" id="wip-form-button-autotask-subnetscan-ipdel">手动删除IP</button>
+                                        <button title="删除IP" class="btn btn-default" type="button" id="wip-form-button-autotask-subnetscan-ipdel">删除IP</button>
                                     </div><br />
                                     <div id="wip-form-buttongroup-autotask-subnetscan">
                                         <div class="form-group">
@@ -234,9 +234,9 @@
                                     <label class="checkbox-inline">
                                         <input type="radio" name="type" value="2">使用nmap默认端口列表
                                     </label>
-                                    <label class="checkbox-inline">
+                                    <!--<label class="checkbox-inline">
                                         <input type="radio" name="type" value="3">扫描1-65535端口
-                                    </label>
+                                    </label>-->
                                     <hr class="thin" />
                                     <button type="submit" class="btn btn-success">开始任务</button>
                                 </form>
@@ -275,7 +275,7 @@
                                 <hr >
                                 <form id="wip-form-setup-db">
                                     <div class="form-group has-error">
-                                        <label for="wip-form-setup-db-select">数据库列表:</label>
+                                        <label for="wip-form-setup-db-select">选择以下列表中的数据库进行操作:</label>
                                         <div>
                                             <select id="wip-form-setup-db-select" class="form-control" name="database" >
                                             </select>
@@ -294,7 +294,19 @@
                             <div id="wip-setup-dict">
                                 <h3><span class="label label-primary">字典设置:</span></h3>
                                 <hr >
-                                <form id="wip-setup-dict">
+                                <form id="wip-form-setup-dict">
+                                    <div class="form-group">
+                                        <label for="wip-form-input-setup-dict" class="col-md-2 control-label">选择字典文件:</label>
+                                        <div class="col-md-10">
+                                            <input id="wip-form-input-setup-dict" name="dictfile" type="file" value="">
+                                        </div>
+                                    </div>
+                                    <br /><br />
+                                    <label class="checkbox-inline">
+                                        <input type="radio" name="type" value="0" checked>DNS爆破字典
+                                    </label>
+                                    <hr class="thin" />
+                                    <button type="submit" class="btn btn-success">上传</button>
                                 </form>
                             </div>
                             <div id="wip-setup-else">

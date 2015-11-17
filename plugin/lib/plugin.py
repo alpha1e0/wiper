@@ -8,7 +8,7 @@ See the file COPYING for copying detail
 '''
 
 import time
-from multiprocessing import Process, managers
+from multiprocessing import Process, managers, Lock
 
 from config import RTD, WIPError, Log
 from model.model import Model
@@ -44,6 +44,8 @@ class Plugin(Process):
 		plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSave(mod="database") whill return a pluginObject
 		plugin.dostart(startData)		
 	'''
+	_lock = Lock()
+
 	def __init__(self, timeout=1, unique=True, log=True):
 		Process.__init__(self)
 
@@ -113,30 +115,31 @@ class Plugin(Process):
 		'''
 		Get data from input queues.
 		'''
-		if not self._ins:
-			raise PluginExit()
+		with self._lock:
+			if not self._ins:
+				raise PluginExit()
 
-		gotData = False
-		for i,queue in enumerate(self._ins):
-			try:
-				data = queue.pop()
-			except IndexError:
-				continue
-			else:
-				if not data:
-					del self._ins[i]
+			gotData = False
+			for i,queue in enumerate(self._ins):
+				try:
+					data = queue.pop()
+				except IndexError:
 					continue
 				else:
-					if self.unique:
-						if data in self:
-							continue
+					if not data:
+						del self._ins[i]
+						continue
+					else:
+						if self.unique:
+							if data in self:
+								continue
+							else:
+								gotData = True
+								self._dataSet.append(data)
+								break
 						else:
 							gotData = True
-							self._dataSet.append(data)
 							break
-					else:
-						gotData = True
-						break
 
 		if not gotData:
 			raise QueueEmpty()
@@ -153,8 +156,9 @@ class Plugin(Process):
 		if self.log:
 			self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
 
-		for queue in self._outs:
-			queue.insert(0,data)
+		with self._lock:
+			for queue in self._outs:
+				queue.insert(0,data)
 
 
 	def quit(self):

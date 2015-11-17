@@ -84,12 +84,12 @@ class Log(object):
 
 
 class Config(Dict):
-    _confFile = "config.yaml"
+    _confFile = os.path.join("data","config.yaml")
 
     def __init__(self):
         confFile = self._confFile
         if not os.path.exists(confFile):
-            confFile = "config.sample.yaml"
+            confFile = os.path.join("data","config.sample.yaml")
             if not os.path.exists(confFile):
                 raise WIPError("cannot find configure file, 'config.yaml' or 'config.sample.yaml'")
 

@@ -9,3 +9,4 @@ dns:
 http:
   timeout: 10
 isinstall: false
+nmap: null

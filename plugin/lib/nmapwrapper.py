@@ -9,6 +9,7 @@ See the file COPYING for copying detail
 
 from subprocess import Popen, PIPE, STDOUT
 
+from config import CONF
 from model.model import Host
 from thirdparty.BeautifulSoup import BeautifulStoneSoup, NavigableString
 
@@ -28,6 +29,8 @@ class Nmap(object):
 
 		if "-oX" not in cmd:
 			cmd = cmd + " -oX -"
+		if CONF.nmap:
+			cmd.replace("namp", CONF.nmap)
 		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		scanResult = popen.stdout.read()
 

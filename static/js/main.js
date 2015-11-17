@@ -138,11 +138,6 @@ $(document).ready(function() {
     $("#wip-button-vul-list").click(function(){listVul();});
     $("#wip-button-comment-list").click(function(){listComment();});
 
-
-    //绑定与auto task相关操作的事件
-    $("#wip-tab-button-domainseek").click(configTasks);
-    $("#wip-domainseek-button-show-taskresult").click(listTaskResult);
-
 });
 
 /******************************************************************************************************
