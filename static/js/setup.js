@@ -95,4 +95,21 @@ function showElseSetup() {
 	$("#wip-setup-else").show();
 	inactiveAllSetupButton();
 	$("#wip-button-setup-else").parent().addClass("active");
+
+    var options = {
+        type:"POST",
+        url:"nmapsetup",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+        },
+        success:function(){             
+            alert("设置成功!");
+        },
+        error:function(xhr, status, error){
+            alert("设置失败!");
+        }
+    };
+    $("#wip-form-setup-else-nmap").ajaxForm(options);
 }

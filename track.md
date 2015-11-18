@@ -3,9 +3,8 @@
 
 * windows系统 static/attachment/汉字识别问题，webpy解析url存在问题，当URL中有中文时，webpy没有进行utf-8之类的解码；导致附件名称不能有中文
 * bing 搜索，http://wwww.bing.com/search?ie=utf-8&q=intitle%3Atorrent&num=10&first=0& 总是被”机器人检测“阻断
-* model中where，orderby多线程会出问题，应该用threading.local解决，
 
-* /servicerecognize type=0时候，下发”服务识别“任务，python异常退出，多次下发时从第二次下发出现bug
+* /servicerecognize type=0时候，下发”服务识别“任务，macos python异常退出，多次下发时从第二次下发出现bug
 
 ---
 
@@ -30,10 +29,10 @@ Host中增加port
 
 1、完善自动化模块功能：
 
-	C段扫描、
-	域传送、
-	googlehacking、
-	http 指纹检测：区分http、https，自动获取网站title、判断服务器类型、操作系统类型、中间件检测、
+	- C段扫描、
+	- 域传送、
+	- googlehacking、
+	- http 指纹检测：区分http、https，自动获取网站title、判断服务器类型、操作系统类型、中间件检测、
 	获取host操作系统、web服务器等信息
 
 	备份、打包文件检测
@@ -43,7 +42,7 @@ Host中增加port
 
 2、小工具开发
 	
-	exploit搜索
+	- exploit搜索
 
 	whois、ip搜索工具
 
@@ -61,6 +60,7 @@ Host中增加port
 
 4、安装脚本编写
 
+-
 
 5、其他
 	

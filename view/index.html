@@ -8,7 +8,7 @@
         <link rel="stylesheet" href="static/css/wip.css">
         <link rel="shortcut icon" href="static/favicon.ico"/>
         <link rel="bookmark" href="static/favicon.ico"/>
-        <title>Wiper-渗透辅助工具</title>
+        <title>Wiper-渗透测试工具</title>
     </head>
     <body>
         <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -149,6 +149,10 @@
                                 <li><a id="wip-button-autotask-servicerecognize" href="#">服务识别</a></li>
                                 <!--<li><a id="wip-button-autotask-vulscan" href="#">弱点扫描</a></li>-->
                             </ul>
+                            <hr class="thin" />
+                            <ul class="nav nav-sidebar">
+                                <li><a id="wip-button-autotask-search" href="#">常用搜索</a></li>
+                            </ul>
                         </div>
                         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                             <div id="wip-autotask-subdomainscan">
@@ -253,6 +257,16 @@
                                     <button type="submit" class="btn btn-success">开始任务</button>
                                 </form>
                             </div>-->
+                            <div id="wip-autotask-search">
+                                <h3><span class="label label-primary">常用搜索:</span></h3>
+                                <hr >
+                                <div class="form-group has-error">
+                                    <label for="wip-form-autotask-search">Exploit搜索：</label>
+                                    <input type="text" name="domain" class="form-control" id="wip-form-autotask-search" placeholder="aaa.com">
+                                </div>
+                                <button title="搜索Exploit" class="btn btn-success" type="button" id="wip-form-button-autotask-search">搜索Exploit</button>
+                                <hr class="thin" />
+                            </div>
                         </div>
                     </div>
                     </div>
@@ -312,7 +326,14 @@
                             <div id="wip-setup-else">
                                 <h3><span class="label label-primary">其他设置:</span></h3>
                                 <hr >
-                                <form id="wip-setup-else">
+                                <form id="wip-form-setup-else-nmap">
+                                    <div class="form-group has-error">
+                                        <label for="wip-form-setup-else-nmap-path">默认路径找不到nmap时，在下面输入nmap绝对路径：</label>
+                                        <input type="text" name="nmappath" class="form-control" id="wip-form-setup-else-nmap-path" placeholder="C:\Program Files\Nmap\nmap.exe">
+                                    </div>
+                                    <button type="submit" class="btn btn-success">提交</button>
+                                    <hr class="thin" />
+                                </form>
                                 </form>
                             </div>
                         </div>

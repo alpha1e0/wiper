@@ -59,7 +59,8 @@ def startServer():
 		"/deletetmphost","DeleteTmpHost",
 		"/servicerecognize","ServiceRecognize",
 		"/dbsetup","DBSetup",
-		"/adddict","DictAdd"
+		"/adddict","DictAdd",
+		"/nmapsetup","NmapSetup"
 	)
 
 
@@ -593,7 +594,7 @@ class DBSetup(object):
 			raise web.internalerror("Parameter error, {0}.".format(error))
 
 		oldDB = CONF.db.name
-		CONF.db.name = params.database
+		CONF.db.name = str(params.database)
 		dblist = os.listdir(os.path.join("data","database"))
 		if params.database not in dblist:
 			try:
@@ -608,6 +609,7 @@ class DBSetup(object):
 
 class DictAdd(object):
 	def POST(self):
+		web.header('Content-Type', 'application/json')
 		params = web.input(dictfile={})
 
 		try:
@@ -628,4 +630,21 @@ class DictAdd(object):
 
 		return jsonSuccess()
 
+
+class NmapSetup(object):
+	def POST(self):
+		originParams = web.input()
+
+		options = (
+			("nmappath","string","1-200"),
+		)
+		try:
+			params = formatParam(originParams, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))
+
+		CONF.nmap = None if str(params.nmappath)=="nmap" else str(params.nmappath)
+		CONF.save()
+
+		return jsonSuccess()
 

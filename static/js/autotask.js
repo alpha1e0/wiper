@@ -4,11 +4,13 @@ function initTaskPage(){
     $("#wip-button-autotask-subnetscan").unbind("click");
     $("#wip-button-autotask-servicerecognize").unbind("click");
     $("#wip-button-autotask-vulscan").unbind("click");
+    $("#wip-button-autotask-search").unbind("click");
 
     $("#wip-button-autotask-subdomainscan").click(showSubDomainScanTask);
     $("#wip-button-autotask-subnetscan").click(showSubNetScanTask);
     $("#wip-button-autotask-servicerecognize").click(showServiceRecognizeTask);
     $("#wip-button-autotask-vulscan").click(showVulScanTask);
+    $("#wip-button-autotask-search").click(showSearchTask);
 
     showSubDomainScanTask();
 }
@@ -18,6 +20,7 @@ function hideAllTask(){
     $("#wip-autotask-subnetscan").hide();
     $("#wip-autotask-servicerecognize").hide();
     $("#wip-autotask-vulscan").hide();
+    $("#wip-autotask-search").hide();
 }
 
 function inactiveAllTaskButton(){
@@ -25,6 +28,7 @@ function inactiveAllTaskButton(){
     $("#wip-button-autotask-subnetscan").parent().removeClass("active");
     $("#wip-button-autotask-servicerecognize").parent().removeClass("active");
     $("#wip-button-autotask-vulscan").parent().removeClass("active");
+    $("#wip-button-autotask-search").parent().removeClass("active");
 }
 
 $("#wip-tab-button-autotask").click(initTaskPage);
@@ -221,4 +225,24 @@ function showVulScanTask(){
     $("#wip-autotask-vulscan").show();
     inactiveAllTaskButton();
     $("#wip-button-autotask-vulscan").parent().addClass("active");
+}
+
+//------------------------common search-----------------------
+function doSearch(){
+    var packetstorm = "https://packetstormsecurity.com/search/?q=";
+    var exploitdb = "https://www.exploit-db.com/search/?action=search&description=";
+
+    var keywords = encodeURIComponent($("#wip-form-autotask-search").val());
+    window.open(packetstorm+keywords);
+    window.open(exploitdb+keywords);
+}
+
+function showSearchTask(){
+    hideAllTask();
+    $("#wip-autotask-search").show();
+    inactiveAllTaskButton();
+    $("#wip-button-autotask-search").parent().addClass("active");
+
+    $("#wip-form-button-autotask-search").unbind("click");
+    $("#wip-form-button-autotask-search").click(doSearch);
 }

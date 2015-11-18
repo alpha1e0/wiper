@@ -21,8 +21,6 @@ class DataSave(Plugin):
 		self.hostid = hostid
 
 	def handle(self, data):
-		for key,value in self.defaultValue.iteritems():
-			data[key] = value
 		try:
 			if isinstance(data, Host):
 				data.project_id = self.projectid

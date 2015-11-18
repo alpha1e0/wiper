@@ -171,7 +171,7 @@ function clearProjectListColumn(){
 function renderProjectDetailColumn(data){
 	if(!data) return;
 	function genRow(name, value){
-		var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":"), $("<br />"), $("<span></span>").text(value));
+		var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":"), $("<br />"), $("<span></span>").text(value));
 		return row;
 	}
 
@@ -334,11 +334,11 @@ function renderHostDetailColumn(data){
 	//type:protocol type ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"]
 	function genRow(name, value, protocol=null, port=null){
 		if (protocol==null) {
-			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
+			var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
 		} else {			
 			var uri = protocol + "://" + value + ":" + port;
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
+			var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
 		}
 		return row;
 	}
