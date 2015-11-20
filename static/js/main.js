@@ -9,6 +9,8 @@ function Current(){
 	this.host = null;
 	this.vul = null;
 	this.comment = null;
+	this.porderby = null;
+	this.horderby = null;
 }
 
 Current.prototype.init = function(){
@@ -16,6 +18,8 @@ Current.prototype.init = function(){
 	this.host = null;
 	this.vul = null;
 	this.comment = null;
+	this.porderby = "level";
+	this.horderby = "level";
 
 	$("#wip-title-project").text("null");
 	$("#wip-title-host").text("null");
@@ -101,14 +105,13 @@ Current.prototype.setComment = function(comment){
 Current.prototype.getComment = function(){
 	return this.comment;
 }
-Current.prototype.record = function(){}
-Current.prototype.changed = function(){}
 
 /******************************************************************************************************
 * Date: 2015-8-6
 * Description: 初始化工作，绑定事件
 ******************************************************************************************************/
 var current = new Current();
+current.init();
 
 var LEVELLIST = ["undefined","关键","重要","一般","提示"];
 var LEVELCLASSLIST = ["list-group-item-info","list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"];
@@ -200,6 +203,7 @@ function clearProjectDetailColumn(){
 
 function listProject(orderby="level"){
 	current.initProject();
+	current.porderby = orderby;
 	$.getJSON("/listproject?orderby="+orderby, function(result){
 		renderProjectListColumn(result);
 	});
@@ -230,7 +234,7 @@ function addProject(){
     	success:function(){   		
     		alert("提交成功!");
     		$("#wip-modal-project").modal("hide");
-    		listProject();
+    		listProject(current.porderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -251,7 +255,7 @@ function deleteProject(){
 	$.get("/deleteproject?id="+current.getProject().id, function(data,status){
 		$("#wip-project-detail").empty();
 		current.setProject(null);
-		listProject();
+		listProject(current.porderby);
 	});	
 }
 
@@ -278,7 +282,7 @@ function modifyProject(){
     	success:function(){    		
     		alert("提交成功!");
     		$("#wip-modal-project").modal("hide");
-    		listProject();
+    		listProject(current.porderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -290,7 +294,7 @@ function modifyProject(){
 
 function refreshProject(){
 	current.initProject();
-	listProject();
+	listProject(current.porderby);
 }
 
 /******************************************************************************************************
@@ -374,6 +378,7 @@ function clearHostDetailColumn(){
 }
 
 function listHost(orderby="level"){
+	current.horderby = orderby;
 	if(!current.getProject()) {
 		//alert("请先选择Project!");
 		return;
@@ -442,7 +447,7 @@ function addHost(){
     	success:function(){   		
     		alert("提交成功!");
     		$("#wip-modal-host").modal("hide");
-    		listHost();
+    		listHost(current.horderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -463,7 +468,7 @@ function deleteHost(){
 	$.get("/deletehost?id="+current.getHost().id, function(data,status){		
 		$("#wip-vul-comment-list").empty();
 		current.setHost(null);
-		listHost();
+		listHost(current.horderby);
 	});	
 }
 
@@ -491,7 +496,7 @@ function modifyHost(){
     	success:function(){    		
     		alert("提交成功!");
     		$("#wip-modal-host").modal("hide");
-    		listHost();
+    		listHost(current.horderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -505,7 +510,7 @@ function refreshHost(){
 	current.initHost();
 	//clearHostListColumn();
 	//clearHostDetailColumn();
-	listHost();
+	listHost(current.horderby);
 }
 
 /******************************************************************************************************

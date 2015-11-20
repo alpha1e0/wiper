@@ -31,8 +31,10 @@ class Nmap(object):
 			cmd = cmd + " -oX -"
 		if CONF.nmap:
 			cmd.replace("namp", CONF.nmap)
+		print "debgu:>>>>>",cmd
 		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		scanResult = popen.stdout.read()
+		print "debug:>>>>result",scanResult
 
 		#parse the nmap scan result		
 		xmlDoc = BeautifulStoneSoup(scanResult)
