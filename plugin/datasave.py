@@ -24,6 +24,8 @@ class DataSave(Plugin):
 		try:
 			if isinstance(data, Host):
 				data.project_id = self.projectid
+				for key,value in self.defaultValue.iteritems():
+					data[key] = value
 				data.save()
 			elif isinstance(data, Vul) or isinstance(data, Comment):
 				data.host_id = self.hostid
