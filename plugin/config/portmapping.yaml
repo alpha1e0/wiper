@@ -6,7 +6,7 @@
   protocol: ssh
 23: 
   desp: "telnet server"
-  protocol: ssh
+  protocol: telnet
 25: 
   desp: "smtp"
   protocol: smtp

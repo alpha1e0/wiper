@@ -31,10 +31,9 @@ class Nmap(object):
 			cmd = cmd + " -oX -"
 		if CONF.nmap:
 			cmd.replace("namp", CONF.nmap)
-		print "debgu:>>>>>",cmd
+
 		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		scanResult = popen.stdout.read()
-		print "debug:>>>>result",scanResult
 
 		#parse the nmap scan result		
 		xmlDoc = BeautifulStoneSoup(scanResult)
@@ -47,12 +46,12 @@ class Nmap(object):
 			try:
 				ports = host.ports.contents
 			except AttributeError:
-				result.append(Host(**{'ip':ip}))
+				result.append(dict(**{'ip':ip}))
 				continue
 			else:
 				for port in ports:
 					if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
 						continue
-					result.append(Host(ip=ip,port=port['portid'],protocol=port.service['name']))
+					result.append(dict(ip=ip,port=port['portid'],protocol=port.service['name']))
 
 		return result

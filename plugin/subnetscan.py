@@ -41,4 +41,4 @@ class SubnetScan(Plugin):
 			result = Nmap.scan(cmd)
 
 			for host in result:
-				self.put(host)
+				self.put(Host(**host))
