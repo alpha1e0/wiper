@@ -211,15 +211,15 @@ class SearchEngine(object):
 			headers = {"User-Agent":userAgent, "X-Forward-For":xforward, "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"}
 			try:
 				reponse = requests.get(url, headers=headers)
-			except:
+			except Exception as error:
 				continue
 
 			if self.findSignature in reponse.text:
-				break
+				return self._parseHtml(reponse.text)
 			if self.notFindSignature in reponse.text:
-				break
-
-		return self._parseHtml(reponse.text)
+				return list()
+		else:
+			return list()
 
 
 	def _parseHtml(self, document):
@@ -231,7 +231,7 @@ class SearchEngine(object):
 			return the formated search result, result format is:
 				[[titel,url,brief-information],[...]...]
 		'''
-		pass
+		return list()
 
 
 

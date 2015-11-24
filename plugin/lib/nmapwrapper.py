@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 from subprocess import Popen, PIPE, STDOUT
 
-from config import CONF
+from config import CONF, Dict
 from model.model import Host
 from thirdparty.BeautifulSoup import BeautifulStoneSoup, NavigableString
 
@@ -46,12 +46,12 @@ class Nmap(object):
 			try:
 				ports = host.ports.contents
 			except AttributeError:
-				result.append(dict(**{'ip':ip}))
+				result.append(Dict(**{'ip':ip}))
 				continue
 			else:
 				for port in ports:
 					if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
 						continue
-					result.append(dict(ip=ip,port=port['portid'],protocol=port.service['name']))
+					result.append(Dict(ip=ip,port=port['portid'],protocol=port.service['name']))
 
 		return result

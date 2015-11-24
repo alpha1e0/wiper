@@ -40,9 +40,10 @@ function showDBSetup() {
 
     $("#wip-form-setup-db-select").empty();
 	$.getJSON("/dbsetup", function(result){
-        $.each(result, function(i, value){
+        $.each(result.all, function(i, value){
             $("#wip-form-setup-db-select").append($("<option></option").val(value).text(value));
         });
+        $("#wip-form-setup-db-select option[value='"+result.current+"']").attr("selected",true);
     });
 
     $("#wip-form-button-setup-db-dbadd").unbind("click");

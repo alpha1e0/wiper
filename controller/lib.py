@@ -12,7 +12,7 @@ import json
 
 from thirdparty import web
 
-from config import WIPError, RTD
+from config import WIPError, RTD, Dict
 from model.dbmanage import DBError
 from model.orm import FieldError, ModelError
 
@@ -92,7 +92,7 @@ def formatParam(originParam,options):
 	ipPattern = re.compile(r"^((?:(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))\.){3}(?:(?:2[0-4]\d)|(?:25[0-5])|(?:[01]?\d\d?))(?:\:\d+)?)$")
 	urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_~!=]+\.)+(?:[-0-9a-zA-Z_~!=]+)(?:\:\d+)?)")
 	emailPattern = re.compile(r"^((?:[-0-9a-zA-Z_!=:.%+])+@(?:[-0-9a-zA-Z_!=:]+\.)+(?:[-0-9a-zA-Z_!=:]+))$")
-	params = dict()
+	params = Dict()
 
 	for option in options:
 		if option[1] == "ip":
@@ -179,5 +179,5 @@ def formatParam(originParam,options):
 		else:
 			raise ParamError("option type '{0}' is not recognized!".format(option[1]))
 
-	return type("Param", (), params)
+	return params
 
