@@ -399,6 +399,14 @@ class SubDomianScan(object):
 		rawParamList = [x.split("=") for x in rawParam.split("&")]
 		dictList = [x[1] for x in rawParamList if x[0]=="dictlist"]
 
+		options = (
+			("domain","url",""),
+		)
+		try:
+			domainParams = formatParam(params, options)
+		except ParamError as error:
+			raise web.internalerror("Parameter error, {0}.".format(error))		
+
 		task = None
 		if "dnsbrute" in params.keys():
 			task = DnsBrute(dictList)
@@ -409,10 +417,8 @@ class SubDomianScan(object):
 
 		task = task | ServiceIdentify() | DataSave(projectid=projectid)
 
-		host = Host(url=params.domain)
+		host = Host(url=domainParams.domain)
 		task.dostart([host])
-		print "debug: host addlist",task._addList
-		print "debug: host orlist",task._orList
 
 		return jsonSuccess()
 
@@ -578,8 +584,10 @@ class DBSetup(object):
 	def GET(self):
 		web.header('Content-Type', 'application/json')
 
-		result = os.listdir(os.path.join("data","database"))
-		return json.dumps(result)
+		alldbs = os.listdir(os.path.join("data","database"))
+		currentdb = CONF.db.name
+
+		return json.dumps({'all':alldbs,'current':currentdb})
 
 	def POST(self):
 		web.header('Content-Type', 'application/json')

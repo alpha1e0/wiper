@@ -76,6 +76,7 @@ class ServiceIdentify(Plugin):
 				result = [data]
 
 			for host in result:
+				host = Host(**host)
 				try:
 					host.title = host.protocol + "_service"
 				except AttributeError:
@@ -91,11 +92,14 @@ class ServiceIdentify(Plugin):
 						host.title = data.title
 					host.level = data.level
 				except AttributeError:
-					pass				
-				if host.protocol == "http":
-					self.HTTPIdentify(host)
-				elif host.protocol == "https":
-					self.HTTPIdentify(host, https=True)
+					pass
+				try:
+					if host.protocol == "http":
+						self.HTTPIdentify(host)
+					elif host.protocol == "https":
+						self.HTTPIdentify(host, https=True)
+				except AttributeError:
+					pass
 
 				self.put(host)
 

@@ -26,6 +26,7 @@ class DnsBrute(Plugin):
 		super(DnsBrute, self).__init__(log=log)
 
 		self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
+		dictlist = dictlist if dictlist else ["subdomain_default.txt"]
 		self.dictlist = [os.path.join("data","wordlist","dnsbrute",x) for x in dictlist]
 
 
