@@ -163,7 +163,7 @@ class ProjectModify(object):
 	@handleException
 	def POST(self):
 		params = web.input()
-		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description")}
+		kw = {k:params[k].strip() for k in ("name","url","ip","whois","description","level")}
 		Project.where(id=params.id.strip()).update(**kw)
 		return jsonSuccess()
 		

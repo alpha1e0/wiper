@@ -271,6 +271,8 @@ function modifyProject(){
 	$("#wip-modal-form-project-ip").val(current.getProject().ip);
 	$("#wip-modal-form-project-whois").val(current.getProject().whois);
 	$("#wip-modal-form-project-description").val(current.getProject().description);
+	//$("input:radio").attr("checked",false);
+	$("input[name='level']").get(current.getProject().level-1).checked=true;
 
 	
 	var options = {
@@ -481,12 +483,15 @@ function modifyHost(){
 	$("#wip-modal-form-host-id").val(current.getHost().id);
 	$("#wip-modal-form-host-url").val(current.getHost().url);
 	$("#wip-modal-form-host-ip").val(current.getHost().ip);
+	$("#wip-modal-form-host-port").val(current.getHost().port);
+	$("#wip-modal-form-host-protocol option[value="+current.getHost().protocol+"]").attr("selected",true);
 	$("#wip-modal-form-host-title").val(current.getHost().title);
-	$("#wip-modal-form-host-level").val(current.getHost().level);
 	$("#wip-modal-form-host-os").val(current.getHost().os);
 	$("#wip-modal-form-host-server_info").val(current.getHost().server_info);
 	$("#wip-modal-form-host-middleware").val(current.getHost().middleware);
 	$("#wip-modal-form-host-description").val(current.getHost().description);
+	//$("input:radio").attr("checked",false);
+	$("input[name='level']").get(current.getHost().level+3).checked=true;
 	
 	var options = {
     	type:"POST",
@@ -679,8 +684,8 @@ function modifyVul(){
 	$("#wip-modal-form-vul-url").val(current.getVul().url);
 	$("#wip-modal-form-vul-info").val(current.getVul().info);
 	$("#wip-modal-form-vul-type").val(current.getVul().type);
-	$("#wip-modal-form-vul-level").val(current.getVul().level);
 	$("#wip-modal-form-vul-description").val(current.getVul().description);
+	$("input[name='level']").get(current.getVul().level+7).checked=true;
 	
 	var options = {
     	type:"POST",
@@ -877,9 +882,9 @@ function modifyComment(){
     $("#wip-modal-form-comment-name").val(current.getComment().name);
     $("#wip-modal-form-comment-url").val(current.getComment().url);
     $("#wip-modal-form-comment-info").val(current.getComment().info);        
-    $("#wip-modal-form-comment-level").val(current.getComment().level);
     $("#wip-modal-form-comment-type").val(current.getComment().attachment);
     $("#wip-modal-form-comment-description").val(current.getComment().description);
+    $("input[name='level']").get(current.getComment().level+11).checked=true;
         
     var options = {
         type:"POST",
