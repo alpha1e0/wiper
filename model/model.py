@@ -9,8 +9,9 @@ See the file COPYING for copying detail
 
 import os
 
-from orm import Model, IntegerField, StringField, UrlField, IPField, TextField, BooleanField
+from orm import Model, IntegerField, StringField, UrlField, IPField, TextField, BooleanField, ModelError
 from config import CONF
+
 
 class Project(Model):
 	_table = "project"
@@ -26,10 +27,10 @@ class Project(Model):
 
 
 	def __eq__(self, other):
-		try:
-			return self.name == other.name
-		except AttributeError:
-			return False
+		if not isinstance(other,Project):
+			raise ModelError("the right instance is not Project")
+
+		return self.getVal('name') == other.getVal('name')
 
 
 	@classmethod
@@ -66,12 +67,12 @@ class Host(Model):
 
 
 	def __eq__(self, other):
-		try:
-			if self.ip == other.ip and self.url == other.url and self.port == other.port:
-				return True
-			else:
-				return False
-		except AttributeError:
+		if not isinstance(other,Host):
+			raise ModelError("the right instance is not Host")
+
+		if self.getVal('ip')==other.getVal('ip') and self.getVal('url')==other.getVal('url') and self.getVal('port')==other.getVal('port'):
+			return True
+		else:
 			return False
 
 
@@ -111,10 +112,10 @@ class Vul(Model):
 
 
 	def __eq__(self, other):
-		try:
-			return self.name == other.name
-		except AttributeError:
-			return False
+		if not isinstance(other,Vul):
+			raise ModelError("the right instance is not Vul")
+
+		return self.getVal('name') == other.getVal('name')
 
 
 	@classmethod
@@ -147,10 +148,10 @@ class Comment(Model):
 
 
 	def __eq__(self, other):
-		try:
-			return self.name == other.name
-		except AttributeError:
-			return False
+		if not isinstance(other,Comment):
+			raise ModelError("the right instance is not Comment")
+
+		return self.getVal('name') == other.getVal('name')
 
 
 	@classmethod

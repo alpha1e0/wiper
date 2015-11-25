@@ -14,6 +14,7 @@ import time
 import json
 
 from thirdparty import web
+from thirdparty import yaml
 
 from lib import formatParam, ParamError, handleException, jsonSuccess, jsonFail
 from model.orm import FieldError, ModelError
@@ -37,6 +38,8 @@ def startServer():
 		"/getprojectdetail", "ProjectDetail",
 		"/deleteproject", "ProjectDelete",
 		"/modifyproject", "ProjectModify",
+		"/importproject", "ProjectImport",
+		"/exportproject", "ProjectExport",
 		"/addhost","HostAdd",
 		"/listhost","HostList",
 		"/gethostdetail","HostDetail",
@@ -115,6 +118,8 @@ class Install(object):
 			os.mkdir("log")
 		if not os.path.exists(os.path.join("static","attachment")):
 			os.mkdir(os.path.join("static","attachment"))
+		if not os.path.exists(os.path.join("static","tmp")):
+			os.mkdir(os.path.join("static","tmp"))
 		if not os.path.exists("data"):
 			os.mkdir("data")
 		if not os.path.exists(os.path.join("data","database")):
@@ -168,13 +173,79 @@ class ProjectModify(object):
 		return jsonSuccess()
 		
 
+class ProjectImport(object):
+	def GET(self):
+		web.header('Content-Type', 'application/json')
+		params = web.input(projectfile={})
+		try:
+			fileName = params.projectfile.filename
+			fileStr = params.projectfile.value
+		except AttributeError:
+			raise web.internalerror("Missing parameter.")
+		
+		projectDict = json.loads(fileStr)
+		hosts = projectDict.get("hosts",[])
+		try:
+			del projectDict['hosts']
+		except KeyError:
+			pass
+		Project(**projectDict).save()
+		try:
+			projectid = Project.where(name=projectDict.get('name')).getraw('id')['id']
+		except KeyError:
+			raise web.internalerror("project import error")
+		for host in hosts:
+			for vul in host['vuls']:
+				Vul(**vul).save()
+			for comment in host['comments']:
+				Comment(**comment).save()
+			try:
+				del host['vuls']
+				del host['comments']
+			except KeyError:
+				pass
+			Host(**host).save()
+
+
+class ProjectExport(object):
+	def GET(self):
+		params = web.input()
+		try:
+			projectid = int(params.id)
+		except (ValueError, AttributeError):
+			raise web.internalerror("parameter error.")
+
+		project = Project.getraw(projectid)
+		#print "debug:>>>>>project",project
+		if project:
+			hosts = Host.where(project_id=projectid,tmp=0).getsraw()
+			
+			for host in hosts:
+				#print "debug:>>>>>>host",host
+				host['vuls'] = Vul.where(host_id=host['id']).getsraw('id','name','url','info','type','level','description')
+				host['comments'] = Comment.where(host_id=host['id']).getsraw('id','name','url','info','level','description')
+				del host['tmp']
+				del host['project_id']
+			project['hosts'] = hosts
+			del project['id']
+
+		projectName = "_".join(project['name'].split(" "))
+		projectFile = os.path.join("static","tmp",projectName+".json")
+
+		try:
+			with open(projectFile,'w') as fd:
+				json.dump(project, fd)
+		except IOError:
+			raise web.internalerror("save imported project failed")
+
+
 #=================================the operation of host=========================================
 
 class HostList(object):
 	@handleException
 	def GET(self):
 		params = web.input()
-		result = Host.where(project_id=params.projectid.strip()).orderby(params.orderby.strip()).getsraw('id','title','url','ip','level','protocol')
+		result = Host.where(project_id=params.projectid.strip(),tmp=0).orderby(params.orderby.strip()).getsraw('id','title','url','ip','level','protocol')
 		return json.dumps(result)
 
 

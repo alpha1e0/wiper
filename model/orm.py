@@ -523,6 +523,16 @@ class Model(Dict):
 		return json.dumps(self)
 
 
+	def getVal(self, key, default=None):
+		'''
+		Get value from key, when key is not in model return default. like dict.get()
+		'''
+		try:
+			return self[key]
+		except KeyError:
+			return default
+
+
 	@classmethod
 	def create(cls):
 		'''

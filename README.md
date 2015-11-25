@@ -1,51 +1,31 @@
 # Wiper  ---  WEB渗透辅助工具
 
-## INTRODUCTION
+## 介绍
 
-WEB渗透测辅助工具
+wiper是一个WEB渗透测试辅助工具，主要用于前期信息收集、攻击面分析。wiper能够以可视化的方式展示web渗透过程中收集的信息，对于一个给定的站点URL，wiper能够使用DNS域传送、Google Hacking、DNS爆破技术获取目标URL相关的信息，同时wiper支持C端扫描。
 
-主要功能：
+---
 
-1、通过WEB页面格式化展示信息
+## 安装
 
-* 新建、管理、查看项目
-* 新建、管理、查看Host信息，Host信息相当与子域名信息
-* 新建、管理、查看漏洞信息
-* 新建、管理、查看备注信息
+从[这里](https://github.com/alpha1e0/wiper)下载最新版本，或使用命令
 
-2、子域扫描
+	git clone https://github.com/alpha1e0/wiper
 
-* 通过域传送漏洞获取信息
-* 子域名爆破
-* Google Hacking获取信息
+clone到本地
 
-3、C段扫描
+wiper支持Windows/Linux/MacOS，需使用python **2.6.x** 或 **2.7.x**运行
 
-对项目中涉及的网段进行C段扫描
+### 依赖：
 
-4、端口服务识别
+wiper的一些功能依赖于Nmap，因此需要安装[Nmap](http://insecure.org/)
 
-* 识别HTTP/HTTPS服务
-* 识别常见web后台
-* 识别WEB服务器指纹信息，操作系统、CGI语言、中间件
+Nmap会默认添加环境变量，如果希望自己修改Nmap路径，则可以修改data/config.yaml中nmap的路径，或者在web控制台中“设置--》其他”修改
 
-5、其他功能
+---
 
-* 备份文件爆破
+## 使用
 
-## VERSION
-
-## INSTALLATION
-
-依赖：
-
-**nmap**
-
-	https://nmap.org
-
-**MySQLdb**
-
-	pip install mysqldbda
-
+python wiper.py
 
 

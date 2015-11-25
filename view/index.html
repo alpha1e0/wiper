@@ -66,13 +66,14 @@
                             <button id="wip-button-project-add" type="button" class="btn btn-success" title="添加项目">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                             </button>
+                            <button id="wip-button-project-import" type="button" class="btn btn-success" title="导入项目">导入项目</button>
                         </div>
                         <hr />
                         <div id="wip-project-list-column">
                             <!-- project list column-->
                         </div>
                     </div>  
-                    <div class="col-md-5">
+                    <div class="col-md-7">
                         <div>
                             <span class="btn btn-primary">项目详情</span>
                         </div>
@@ -285,11 +286,11 @@
                         </div>
                         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
                             <div id="wip-setup-db">
-                                <h3><span class="label label-primary">选择数据库:</span></h3>
+                                <h3><span class="label label-primary">切换数据库:</span></h3>
                                 <hr >
                                 <form id="wip-form-setup-db">
                                     <div class="form-group has-error">
-                                        <label for="wip-form-setup-db-select">选择以下列表中的数据库进行操作:</label>
+                                        <label for="wip-form-setup-db-select">选择以下列表中的数据库进行切换:<small style="color:red">有后台任务执行时不能切换数据库</small></label>
                                         <div>
                                             <select id="wip-form-setup-db-select" class="form-control" name="database" >
                                             </select>
@@ -302,7 +303,7 @@
                                         <button title="添加数据库" class="btn btn-default" type="button" id="wip-form-button-setup-db-dbadd">手动添加数据库</button>
                                     </div>
                                     <hr class="thin" />
-                                    <button type="submit" class="btn btn-success">提交选择</button>
+                                    <button type="submit" class="btn btn-success">进行切换</button>
                                 </form>
                             </div>
                             <div id="wip-setup-dict">
@@ -716,6 +717,33 @@
                             <div class="form-group">
                                 <div class="col-md-offset-2 col-md-10">
                                     <button type="submit" class="btn btn-default btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wip-modal-project-import" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="wip-modal-project-import-title" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="wip-modal-project-import-title">导入项目</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal" id="wip-modal-form-project-import">
+                            <div class="form-group">
+                                <label for="wip-modal-form-project-import-attachment" class="col-md-2 control-label">附件:</label>
+                                <div class="col-md-10">
+                                    <input id="wip-modal-form-project-import-attachment" name="attachment" type="file" value="">
+                                </div>
+                            </div>                           
+                            <hr />
+                            <div class="form-group">
+                                <div class="col-md-offset-2 col-md-10">
+                                    <button type="submit" class="btn btn-default btn-primary">导入</button>
                                 </div>
                             </div>
                         </form>

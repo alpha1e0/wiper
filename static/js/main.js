@@ -126,6 +126,7 @@ $(document).ready(function() {
 
     $("#wip-button-project-add").click(addProject);
     $("#wip-button-project-refresh").click(refreshProject);
+    $("#wip-button-project-import").click(importProject);
 
     //绑定与host相关操作的事件
     $("#wip-button-host-levelsort").click(function(){listHost("level");});
@@ -192,7 +193,9 @@ function renderProjectDetailColumn(data){
 	modifyButton.click(modifyProject);
 	var deleteButton = $('<button id="wip-button-project-delete" type="button" class="btn btn-warning" title="删除项目"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
 	deleteButton.click(deleteProject);
-	var operationGroup = $("<div></div").attr("id","wip-project-detail-operation").append(modifyButton," ",deleteButton);
+	var exportButton = $('<button id="wip-button-project-export" type="button" class="btn btn-warning" title="导出项目">导出项目</button>');
+	exportButton.click(exportProject);
+	var operationGroup = $("<div></div").attr("id","wip-project-detail-operation").append(modifyButton," ",deleteButton," ",exportButton);
 
 	$("#wip-project-detail-column").append(listGroup, $("<br />"), operationGroup);
 }
@@ -297,6 +300,37 @@ function modifyProject(){
 function refreshProject(){
 	current.initProject();
 	listProject(current.porderby);
+}
+
+function importProject(){
+	$("#wip-modal-project-import").modal("show");
+    var options = {
+        type:"POST",
+        url:"importproject",
+        beforeSerialize:function(form, opt){
+        },
+        beforeSubmit:function(formData, jqForm, opt){
+            //参数校验
+        },
+        success:function(){             
+            alert("提交成功!");
+            $("#wip-modal-project-import").modal("hide");
+            listProject();
+        },
+        error:function(xhr, status, error){
+            alert("提交失败，失败原因："+xhr.responseText);
+        }
+    };
+
+    $("#wip-modal-form-project-import").ajaxForm(options);
+}
+
+function exportProject(){
+	if(!current.getProject()) {
+		alert("请先选择project!");
+		return;
+	}
+	$.get("/exportproject?id="+current.getProject().id);
 }
 
 /******************************************************************************************************
@@ -563,7 +597,7 @@ function renderVulDetailColumn(data){
 			if(!value){
     			var uri=""
     		}else{
-    			var uri = PROTOCOLLIST[type]+"://"+value;
+    			var uri = value;
     		}
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
 			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
@@ -760,7 +794,7 @@ function renderCommentDetailColumn(data){
     		if(!value){
     			var uri=""
     		}else{
-    			var uri = PROTOCOLLIST[type]+"://"+value;
+    			var uri = value;
     		}
 			var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
 			var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);

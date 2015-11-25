@@ -1,2 +1,18 @@
+COPYING -- Describes the terms under which wiper is distributed. A copy
+of the GNU General Public License (GPL) is appended to this file.
 
-Copyright (c) 2014-2015 alpha1e0
+wiper is (C) 2014-2015 alpha1e0.
+
+This program is free software; you may redistribute and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation.
+
+This license does not apply to the following components:
+
+* The Dns library located under thirdparty/dns/.
+* The Beautiful Soup library located under thirdparty/beautifulsoup.
+* The Web library located under thirdparty/web/.
+* The Yaml library located under thirdparty/yaml/.
+* The Http library located under thirdparty/requests/.
+
+If you have other quetions, contact yan.shifm@foxmail.com

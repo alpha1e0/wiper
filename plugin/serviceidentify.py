@@ -77,23 +77,17 @@ class ServiceIdentify(Plugin):
 
 			for host in result:
 				host = Host(**host)
-				try:
-					host.title = host.protocol + "_service"
-				except AttributeError:
-					pass
+				if 'protocol' in host: host.title = host.protocol + "_service"
 				try:
 					host.protocol = self.portDict[int(host.port)]['protocol']
 				except (AttributeError, KeyError):
 					pass
-				try:
+				if 'description' in data: host.description = data.description
+				if 'level' in data: host.level = data.level
+				if 'protocol' in host:
 					if host.protocol in ["http","https"]:
-						host.url = data.url
-						#host.description = data.description
-						host.title = data.title
-					host.description = data.description
-					host.level = data.level
-				except AttributeError:
-					pass
+						if 'url' in data: host.url = data.url
+						if 'title' in data: host.title = data.title
 				try:
 					if host.protocol == "http":
 						self.HTTPIdentify(host)
