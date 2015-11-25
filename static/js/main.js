@@ -193,7 +193,7 @@ function renderProjectDetailColumn(data){
 	modifyButton.click(modifyProject);
 	var deleteButton = $('<button id="wip-button-project-delete" type="button" class="btn btn-warning" title="删除项目"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span></button>')
 	deleteButton.click(deleteProject);
-	var exportButton = $('<button id="wip-button-project-export" type="button" class="btn btn-warning" title="导出项目">导出项目</button>');
+	var exportButton = $('<button id="wip-button-project-export" type="button" class="btn btn-success" title="导出项目">导出项目</button>');
 	exportButton.click(exportProject);
 	var operationGroup = $("<div></div").attr("id","wip-project-detail-operation").append(modifyButton," ",deleteButton," ",exportButton);
 
@@ -330,7 +330,9 @@ function exportProject(){
 		alert("请先选择project!");
 		return;
 	}
-	$.get("/exportproject?id="+current.getProject().id);
+	$.get("/exportproject?id="+current.getProject().id,function(){
+		alert("导出成功，请到‘/static/tmp/’目录下下载");
+	});
 }
 
 /******************************************************************************************************

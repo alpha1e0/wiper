@@ -122,13 +122,14 @@ class Vul(Model):
 	def create(cls):
 		sqlCmd = ("create table if not exists vul ("
     		"id integer primary key autoincrement,"
-    		"name varchar(100) not null unique,"
+    		"name varchar(100) not null,"
     		"url varchar(4096),"
     		"info varchar(1024),"
     		"type integer,"
     		"level integer,"
     		"description text,"
     		"host_id integer not null,"
+    		"unique (name, host_id) on conflict replace,"
     		"foreign key (host_id) references host (id)"
 			")")
 		cls.sqlexec(sqlCmd)
@@ -158,13 +159,14 @@ class Comment(Model):
 	def create(cls):
 		sqlCmd = ("create table if not exists comment ("
     		"id integer primary key autoincrement, "
-    		"name varchar(100) not null unique,"
+    		"name varchar(100) not null,"
     		"url varchar(4096),"
     		"info varchar(1024),"
     		"level integer,"
     		"attachment varchar(200),"
     		"description text,"
     		"host_id integer not null,"
+    		"unique (name, host_id) on conflict replace,"
     		"foreign key (host_id) references host (id)"
 			")")
 		cls.sqlexec(sqlCmd)

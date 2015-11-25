@@ -174,7 +174,7 @@ class ProjectModify(object):
 		
 
 class ProjectImport(object):
-	def GET(self):
+	def POST(self):
 		web.header('Content-Type', 'application/json')
 		params = web.input(projectfile={})
 		try:
@@ -189,22 +189,33 @@ class ProjectImport(object):
 			del projectDict['hosts']
 		except KeyError:
 			pass
-		Project(**projectDict).save()
 		try:
-			projectid = Project.where(name=projectDict.get('name')).getraw('id')['id']
-		except KeyError:
-			raise web.internalerror("project import error")
+			Project(**projectDict).save()
+		except DBError:
+			raise web.internalerror("failed to insert project")
+		projectid = Project.where(name=projectDict.get('name')).getsraw('id')[0]['id']
+
 		for host in hosts:
-			for vul in host['vuls']:
-				Vul(**vul).save()
-			for comment in host['comments']:
-				Comment(**comment).save()
+			vuls = host.get("vuls",[])
+			comments = host.get("comments",[])
 			try:
 				del host['vuls']
 				del host['comments']
 			except KeyError:
 				pass
+			host['project_id'] = projectid
 			Host(**host).save()
+			kwargs = {key:host[key] for key in ['url','ip','port'] if key in host}
+			hostid = Host.where(**kwargs).getsraw('id')[0]['id']
+
+			for vul in vuls:
+				vul['host_id'] = hostid
+				Vul(**vul).save()
+			for comment in comments:
+				comment['host_id'] = hostid
+				Comment(**comment).save()
+
+		return jsonSuccess()
 
 
 class ProjectExport(object):
@@ -222,15 +233,16 @@ class ProjectExport(object):
 			
 			for host in hosts:
 				#print "debug:>>>>>>host",host
-				host['vuls'] = Vul.where(host_id=host['id']).getsraw('id','name','url','info','type','level','description')
-				host['comments'] = Comment.where(host_id=host['id']).getsraw('id','name','url','info','level','description')
+				host['vuls'] = Vul.where(host_id=host['id']).getsraw('name','url','info','type','level','description')
+				host['comments'] = Comment.where(host_id=host['id']).getsraw('name','url','info','level','description')
+				del host['id']
 				del host['tmp']
 				del host['project_id']
 			project['hosts'] = hosts
 			del project['id']
 
 		projectName = "_".join(project['name'].split(" "))
-		projectFile = os.path.join("static","tmp",projectName+".json")
+		projectFile = os.path.join("static","tmp",projectName+".proj")
 
 		try:
 			with open(projectFile,'w') as fd:
