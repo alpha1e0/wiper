@@ -88,8 +88,9 @@ class ServiceIdentify(Plugin):
 				try:
 					if host.protocol in ["http","https"]:
 						host.url = data.url
-						host.description = data.description
+						#host.description = data.description
 						host.title = data.title
+					host.description = data.description
 					host.level = data.level
 				except AttributeError:
 					pass

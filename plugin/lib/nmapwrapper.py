@@ -31,6 +31,7 @@ class Nmap(object):
 			cmd = cmd + " -oX -"
 		if CONF.nmap:
 			cmd.replace("namp", CONF.nmap)
+
 		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
 		scanResult = popen.stdout.read()
 

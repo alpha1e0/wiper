@@ -9,6 +9,8 @@ function Current(){
 	this.host = null;
 	this.vul = null;
 	this.comment = null;
+	this.porderby = null;
+	this.horderby = null;
 }
 
 Current.prototype.init = function(){
@@ -16,6 +18,8 @@ Current.prototype.init = function(){
 	this.host = null;
 	this.vul = null;
 	this.comment = null;
+	this.porderby = "level";
+	this.horderby = "level";
 
 	$("#wip-title-project").text("null");
 	$("#wip-title-host").text("null");
@@ -101,14 +105,13 @@ Current.prototype.setComment = function(comment){
 Current.prototype.getComment = function(){
 	return this.comment;
 }
-Current.prototype.record = function(){}
-Current.prototype.changed = function(){}
 
 /******************************************************************************************************
 * Date: 2015-8-6
 * Description: 初始化工作，绑定事件
 ******************************************************************************************************/
 var current = new Current();
+current.init();
 
 var LEVELLIST = ["undefined","关键","重要","一般","提示"];
 var LEVELCLASSLIST = ["list-group-item-info","list-group-item-danger","list-group-item-warning","list-group-item-info","list-group-item-success"];
@@ -200,6 +203,7 @@ function clearProjectDetailColumn(){
 
 function listProject(orderby="level"){
 	current.initProject();
+	current.porderby = orderby;
 	$.getJSON("/listproject?orderby="+orderby, function(result){
 		renderProjectListColumn(result);
 	});
@@ -230,7 +234,7 @@ function addProject(){
     	success:function(){   		
     		alert("提交成功!");
     		$("#wip-modal-project").modal("hide");
-    		listProject();
+    		listProject(current.porderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -251,7 +255,7 @@ function deleteProject(){
 	$.get("/deleteproject?id="+current.getProject().id, function(data,status){
 		$("#wip-project-detail").empty();
 		current.setProject(null);
-		listProject();
+		listProject(current.porderby);
 	});	
 }
 
@@ -267,6 +271,8 @@ function modifyProject(){
 	$("#wip-modal-form-project-ip").val(current.getProject().ip);
 	$("#wip-modal-form-project-whois").val(current.getProject().whois);
 	$("#wip-modal-form-project-description").val(current.getProject().description);
+	//$("input:radio").attr("checked",false);
+	$("input[name='level']").get(current.getProject().level-1).checked=true;
 
 	
 	var options = {
@@ -278,7 +284,7 @@ function modifyProject(){
     	success:function(){    		
     		alert("提交成功!");
     		$("#wip-modal-project").modal("hide");
-    		listProject();
+    		listProject(current.porderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -290,7 +296,7 @@ function modifyProject(){
 
 function refreshProject(){
 	current.initProject();
-	listProject();
+	listProject(current.porderby);
 }
 
 /******************************************************************************************************
@@ -374,6 +380,7 @@ function clearHostDetailColumn(){
 }
 
 function listHost(orderby="level"){
+	current.horderby = orderby;
 	if(!current.getProject()) {
 		//alert("请先选择Project!");
 		return;
@@ -442,7 +449,7 @@ function addHost(){
     	success:function(){   		
     		alert("提交成功!");
     		$("#wip-modal-host").modal("hide");
-    		listHost();
+    		listHost(current.horderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -463,7 +470,7 @@ function deleteHost(){
 	$.get("/deletehost?id="+current.getHost().id, function(data,status){		
 		$("#wip-vul-comment-list").empty();
 		current.setHost(null);
-		listHost();
+		listHost(current.horderby);
 	});	
 }
 
@@ -476,12 +483,15 @@ function modifyHost(){
 	$("#wip-modal-form-host-id").val(current.getHost().id);
 	$("#wip-modal-form-host-url").val(current.getHost().url);
 	$("#wip-modal-form-host-ip").val(current.getHost().ip);
+	$("#wip-modal-form-host-port").val(current.getHost().port);
+	$("#wip-modal-form-host-protocol option[value="+current.getHost().protocol+"]").attr("selected",true);
 	$("#wip-modal-form-host-title").val(current.getHost().title);
-	$("#wip-modal-form-host-level").val(current.getHost().level);
 	$("#wip-modal-form-host-os").val(current.getHost().os);
 	$("#wip-modal-form-host-server_info").val(current.getHost().server_info);
 	$("#wip-modal-form-host-middleware").val(current.getHost().middleware);
 	$("#wip-modal-form-host-description").val(current.getHost().description);
+	//$("input:radio").attr("checked",false);
+	$("input[name='level']").get(current.getHost().level+3).checked=true;
 	
 	var options = {
     	type:"POST",
@@ -491,7 +501,7 @@ function modifyHost(){
     	success:function(){    		
     		alert("提交成功!");
     		$("#wip-modal-host").modal("hide");
-    		listHost();
+    		listHost(current.horderby);
     	},
     	error:function(xhr, status, error){
     	 	alert("提交失败，失败原因："+xhr.responseText);
@@ -505,7 +515,7 @@ function refreshHost(){
 	current.initHost();
 	//clearHostListColumn();
 	//clearHostDetailColumn();
-	listHost();
+	listHost(current.horderby);
 }
 
 /******************************************************************************************************
@@ -674,8 +684,8 @@ function modifyVul(){
 	$("#wip-modal-form-vul-url").val(current.getVul().url);
 	$("#wip-modal-form-vul-info").val(current.getVul().info);
 	$("#wip-modal-form-vul-type").val(current.getVul().type);
-	$("#wip-modal-form-vul-level").val(current.getVul().level);
 	$("#wip-modal-form-vul-description").val(current.getVul().description);
+	$("input[name='level']").get(current.getVul().level+7).checked=true;
 	
 	var options = {
     	type:"POST",
@@ -872,9 +882,9 @@ function modifyComment(){
     $("#wip-modal-form-comment-name").val(current.getComment().name);
     $("#wip-modal-form-comment-url").val(current.getComment().url);
     $("#wip-modal-form-comment-info").val(current.getComment().info);        
-    $("#wip-modal-form-comment-level").val(current.getComment().level);
     $("#wip-modal-form-comment-type").val(current.getComment().attachment);
     $("#wip-modal-form-comment-description").val(current.getComment().description);
+    $("input[name='level']").get(current.getComment().level+11).checked=true;
         
     var options = {
         type:"POST",
