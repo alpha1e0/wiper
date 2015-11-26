@@ -191,8 +191,8 @@ class ProjectImport(object):
 			pass
 		try:
 			Project(**projectDict).save()
-		except DBError:
-			raise web.internalerror("failed to insert project")
+		except DBError as error:
+			raise web.internalerror("failed to insert project "+str(error))
 		projectid = Project.where(name=projectDict.get('name')).getsraw('id')[0]['id']
 
 		for host in hosts:
@@ -204,6 +204,7 @@ class ProjectImport(object):
 			except KeyError:
 				pass
 			host['project_id'] = projectid
+			print "debug:>>>>>", host
 			Host(**host).save()
 			kwargs = {key:host[key] for key in ['url','ip','port'] if key in host}
 			hostid = Host.where(**kwargs).getsraw('id')[0]['id']
@@ -497,6 +498,8 @@ class SubDomianScan(object):
 			task = (task + GoogleHacking()) if task else GoogleHacking()
 		if "zonetrans" in params.keys():
 			task = (task + ZoneTrans()) if task else ZoneTrans()
+		if task is None:
+			task = GoogleHacking()
 
 		task = task | ServiceIdentify() | DataSave(projectid=projectid)
 

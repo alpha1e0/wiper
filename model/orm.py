@@ -416,7 +416,7 @@ class Model(Dict):
 
 		params = cls._paramFormat(kwargs)
 		keys = ",".join([k for k in params])
-		values = ",".join(["'"+params[k]+"'" for k in params])
+		values = ",".join(["'"+str(params[k] if params[k] else "")+"'" for k in params])
 
 		sqlCmd = "insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values)
 		
@@ -438,7 +438,7 @@ class Model(Dict):
 		for row in rows:
 			params = cls._paramFormat(row)
 			keys = ",".join([k for k in params])
-			values = ",".join(["'"+params[k]+"'" for k in params])
+			values = ",".join(["'"+str(params[k] if params[k] else "")+"'" for k in params])
 
 			sqlCmdList.append("insert into {table}({keys}) values({values})".format(table=cls._table,keys=keys,values=values))
 
@@ -456,7 +456,7 @@ class Model(Dict):
 			return False
 
 		params = cls._paramFormat(kwargs)
-		setValue = [k+"='"+str(v)+"'" for k,v in params.iteritems()]
+		setValue = [k+"='"+str(v if v else "")+"'" for k,v in params.iteritems()]
 		setValue = ",".join(setValue)
 
 		sqlCmd = "update {table} set {setvalue} {where}".format(table=cls._table,setvalue=setValue,where=cls.strWhere())
@@ -497,12 +497,12 @@ class Model(Dict):
 		if not update:
 			params = self._paramFormat(self)
 			keys = ",".join([k for k in params])
-			values = ",".join(["'"+params[k]+"'" for k in params])
+			values = ",".join(["'"+str(params[k] if params[k] else "")+"'" for k in params])
 			sqlCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
 		else:
 			params = self._paramFormat(self)
 			print "debug",params
-			setValue = [k+"='"+str(v)+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
+			setValue = [k+"='"+str(v if v else "")+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
 			setValue = ",".join(setValue)
 			where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
 			sqlCmd = "update {table} set {setvalue} {where}".format(table=self._table,setvalue=setValue,where=where)
