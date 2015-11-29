@@ -16,7 +16,7 @@ clone到本地
 
 wiper支持Windows/Linux/MacOS，需使用python **2.6.x** 或 **2.7.x**运行
 
-### 依赖：
+### 依赖
 
 wiper的一些功能依赖于Nmap，因此需要安装[Nmap](http://insecure.org/)
 
