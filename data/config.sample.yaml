@@ -1,6 +1,6 @@
 # the sample configure file
 db:
-  name: wiper.db
+  name: test.db
 dns:
   servers:
   - 223.5.5.5
