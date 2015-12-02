@@ -12,7 +12,7 @@ function initSetupPage(){
 }
 
 function hideAllSetup(){
-	$("#wip-setup-db").hide();
+    $("#wip-setup-db").hide();
     $("#wip-setup-dict").hide();
     $("#wip-setup-else").hide();
 }
@@ -33,13 +33,13 @@ function addDB() {
 }
 
 function showDBSetup() {
-	hideAllSetup();
-	$("#wip-setup-db").show();
-	inactiveAllSetupButton();
-	$("#wip-button-setup-db").parent().addClass("active");
+    hideAllSetup();
+    $("#wip-setup-db").show();
+    inactiveAllSetupButton();
+    $("#wip-button-setup-db").parent().addClass("active");
 
     $("#wip-form-setup-db-select").empty();
-	$.getJSON("/dbsetup", function(result){
+    $.getJSON("/dbsetup", function(result){
         $.each(result.all, function(i, value){
             $("#wip-form-setup-db-select").append($("<option></option").val(value).text(value));
         });
@@ -49,7 +49,7 @@ function showDBSetup() {
     $("#wip-form-button-setup-db-dbadd").unbind("click");
     $("#wip-form-button-setup-db-dbadd").click(addDB);
 
-	var options = {
+    var options = {
         type:"post",
         url:"dbsetup",
         beforeSerialize:function(form, opt){
@@ -68,10 +68,10 @@ function showDBSetup() {
 }
 
 function showDictSetup() {
-	hideAllSetup();
-	$("#wip-setup-dict").show();
-	inactiveAllSetupButton();
-	$("#wip-button-setup-dict").parent().addClass("active");
+    hideAllSetup();
+    $("#wip-setup-dict").show();
+    inactiveAllSetupButton();
+    $("#wip-button-setup-dict").parent().addClass("active");
 
     var options = {
         type:"POST",
@@ -92,10 +92,10 @@ function showDictSetup() {
 }
 
 function showElseSetup() {
-	hideAllSetup();
-	$("#wip-setup-else").show();
-	inactiveAllSetupButton();
-	$("#wip-button-setup-else").parent().addClass("active");
+    hideAllSetup();
+    $("#wip-setup-else").show();
+    inactiveAllSetupButton();
+    $("#wip-button-setup-else").parent().addClass("active");
 
     var options = {
         type:"POST",

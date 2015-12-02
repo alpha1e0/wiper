@@ -14,24 +14,24 @@ from model.dbmanage import DBError
 
 
 class DataSave(Plugin):
-	def __init__(self, projectid, hostid=None, log=True, defaultValue={}):
-		super(DataSave, self).__init__(timeout=1, log=log)
-		self.defaultValue = defaultValue
-		self.projectid = projectid
-		self.hostid = hostid
+    def __init__(self, projectid, hostid=None, log=True, defaultValue={}):
+        super(DataSave, self).__init__(timeout=1, log=log)
+        self.defaultValue = defaultValue
+        self.projectid = projectid
+        self.hostid = hostid
 
-	def handle(self, data):
-		try:
-			if isinstance(data, Host):
-				data.project_id = self.projectid
-				for key,value in self.defaultValue.iteritems():
-					data[key] = value
-				data.save()
-			elif isinstance(data, Vul) or isinstance(data, Comment):
-				data.host_id = self.hostid
-				data.save()
-			elif isinstance(data, Project):
-				data.save()
-		except DBError as error:
-			if self.log:
-				self.log.error("save model error"+str(error))
+    def handle(self, data):
+        try:
+            if isinstance(data, Host):
+                data.project_id = self.projectid
+                for key,value in self.defaultValue.iteritems():
+                    data[key] = value
+                data.save()
+            elif isinstance(data, Vul) or isinstance(data, Comment):
+                data.host_id = self.hostid
+                data.save()
+            elif isinstance(data, Project):
+                data.save()
+        except DBError as error:
+            if self.log:
+                self.log.error("save model error"+str(error))
