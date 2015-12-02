@@ -15,43 +15,43 @@ from thirdparty.BeautifulSoup import BeautifulStoneSoup, NavigableString
 
 
 class Nmap(object):
-	'''
-	Nmap scan.
-	'''
-	@classmethod
-	def scan(cls, cmd):
-		'''
-		Nmap scan.
-		output:
-			a list of Host
-		'''
-		result = list()
+    '''
+    Nmap scan.
+    '''
+    @classmethod
+    def scan(cls, cmd):
+        '''
+        Nmap scan.
+        output:
+            a list of Host
+        '''
+        result = list()
 
-		if "-oX" not in cmd:
-			cmd = cmd + " -oX -"
-		if CONF.nmap:
-			cmd.replace("namp", CONF.nmap)
+        if "-oX" not in cmd:
+            cmd = cmd + " -oX -"
+        if CONF.nmap:
+            cmd.replace("namp", CONF.nmap)
 
-		popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
-		scanResult = popen.stdout.read()
+        popen = Popen(cmd, shell=True, stdout=PIPE, stderr=STDOUT)
+        scanResult = popen.stdout.read()
 
-		#parse the nmap scan result		
-		xmlDoc = BeautifulStoneSoup(scanResult)
-		hosts = xmlDoc.findAll("host")
-		for host in hosts:
-			if isinstance(host, NavigableString) or host.name!="host" or host.status['state']!="up":
-				continue
-			ip = host.address['addr']
-			#url = host.hostnames.hostname['name']
-			try:
-				ports = host.ports.contents
-			except AttributeError:
-				result.append(Dict(**{'ip':ip}))
-				continue
-			else:
-				for port in ports:
-					if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
-						continue
-					result.append(Dict(ip=ip,port=port['portid'],protocol=port.service['name']))
+        #parse the nmap scan result     
+        xmlDoc = BeautifulStoneSoup(scanResult)
+        hosts = xmlDoc.findAll("host")
+        for host in hosts:
+            if isinstance(host, NavigableString) or host.name!="host" or host.status['state']!="up":
+                continue
+            ip = host.address['addr']
+            #url = host.hostnames.hostname['name']
+            try:
+                ports = host.ports.contents
+            except AttributeError:
+                result.append(Dict(**{'ip':ip}))
+                continue
+            else:
+                for port in ports:
+                    if isinstance(port, NavigableString) or port.name != "port" or port.state['state']!="open": 
+                        continue
+                    result.append(Dict(ip=ip,port=port['portid'],protocol=port.service['name']))
 
-		return result
+        return result

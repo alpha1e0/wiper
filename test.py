@@ -20,9 +20,9 @@ sys.setdefaultencoding("utf-8")
 #re = query.doSearch(engine="bing", size=5)
 #print re
 #for line in re:
-#	print line[0]
-#	print line[1]
-#	print line[2]
+#   print line[0]
+#   print line[1]
+#   print line[2]
 
 
 #=================================================nmap test===========================================
@@ -80,21 +80,21 @@ from model.model import Host
 
 
 class plu(Plugin):
-	def __init__(self, namestr):
-		self.namestr = namestr
-		super(plu,self).__init__(timeout=1)
-	def handle(self, data):
-		print "debug: " + self.name + " got " + data.description
-		data.description = self.namestr + "handle"
-		self.put(data)
+    def __init__(self, namestr):
+        self.namestr = namestr
+        super(plu,self).__init__(timeout=1)
+    def handle(self, data):
+        print "debug: " + self.name + " got " + data.description
+        data.description = self.namestr + "handle"
+        self.put(data)
 
 class end(Plugin):
-	def __init__(self, namestr):
-		self.namestr = namestr
-		super(end,self).__init__(timeout=1)
-	def handle(self, data):
-		print "debug: " + self.name + " got " + data.description
-		pass
+    def __init__(self, namestr):
+        self.namestr = namestr
+        super(end,self).__init__(timeout=1)
+    def handle(self, data):
+        print "debug: " + self.name + " got " + data.description
+        pass
 
 #host = Host()
 #host.description = "init host"#
@@ -117,60 +117,60 @@ class end(Plugin):
 
 
 if __name__ == '__main__':
-	#config.RTD.log = config.Log()
-	config.RTD.taskManager = Manager()
+    #config.RTD.log = config.Log()
+    config.RTD.taskManager = Manager()
 
 
-	host = Host()
-	#host.url = "baidu.com"
-	host.url = "thinksns.com"
-	host.ip = "61.164.118.174"
-	#host.ip = "61.164.118.4"
-	#host.url = "xiuren.com"
+    host = Host()
+    #host.url = "baidu.com"
+    host.url = "thinksns.com"
+    host.ip = "61.164.118.174"
+    #host.ip = "61.164.118.4"
+    #host.url = "xiuren.com"
 
-	#p = ZoneTrans() | DataSave(1,1)
-	#p = DnsBrute(["test.txt"]) | DataSave(1,1)
-	#p = GoogleHacking() | DataSave(1,1)
-	#p = SubnetScan() | DataSave(1,1)
-	#p = ServiceIdentify() | DataSave(1,1)
-	google = GoogleHacking()
-	dns = DnsBrute(["test"])
-	zone = ZoneTrans()
-	sub = SubnetScan()
-	serv = ServiceIdentify()
-	data = DataSave(1,1)
+    #p = ZoneTrans() | DataSave(1,1)
+    #p = DnsBrute(["test.txt"]) | DataSave(1,1)
+    #p = GoogleHacking() | DataSave(1,1)
+    #p = SubnetScan() | DataSave(1,1)
+    #p = ServiceIdentify() | DataSave(1,1)
+    google = GoogleHacking()
+    dns = DnsBrute(["test"])
+    zone = ZoneTrans()
+    sub = SubnetScan()
+    serv = ServiceIdentify()
+    data = DataSave(1,1)
 
-	#p = (zone + google
-	#p = (dns + google + zone) | serv | data
-	p = google | serv | data
-	#p = (GoogleHacking() + DnsBrute(["test"]) + ZoneTrans() + SubnetScan()) | ServiceIdentify() | DataSave(1,1)
-	p.dostart([host])
+    #p = (zone + google
+    #p = (dns + google + zone) | serv | data
+    p = google | serv | data
+    #p = (GoogleHacking() + DnsBrute(["test"]) + ZoneTrans() + SubnetScan()) | ServiceIdentify() | DataSave(1,1)
+    p.dostart([host])
 
-	time.sleep(6000)
+    time.sleep(6000)
 
 
 import re
 from thirdparty import requests
 
 def getTitle(html, text):
-	titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
-	charset = None
-	charsetPos = html[0:500].lower().find("charset")
-	if charsetPos != -1:
-		charsetSlice = html[charsetPos:charsetPos+18]
-		charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
-		for key,value in charsetList.iteritems():
-			if key in charsetSlice:
-				charset = value
-				break
-	if not charset:
-		charset = "utf-8"
-	try:
-		decodedHtml = html.decode(charset)
-		match = titlePattern.search(decodedHtml)
-	except:
-		match = titlePattern.search(text)
-	return match.groups()[0] if match else "title not found"
+    titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
+    charset = None
+    charsetPos = html[0:500].lower().find("charset")
+    if charsetPos != -1:
+        charsetSlice = html[charsetPos:charsetPos+18]
+        charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
+        for key,value in charsetList.iteritems():
+            if key in charsetSlice:
+                charset = value
+                break
+    if not charset:
+        charset = "utf-8"
+    try:
+        decodedHtml = html.decode(charset)
+        match = titlePattern.search(decodedHtml)
+    except:
+        match = titlePattern.search(text)
+    return match.groups()[0] if match else "title not found"
 
 #url = "http://d3.thinksns.com/"
 url = "https://121.199.57.104"

@@ -14,6 +14,6 @@ from model.model import Project, Host, Vul, Comment
 
 
 if __name__ == "__main__":
-	config.RTD.taskManager = multiprocessing.Manager()
+    config.RTD.taskManager = multiprocessing.Manager()
 
-	startServer()
+    startServer()
