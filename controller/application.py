@@ -204,7 +204,6 @@ class ProjectImport(object):
             except KeyError:
                 pass
             host['project_id'] = projectid
-            print "debug:>>>>>", host
             Host(**host).save()
             kwargs = {key:host[key] for key in ['url','ip','port'] if key in host}
             hostid = Host.where(**kwargs).getsraw('id')[0]['id']
@@ -228,12 +227,10 @@ class ProjectExport(object):
             raise web.internalerror("parameter error.")
 
         project = Project.getraw(projectid)
-        #print "debug:>>>>>project",project
         if project:
             hosts = Host.where(project_id=projectid,tmp=0).getsraw()
             
             for host in hosts:
-                #print "debug:>>>>>>host",host
                 host['vuls'] = Vul.where(host_id=host['id']).getsraw('name','url','info','type','level','description')
                 host['comments'] = Comment.where(host_id=host['id']).getsraw('name','url','info','level','description')
                 del host['id']
