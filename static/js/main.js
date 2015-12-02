@@ -594,7 +594,7 @@ function renderVulDetailColumn(data){
     if(!data) return;
     function genRow(name, value, type=0){
         if(type==0){
-            var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
+            var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
         }else{
             if(!value){
                 var uri=""
@@ -602,7 +602,7 @@ function renderVulDetailColumn(data){
                 var uri = value;
             }
             var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-            var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
+            var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
         }
         return row;
     }
@@ -791,7 +791,7 @@ function renderCommentDetailColumn(data){
     if(!data) return;
     function genRow(name, value, type=0){
         if(type==0){
-            var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
+            var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
         }else{
             if(!value){
                 var uri=""
@@ -799,7 +799,7 @@ function renderCommentDetailColumn(data){
                 var uri = value;
             }
             var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
-            var row = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
+            var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
         }
         return row;
     }
