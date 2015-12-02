@@ -2,5 +2,6 @@ wip.sublime-project
 wip.sublime-workspace
 *.pyc
 /data/config.yaml
+/data/database/*
 /log/*
 /static/attachment/*
