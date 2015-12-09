@@ -96,6 +96,17 @@ class Install(object):
             ("dbname","string","1-50"),
         )
 
+        if not os.path.exists("log"):
+            os.mkdir("log")
+        if not os.path.exists(os.path.join("static","attachment")):
+            os.mkdir(os.path.join("static","attachment"))
+        if not os.path.exists(os.path.join("static","tmp")):
+            os.mkdir(os.path.join("static","tmp"))
+        if not os.path.exists("data"):
+            os.mkdir("data")
+        if not os.path.exists(os.path.join("data","database")):
+            os.mkdir(os.path.join("data","database"))
+
         try:
             params = formatParam(originParams, options)
         except ParamError as error:
@@ -113,17 +124,6 @@ class Install(object):
 
         CONF.isinstall = True
         CONF.save()
-
-        if not os.path.exists("log"):
-            os.mkdir("log")
-        if not os.path.exists(os.path.join("static","attachment")):
-            os.mkdir(os.path.join("static","attachment"))
-        if not os.path.exists(os.path.join("static","tmp")):
-            os.mkdir(os.path.join("static","tmp"))
-        if not os.path.exists("data"):
-            os.mkdir("data")
-        if not os.path.exists(os.path.join("data","database")):
-            os.mkdir(os.path.join("data","database"))
 
         return jsonSuccess()
 

@@ -45,6 +45,9 @@ class Log(object):
     critical, error, warning, info, debug, notset
     '''
     def __new__(cls, logname=None):
+        if not os.path.exists("log"):
+            os.mkdir("log")
+            
         if not logname:
             log = logging.getLogger('wiper')
             log.setLevel(logging.DEBUG)
