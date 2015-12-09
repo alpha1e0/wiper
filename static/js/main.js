@@ -601,7 +601,7 @@ function renderVulDetailColumn(data){
             }else{
                 var uri = value;
             }
-            var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
+            var a = $("<a></a>").attr("href", type+"://"+uri).attr("target","_blank").text(uri);
             var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
         }
         return row;
@@ -798,7 +798,7 @@ function renderCommentDetailColumn(data){
             }else{
                 var uri = value;
             }
-            var a = $("<a></a>").attr("href", uri).attr("target","_blank").text(uri);
+            var a = $("<a></a>").attr("href", type+"://"+uri).attr("target","_blank").text(uri);
             var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), a);
         }
         return row;
@@ -813,7 +813,6 @@ function renderCommentDetailColumn(data){
     listGroup.append(genRow("描述", data.description));
     var link = $("<a></a>").attr("href", "static/attachment/"+data.attachment).attr("target","_blank").text(data.attachment);
     var attachmentItem = $("<div></div>").addClass("list-group-item").append($("<b class='text-primary'></b>").text("附件"+":\t"), $("<br />"), link);
-    //attachmentItem.attr("href","static/attachment/"+data.attachment).attr("target","_blank");
     listGroup.append(attachmentItem);
 
     var modifyButton = $('<button id="wip-button-comment-modify" type="button" class="btn btn-success" title="修改备注"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></button>')
