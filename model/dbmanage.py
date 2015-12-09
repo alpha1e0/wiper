@@ -50,7 +50,6 @@ class DBManage(object):
         Connect to database, if failed retrys
         '''
         for i in xrange(self.__retry):
-            success = True
             try:
                 self.__con = mdb.connect(self.__db)
             except mdb.Error as error:
@@ -60,7 +59,8 @@ class DBManage(object):
             else:
                 break
         else:
-            raise DBError("cannot connect to the server.")
+            #RTD.log.error("DBError, cannot connect to the database, reason:{0}".format(str(error)))
+            raise DBError("cannot connect to the server.")            
         
         self.__con.row_factory = mdb.Row
         self.__cur = self.__con.cursor()
