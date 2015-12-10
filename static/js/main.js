@@ -520,6 +520,7 @@ function modifyHost(){
     $("#wip-modal-form-host-url").val(current.getHost().url);
     $("#wip-modal-form-host-ip").val(current.getHost().ip);
     $("#wip-modal-form-host-port").val(current.getHost().port);
+    $("#wip-modal-form-host-protocol option:selected").removeAttr("selected");
     $("#wip-modal-form-host-protocol option[value="+current.getHost().protocol+"]").attr("selected",true);
     $("#wip-modal-form-host-title").val(current.getHost().title);
     $("#wip-modal-form-host-os").val(current.getHost().os);
@@ -719,9 +720,10 @@ function modifyVul(){
     $("#wip-modal-form-vul-name").val(current.getVul().name);
     $("#wip-modal-form-vul-url").val(current.getVul().url);
     $("#wip-modal-form-vul-info").val(current.getVul().info);
-    $("#wip-modal-form-vul-type").val(current.getVul().type);
     $("#wip-modal-form-vul-description").val(current.getVul().description);
     $("input[name='level']").get(current.getVul().level+7).checked=true;
+    $("#wip-modal-form-vul-type option:selected").removeAttr("selected");
+    $("#wip-modal-form-vul-type option[value="+current.getVul().type+"]").attr("selected",true);
     
     var options = {
         type:"POST",
