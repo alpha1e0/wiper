@@ -375,7 +375,9 @@ function clearHostListColumn(){
 function renderHostDetailColumn(data){
     if (!data) return;
     //type:protocol type ["undefined","http","https","ftp","ssh","telnet","vnc","rdp","mysql","sqlserver","oracle"]
-    function genRow(name, value, protocol=null, port=null){
+    function genRow(name, value){
+        var protocol = arguments[2] ? arguments[2]:null;
+        var port = arguments[3] ? arguments[3]:null;
         if (protocol==null) {
             var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
         } else {            
@@ -595,7 +597,8 @@ function clearVulListColumn(){
 
 function renderVulDetailColumn(data){
     if(!data) return;
-    function genRow(name, value, type=0){
+    function genRow(name, value){
+        var type = arguments[2] ? arguments[2]:0;
         if(type==0){
             var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
         }else{
@@ -632,7 +635,8 @@ function clearVulDetailColumn(){
     $("#wip-vul-detail-column").empty();
 }
 
-function listVul(orderby="level"){
+function listVul(){
+    var orderby = arguments[0] ? arguments[0]:"level";
     if(!current.getHost()) {
         alert("请先选择Host!");
         return;
@@ -793,7 +797,8 @@ function clearCommentListColumn(){
 
 function renderCommentDetailColumn(data){
     if(!data) return;
-    function genRow(name, value, type=0){
+    function genRow(name, value){
+        var type = arguments[2] ? arguments[2]:0;
         if(type==0){
             var row = $("<pre></pre>").addClass("list-group-item").append($("<b class='text-primary'></b>").text(name+":\t"), $("<br />"), value);
         }else{
@@ -832,7 +837,8 @@ function clearCommentDetailColumn(){
     $("#wip-vul-detail-column").empty();
 }
 
-function listComment(orderby="level"){
+function listComment(){
+    var orderby = arguments[0] ? arguments[0]:"level";
     if(!current.getHost()) {
         alert("请先选择Host!");
         return;
