@@ -204,7 +204,8 @@ function clearProjectDetailColumn(){
     $("#wip-project-detail-column").empty();
 }
 
-function listProject(orderby="level"){
+function listProject(){
+    var orderby = arguments[0] ? arguments[0]:"level";
     current.initProject();
     current.porderby = orderby;
     $.getJSON("/listproject?orderby="+orderby, function(result){
@@ -415,7 +416,8 @@ function clearHostDetailColumn(){
     $("#wip-host-detail-column").empty();
 }
 
-function listHost(orderby="level"){
+function listHost(){
+    var orderby = arguments[0] ? arguments[0]:"level";
     current.horderby = orderby;
     if(!current.getProject()) {
         //alert("请先选择Project!");
