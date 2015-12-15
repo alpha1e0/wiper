@@ -84,7 +84,9 @@ function delIP(){
     $("#wip-form-autotask-subnetscan-ipselect option:selected").remove();
 }
 
-function addIP(pip=null,pcount=null){
+function addIP(){
+    var pip = arguments[0] ? arguments[0]:null;
+    var pcount = arguments[0] ? arguments[0]:null;
     if (pip==null) {
         var ip = $("#wip-form-input-autotask-subnetscan-ipadd").val();
         var count = 1;
