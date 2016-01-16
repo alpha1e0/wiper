@@ -10,7 +10,7 @@ wiper是一个WEB渗透测试辅助工具，主要用于前期信息收集、攻
 
 从[这里](https://github.com/alpha1e0/wiper)下载最新版本，或使用命令
 
-	git clone https://github.com/alpha1e0/wiper
+	git clone https://github.com/alpha1e0/wiper.git
 
 clone到本地
 
@@ -27,5 +27,12 @@ Nmap会默认添加环境变量，如果希望自己修改Nmap路径，则可以
 ## 使用
 
 python wiper.py
+
+---
+
+## 备注
+
+请勿用于**未授权**的渗透测试
+
 
 

@@ -11,7 +11,7 @@ body {
 }
 
 hr {
-	border-top: 2px solid #000000;
+  border-top: 2px solid #000000;
 }
 
 hr.thin {
@@ -19,8 +19,8 @@ hr.thin {
 }
 
 div.content-list {
-	border-radius: 5px;
-	box-shadow: 2px 2px 2px #888888;
+  border-radius: 5px;
+  box-shadow: 2px 2px 2px #888888;
   overflow: auto;
 }
 
@@ -29,11 +29,11 @@ span.copyright {
 }
 
 pre {
- white-space: pre-wrap;       /* css-3 */
- white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
- white-space: -pre-wrap;      /* Opera 4-6 */
- white-space: -o-pre-wrap;    /* Opera 7 */
- word-wrap: break-word;       /* Internet Explorer 5.5+ */
+  white-space: pre-wrap;       /* css-3 */
+  white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+  white-space: -pre-wrap;      /* Opera 4-6 */
+  white-space: -o-pre-wrap;    /* Opera 7 */
+  word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
 
 /*
