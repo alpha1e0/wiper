@@ -144,6 +144,14 @@ $(document).ready(function() {
 
 });
 
+
+function adjustListColumnHeight(listdom) {
+    var maxheight = document.documentElement.clientHeight - 200;
+    maxheight = maxheight + "px";
+    //listdom.css({"max-height":maxheight;});
+    listdom.css("max-height",maxheight);
+}
+
 /******************************************************************************************************
 * Date: 2015-8-6
 * Author: alphp1e0
@@ -162,6 +170,7 @@ function renderProjectListColumn(data){
 
     clearProjectListColumn();
     var listGroup = $("<div></div").attr("id","wip-project-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     for(var i=0;i<data.length;i++){
         listGroup.append(genRow(data[i]));
     }
@@ -181,6 +190,7 @@ function renderProjectDetailColumn(data){
 
     clearProjectDetailColumn();
     var listGroup = $("<div></div").attr("id","wip-project-detail-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     listGroup.append(genRow("项目名称", data.name));
     listGroup.append(genRow("URL地址", data.url));
     listGroup.append(genRow("IP地址", data.ip));
@@ -362,6 +372,7 @@ function renderHostListColumn(data){
     }
     clearHostListColumn();
     var listGroup = $("<div></div").attr("id","wip-host-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     for(var i=0; i<data.length; i++){
         listGroup.append(genRow(data[i]));
     }
@@ -390,6 +401,7 @@ function renderHostDetailColumn(data){
 
     clearHostDetailColumn();
     var listGroup = $("<div></div").attr("id","wip-host-detail-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     listGroup.append(genRow("Title", data.title));
     if(data.protocol=="http" || data.protocol=="https") {
         listGroup.append(genRow("URL地址", data.url, data.protocol, data.port));
@@ -584,6 +596,7 @@ function renderVulListColumn(data){
     var operationGroup = $("<div></div").attr("id","wip-vul-list-operation").append(refreshButton," ",addButton,$("<hr class='thin'/>"));
 
     var listGroup = $("<div></div").attr("id","wip-vul-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     for(var i=0; i<data.length; i++){
         listGroup.append(genRow(data[i]));
     }
@@ -615,6 +628,7 @@ function renderVulDetailColumn(data){
 
     clearVulDetailColumn();
     var listGroup = $("<div></div").attr("id","wip-vul-detail-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     listGroup.append(genRow("名称", data.name));
     listGroup.append(genRow("等级", LEVELLIST[data.level]));
     listGroup.append(genRow("URL地址", data.url, current.getHost().protocol));
@@ -784,6 +798,7 @@ function renderCommentListColumn(data){
     var operationGroup = $("<div></div").attr("id","wip-comment-list-operation").append(refreshButton, " ", addButton, " ", attachButton, $("<hr class='thin'/>"));
 
     var listGroup = $("<div></div").attr("id","wip-comment-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     for(var i=0; i<data.length; i++){
         listGroup.append(genRow(data[i]));
     }
@@ -815,6 +830,7 @@ function renderCommentDetailColumn(data){
 
     clearCommentDetailColumn();
     var listGroup = $("<div></div").attr("id","wip-comment-detail-list").addClass("content-list");
+    adjustListColumnHeight(listGroup);
     listGroup.append(genRow("名称", data.name));
     listGroup.append(genRow("等级", LEVELLIST[data.level]));
     listGroup.append(genRow("URL地址", data.url, current.getHost().protocol));
