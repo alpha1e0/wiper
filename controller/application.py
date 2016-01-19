@@ -156,11 +156,26 @@ class ProjectAdd(object):
 
 
 class ProjectDelete(object):
-    @handleException
     def GET(self):
         params = web.input()
-        project = Project.get(params.id)
+        if not params.id.strip().isdigit():
+            raise web.internalerror("Parameter type error.")
+
+        project = Project.get(params.id.strip())
+        hosts = Host.where(project_id=project.id).gets("id")
+        for host in hosts:
+            vuls = Vul.where(host_id=host.id).gets("id")
+            for vul in vuls:
+                vul.remove()
+
+            comments = Comment.where(host_id=host.id).gets("id")
+            for comment in comments:
+                comment.remove()
+
+            host.remove()
+
         project.remove()
+
         return jsonSuccess()
 
 
@@ -277,10 +292,22 @@ class HostAdd(object):
 
 
 class HostDelete(object):
-    @handleException
     def GET(self):
         params = web.input()
-        Host.delete(params.id.strip())
+        if not params.id.strip().isdigit():
+            raise web.internalerror("Parameter type error.")
+
+        host = Host.get(params.id.strip())
+        vuls = Vul.where(host_id=host.id).gets("id")
+        for vul in vuls:
+            vul.remove()
+
+        comments = Comment.where(host_id=host.id).gets("id")
+        for comment in comments:
+            comment.remove()
+
+        host.remove()
+
         return jsonSuccess()
 
 
