@@ -12,8 +12,6 @@ import time
 
 from thirdparty.dns import resolver, reversename, query
 from thirdparty.dns.exception import DNSException
-#from dns import resolver, reversename, query
-#from dns.exception import DNSException
 
 from config import CONF
 
