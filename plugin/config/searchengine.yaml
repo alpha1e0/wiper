@@ -6,7 +6,7 @@
 
 #https://www.baidu.com/s?wd=angelababy&ie=utf-8&rn=20&pn=1
 baidu: 
-  url: http://www.baidu.com/s?
+  url: http://www.baidu.com/s
   default: #默认使用的参数
     tn: baidulocal #tn表示来源，为baidulocal时能够返回纯净的页面，便于自动化处理
     ie: utf-8
@@ -27,7 +27,7 @@ baidu:
     link: null
 
 google:
-  url: https://wwww.google.com/search?
+  url: https://wwww.google.com/search
   default: 
     ie: utf-8
   param:
@@ -46,7 +46,7 @@ google:
     link: link
 
 bing:
-  url: http://wwww.bing.com/search?
+  url: http://wwww.bing.com/search
   default: 
     ie: utf-8
   param:

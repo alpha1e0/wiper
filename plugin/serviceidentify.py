@@ -20,7 +20,7 @@ from model.model import Host
 from config import CONF
 
 
-class ServiceIdentify(Plugin):
+class ServiceIdentifyPlugin(Plugin):
     '''
     Service identify plugin.
     Input:
@@ -32,7 +32,7 @@ class ServiceIdentify(Plugin):
             3: scan 1-65535 port
     '''
     def __init__(self,log=True,ptype=0):
-        super(ServiceIdentify, self).__init__(log=log)
+        super(ServiceIdentifyPlugin, self).__init__(log=log)
 
         try:
             with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
@@ -67,7 +67,7 @@ class ServiceIdentify(Plugin):
                 try:
                     hostStr = data.ip
                 except AttributeError:
-                    raise PluginError("ServiceIdentify plugin got an invalid model")
+                    raise PluginError("ServiceIdentifyPlugin plugin got an invalid model")
 
             if self.cmd:
                 nmapCmd = self.cmd + hostStr

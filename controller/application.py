@@ -21,12 +21,12 @@ from model.orm import FieldError, ModelError
 from model.model import Database, Project, Host, Vul, Comment
 from model.dbmanage import DBError
 from config import RTD, CONF, WIPError
-from plugin.datasave import DataSave
-from plugin.dnsbrute import DnsBrute
-from plugin.googlehacking import GoogleHacking
-from plugin.serviceidentify import ServiceIdentify
-from plugin.subnetscan import SubnetScan
-from plugin.zonetrans import ZoneTrans
+from plugin.datasave import DataSavePlugin
+from plugin.dnsbrute import DnsBrutePlugin
+from plugin.googlehacking import GoogleHackingPlugin
+from plugin.serviceidentify import ServiceIdentifyPlugin
+from plugin.subnetscan import SubnetScanPlugin
+from plugin.zonetrans import ZoneTransPlugin
 
 
 def startServer():
@@ -517,15 +517,15 @@ class SubDomianScan(object):
 
         task = None
         if "dnsbrute" in params.keys():
-            task = DnsBrute(dictList)
+            task = DnsBrutePlugin(dictList)
         if "googlehacking" in params.keys():
-            task = (task + GoogleHacking()) if task else GoogleHacking()
+            task = (task + GoogleHackingPlugin()) if task else GoogleHackingPlugin()
         if "zonetrans" in params.keys():
-            task = (task + ZoneTrans()) if task else ZoneTrans()
+            task = (task + ZoneTransPlugin()) if task else ZoneTransPlugin()
         if task is None:
-            task = GoogleHacking()
+            task = GoogleHackingPlugin()
 
-        task = task | ServiceIdentify() | DataSave(projectid=projectid)
+        task = task | ServiceIdentifyPlugin() | DataSavePlugin(projectid=projectid)
 
         host = Host(url=domainParams.domain)
         task.dostart([host])
@@ -590,7 +590,7 @@ class SubNetScan(object):
 
         hosts = [Host(ip=x) for x in ipList]
         defaultValue = {"tmp":1}
-        task = SubnetScan() | ServiceIdentify(ptype=1) | DataSave(defaultValue=defaultValue,projectid=projectid)
+        task = SubnetScanPlugin() | ServiceIdentifyPlugin(ptype=1) | DataSavePlugin(defaultValue=defaultValue,projectid=projectid)
         task.dostart(hosts)
 
         return jsonSuccess()
@@ -683,7 +683,7 @@ class ServiceRecognize(object):
         if not protocol: protocol = "http"
         if not port: port = 80
 
-        task = ServiceIdentify(ptype=int(params.type)) | DataSave(projectid=params.project_id)
+        task = ServiceIdentifyPlugin(ptype=int(params.type)) | DataSavePlugin(projectid=params.project_id)
         host = Host(url=domain,protocol=protocol,port=port)
         task.dostart([host])
 

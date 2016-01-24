@@ -13,12 +13,12 @@ from plugin.lib.dnsresolve import DnsResolver
 from model.model import Host
 
 
-class ZoneTrans(Plugin):
+class ZoneTransPlugin(Plugin):
     '''
     Find and use DNS zone transfer vulnerability.
     '''
     def __init__(self, log=True):
-        super(ZoneTrans, self).__init__(log=log)
+        super(ZoneTransPlugin, self).__init__(log=log)
 
     def handle(self, data):
         if not isinstance(data, Host):

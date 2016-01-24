@@ -16,9 +16,9 @@ from plugin.lib.nmapwrapper import Nmap
 from model.model import Host
 
 
-class SubnetScan(Plugin):
+class SubnetScanPlugin(Plugin):
     def __init__(self, log=True):
-        super(SubnetScan, self).__init__(log=log)
+        super(SubnetScanPlugin, self).__init__(log=log)
 
         try:
             with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
@@ -35,7 +35,7 @@ class SubnetScan(Plugin):
             try:
                 hostStr = data.ip + "/24"
             except AttributeError:
-                raise PluginError("SubnetScan plugin got an invalid model")
+                raise PluginError("SubnetScanPlugin plugin got an invalid model")
             portStr = ",".join([str(x) for x in self.portList])
             cmd = "nmap -n -PS{ports} -p{ports} {host} -oX -".format(ports=portStr, host=hostStr)
             result = Nmap.scan(cmd)

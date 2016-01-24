@@ -10,11 +10,11 @@ See the file COPYING for copying detail
 import os
 import random
 import time
-import urllib
 
 from thirdparty import requests
 from thirdparty import yaml
 from thirdparty.BeautifulSoup import BeautifulSoup
+from config import Dict
 
 
 class SearchEngineError(Exception):
@@ -54,20 +54,6 @@ class UserAgents(object):
         return userAgents
 
 
-def genUrlParam(key, value, **kwargs):
-    '''
-    Generate the url parameters
-    input:
-        key: the key of url parameter
-        value: the value of url parameter
-        kwargs: if this parameter specified, the function will ignore the first two parameter
-    '''
-    if kwargs:
-        return "&".join([k+"="+v for k,v in kwargs.iteritems()]) + "&"
-    else:
-        return key + "=" + str(value) + "&"
-
-
 class Query(object):
     '''
     Build query keyword
@@ -83,6 +69,7 @@ class Query(object):
         query.doSearch(engine="baidu")
     '''
     def __init__(self, **kwargs):
+        # _qlist record the query value, format [-/+, key, value]
         self._qlist = list()
         self.queryResult = list()
 
@@ -121,7 +108,7 @@ class Query(object):
             elif line[1] == "kw":
                 keyword += line[0] + line[2] + " "
 
-        return urllib.quote(keyword.strip())
+        return keyword.strip()
 
 
     def doSearch(self, engine="baidu", size=500):
@@ -156,8 +143,7 @@ class SearchEngine(object):
         self.userAgents = UserAgents()
 
         self.url = self.config['url']
-        defaultParam = genUrlParam(None, None, **self.config['default'])
-        self.url += defaultParam
+        self.defaultParam = dict(**self.config['default'])
 
         #this signature string illustrate the searchengine find something, should be redefined in subclass
         self.findSignature = ""
@@ -176,26 +162,25 @@ class SearchEngine(object):
         pageSize = self.config['param']['pgsize']['max']
         pages = size / pageSize
 
-        keywordParam = genUrlParam(self.config['param']['query'], keyword)
-        pageSizeParam = genUrlParam(self.config['param']['pgsize']['key'], pageSize)
-        url = self.url + keywordParam + pageSizeParam
+        params = self.defaultParam
+        params.update({self.config['param']['query']: keyword})
+        params.update({self.config['param']['pgsize']['key']: pageSize})
 
         result = list()
         for p in xrange(pages+1):
-            pageNumParam = genUrlParam(self.config['param']['pgnum'], p*pageSize)
-            tmpurl = url + pageNumParam
+            params.update({self.config['param']['pgnum']: p*pageSize})
 
-            result += self._search(tmpurl)
+            result += self._search(params)
 
         self.queryResult = result
         return result
 
 
-    def _search(self, url):
+    def _search(self, params):
         '''
-        Request with specified url, parse the reponse html document.
+        Request with specified param, parse the reponse html document.
         input:
-            url: the query url
+            params: the query params
         output:
             return the search result, result format is:
                 [[titel,url,brief-information],[...]...]
@@ -210,7 +195,7 @@ class SearchEngine(object):
 
             headers = {"User-Agent":userAgent, "X-Forward-For":xforward, "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"}
             try:
-                reponse = requests.get(url, headers=headers)
+                reponse = requests.get(self.url, headers=headers, params=params)
             except Exception as error:
                 continue
 
@@ -264,9 +249,7 @@ class Baidu(SearchEngine):
             url = line.a["href"]
             briefDoc = line.a.nextSibling.nextSibling.contents
             brief = briefDoc[0].string + (briefDoc[1].string if briefDoc[1].string else "")
-            result.append([title, url, brief])
-
-        return result
+            yield [title, url, brief]
 
 
 class Bing(SearchEngine):
@@ -296,9 +279,6 @@ class Bing(SearchEngine):
             title = "".join([x.string for x in line.h2.a.contents])
             url = line.h2.a["href"]
             brief = "".join([x.string for x in line.contents[1].p.contents])
-            result.append([title, url, brief])
-
-        return result
-
+            yield [title, url, brief]
 
 

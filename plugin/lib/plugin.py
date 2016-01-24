@@ -41,7 +41,7 @@ class Plugin(Process):
                 result = doSomeThing(data)
                 self.outQueue.put(result)
     Example: 
-        plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHacking(engine='baidu')) | HttpRecognize() | DataSave(mod="database") whill return a pluginObject
+        plugin = (DNSTrans(timeout=5) + DomainBrute(dictlist) + GoogleHackingPlugin(engine='baidu')) | HttpRecognize() | DataSavePlugin(mod="database") whill return a pluginObject
         plugin.dostart(startData)       
     '''
 

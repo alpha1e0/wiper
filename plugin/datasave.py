@@ -13,9 +13,9 @@ from model.model import Project, Host, Vul, Comment
 from model.dbmanage import DBError
 
 
-class DataSave(Plugin):
+class DataSavePlugin(Plugin):
     def __init__(self, projectid, hostid=None, log=True, defaultValue={}):
-        super(DataSave, self).__init__(timeout=1, log=log)
+        super(DataSavePlugin, self).__init__(timeout=1, log=log)
         self.defaultValue = defaultValue
         self.projectid = projectid
         self.hostid = hostid
