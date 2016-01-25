@@ -41,6 +41,6 @@ class DnsBrutePlugin(Plugin):
             raise PluginError("dns brute plugin, domain format error")
 
         for item in DnsBrute(dataDomain, self.dictlist, self.bruteTopDomain):
-            self.put(Host(item))
+            self.put(Host(**item))
         
 

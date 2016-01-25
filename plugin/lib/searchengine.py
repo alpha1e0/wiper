@@ -170,10 +170,8 @@ class SearchEngine(object):
         for p in xrange(pages+1):
             params.update({self.config['param']['pgnum']: p*pageSize})
 
-            result += self._search(params)
-
-        self.queryResult = result
-        return result
+            for item in self._search(params):
+                yield item
 
 
     def _search(self, params):
@@ -200,7 +198,8 @@ class SearchEngine(object):
                 continue
 
             if self.findSignature in reponse.text:
-                return self._parseHtml(reponse.text)
+                for item in self._parseHtml(reponse.text):
+                    yield item
             if self.notFindSignature in reponse.text:
                 return list()
         else:
@@ -236,20 +235,18 @@ class Baidu(SearchEngine):
 
 
     def _parseHtml(self, document):
-        result = list()
-
         document = BeautifulSoup(document)
         attrs={"class":"f"}
         relist = document.findAll("td", attrs=attrs)
         if not relist:
-            return result
+            return []
 
         for line in relist:
             title = "".join([x.string for x in line.a.font.contents])
             url = line.a["href"]
             briefDoc = line.a.nextSibling.nextSibling.contents
             brief = briefDoc[0].string + (briefDoc[1].string if briefDoc[1].string else "")
-            yield [title, url, brief]
+            yield Dict(title=title, url=url, brief=brief)
 
 
 class Bing(SearchEngine):
@@ -267,18 +264,16 @@ class Bing(SearchEngine):
         self.notFindSignature = 'class="b_no"'
 
     def _parseHtml(self, document):
-        result = list()
-
         document = BeautifulSoup(document)
         attrs = {"class":"b_algo"}
         relist = document.findAll("li", attrs=attrs)
         if not relist:
-            return result
+            return []
 
         for line in relist:
             title = "".join([x.string for x in line.h2.a.contents])
             url = line.h2.a["href"]
             brief = "".join([x.string for x in line.contents[1].p.contents])
-            yield [title, url, brief]
+            yield Dict(title=title, url=url, brief=brief)
 
 

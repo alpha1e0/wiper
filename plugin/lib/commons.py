@@ -37,7 +37,7 @@ class Nmap(object):
         '''
         Nmap scan.
         output:
-            a list of Host
+            a list of host, each host has attribute 'ip' 'port' 'protocol'
         '''
         result = list()
 
@@ -267,7 +267,129 @@ class DnsBrute(object):
 
 
 class ServiceIdentify(object):
-    pass
+        '''
+    Service identify plugin.
+    Input:
+        ptype: plugin running type.
+            0: default, recognize service with default portList
+            1: do not scan port, just do http recognize
+            2: scan nmap inner portList
+            3: scan 1-65535 port
+        kwargs:
+            ip: the ip address of the target
+            url: the url of the target
+            protocol: the protocol of the target
+            port: the port of the target
+    '''
+    def __init__(self, ptype=0, **kwargs):
+        try:
+            with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
+                self.portDict = yaml.load(fd)
+        except IOError:
+            raise PluginError("cannot load portmapping configure file 'portmapping.yaml'")
+        
+        if ptype == 1:
+            self.cmd = ""
+        elif ptype == 2:
+            self.cmd = "nmap -n -Pn -oX - "
+        elif ptype == 3:
+            self.cmd = "nmap -n -Pn -p1-65535 -oX - "
+        else:
+            portList = [key for key in self.portDict]
+            portStr = ",".join([str(x) for x in portList])
+            self.cmd = "nmap -n -Pn -p{ports} -oX - ".format(ports=portStr)
+
+        self.type = ptype
+        self.host = Dict(**kwargs)
+        #requests.packages.urllib3.disable_warnings()
+        self.httpTimeout = CONF.http.timeout
+
+
+    def __iter__(self):
+        return self.identify()
+
+
+    def identify(self):
+        if self.cmd:
+            hostAddr = self.host.get('url',None) if self.host.get('url',None) else self.host.get('ip',None)
+            nmapCmd = self.cmd + hostAddr
+            result = Nmap.scan(nmapCmd)
+        else:
+            result = [self.host]
+
+        for host in result:
+            if 'protocol' in host: host.title = host.protocol + "_service"
+            try:
+                host.protocol = self.portDict[int(host.port)]['protocol']
+            except (AttributeError, KeyError):
+                pass
+            
+            try:
+                if host.protocol == "http":
+                    self.HTTPIdentify(host)
+                elif host.protocol == "https":
+                    self.HTTPIdentify(host, https=True)
+            except AttributeError:
+                pass
+
+            yield host
+
+
+    def getTitle(self, rawContent, text):
+        titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
+        charset = None
+        charsetPos = rawContent[0:500].lower().find("charset")
+        if charsetPos != -1:
+            charsetSlice = rawContent[charsetPos:charsetPos+18]
+            charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
+            for key,value in charsetList.iteritems():
+                if key in charsetSlice:
+                    charset = value
+                    break
+        if not charset:
+            charset = "utf-8"
+
+        try:
+            decodedHtml = rawContent.decode(charset)
+            match = titlePattern.search(decodedHtml)
+        except:
+            match = titlePattern.search(text)
+
+        return match.groups()[0] if match else "title not found"
+
+
+    def HTTPIdentify(self, host, https=False):
+        try:
+            port = host.port
+        except AttributeError:
+            port = 443 if https else 80
+
+        method = "https://" if https else "http://"
+        url = method + host.ip + ":" + str(port)
+
+        try:
+            response = requests.get(url, verify=False, timeout=self.httpTimeout)
+        except:
+            return
+
+        host.title = self.getTitle(response.content, response.text)
+        try:
+            server = response.headers['server']
+        except (IndexError, KeyError):
+            pass
+        else:
+            host.server_info = server
+
+        try:
+            middleware = response.headers['x-powered-by']
+        except (IndexError, KeyError):
+            pass
+        else:
+            host.middleware = middleware
+
+
+    def FTPIdentify(self, host):
+        pass
 
 
 
