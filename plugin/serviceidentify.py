@@ -15,7 +15,7 @@ from thirdparty import requests
 from thirdparty.BeautifulSoup import BeautifulSoup
 
 from plugin.lib.plugin import Plugin, PluginError
-from plugin.lib.nmapwrapper import Nmap
+from plugin.lib.commons import Nmap, ServiceIdentify
 from model.model import Host
 from config import CONF
 
