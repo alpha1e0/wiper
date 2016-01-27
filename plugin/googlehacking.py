@@ -29,8 +29,8 @@ class GoogleHackingPlugin(Plugin):
             except AttributeError:
                 raise PluginError("GoogleHackingPlugin plugin got an invalid model")
             query = Query(site=domain) | -Query(site="www."+domain)
-            resultBaidu = query.doSearch(engine="baidu", size=self.size)
-            resultBing = query.doSearch(engine="bing", size=self.size)
+            resultBaidu = query.doSearch(engine="baidu", size=10)
+            resultBing = query.doSearch(engine="bing", size=10)
 
             urlSet = set()
             for line in itertools.chain(resultBaidu,resultBing):

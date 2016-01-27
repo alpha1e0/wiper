@@ -193,17 +193,19 @@ class SearchEngine(object):
 
             headers = {"User-Agent":userAgent, "X-Forward-For":xforward, "Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3"}
             try:
+                print "debug>>>>>>>>>", params
                 reponse = requests.get(self.url, headers=headers, params=params)
+                print "debug>>>>>>>>>", reponse.request.url
             except Exception as error:
                 continue
 
             if self.findSignature in reponse.text:
                 for item in self._parseHtml(reponse.text):
                     yield item
-            if self.notFindSignature in reponse.text:
-                return list()
+            elif self.notFindSignature in reponse.text:
+                raise StopIteration()
         else:
-            return list()
+            raise StopIteration()
 
 
     def _parseHtml(self, document):
@@ -239,7 +241,7 @@ class Baidu(SearchEngine):
         attrs={"class":"f"}
         relist = document.findAll("td", attrs=attrs)
         if not relist:
-            return []
+            raise StopIteration()
 
         for line in relist:
             title = "".join([x.string for x in line.a.font.contents])
@@ -268,7 +270,7 @@ class Bing(SearchEngine):
         attrs = {"class":"b_algo"}
         relist = document.findAll("li", attrs=attrs)
         if not relist:
-            return []
+            raise StopIteration()
 
         for line in relist:
             title = "".join([x.string for x in line.h2.a.contents])

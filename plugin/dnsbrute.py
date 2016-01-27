@@ -34,7 +34,7 @@ class DnsBrutePlugin(Plugin):
         if not isinstance(data, Host):
             self.put(data)
             return
-        dns = DnsResolver()
+        
         try:
             dataDomain = self.urlPattern.match(data.url).groups()[0].lower()
         except AttributeError:
