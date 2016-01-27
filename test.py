@@ -28,11 +28,11 @@ sys.setdefaultencoding("utf-8")
 #=================================================nmap test===========================================
 #from subprocess import Popen, PIPE, STDOUT
 
-from plugin.lib.nmapwrapper import Nmap
+#from plugin.lib.nmapwrapper import Nmap
 
-result = Nmap.scan("nmap -n 192.168.1.1/24")
+#result = Nmap.scan("nmap -n 192.168.1.1/24")
 
-for l in result: print l
+#for l in result: print l
 
 #=================================================dnsresolver test============================================
 #from plugin.lib.dnsresolve import DnsResolver
@@ -44,3 +44,17 @@ for l in result: print l
 #print re
 
 #sudo install_name_tool -change libmysqlclient.18.dylib /usr/local/mysql/lib/libmysqlclient.18.dylib /Users/apple/.python-eggs/MySQL_python-1.2.5-py2.7-macosx-10.9-intel.egg-tmp/_mysql.so
+
+
+#=================================================service identify============================================
+from model.model import Host
+from plugin.lib.commons import ServiceIdentify
+
+host = {'url': 'venustech.com.cn', 'protocol': 'http', 'port': 80, 'title': 'http_service'}
+data = Host(**host)
+
+for host in ServiceIdentify(1, **data):
+    print host
+    print host.title
+
+

@@ -16,7 +16,7 @@ from thirdparty import requests
 from thirdparty import yaml
 from thirdparty.dns import resolver, reversename, query
 from thirdparty.dns.exception import DNSException
-from thirdparty.BeautifulSoup import BeautifulStoneSoup, NavigableString
+from thirdparty.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, NavigableString
 
 from config import CONF, Dict
 
@@ -313,6 +313,8 @@ class ServiceIdentify(object):
 
 
     def identify(self):
+        import pdb
+        pdb.set_trace()
         if self.cmd:
             hostAddr = self.host.get('url',None) if self.host.get('url',None) else self.host.get('ip',None)
             nmapCmd = self.cmd + hostAddr
@@ -338,7 +340,9 @@ class ServiceIdentify(object):
             yield host
 
 
-    def getTitle(self, rawContent, text):
+    def getTitle(self, response):
+        rawdoc = BeautifulSoup(response.content)
+
         titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
         charset = None
         charsetPos = rawContent[0:500].lower().find("charset")
@@ -365,19 +369,23 @@ class ServiceIdentify(object):
 
     def HTTPIdentify(self, host, https=False):
         try:
+            url = host.url
+        except AttributeError:
+            url = host.ip
+        try:
             port = host.port
         except AttributeError:
             port = 443 if https else 80
 
         method = "https://" if https else "http://"
-        url = method + host.ip + ":" + str(port)
+        url = method + url + ":" + str(port)
         print "debug>>>>>>>>>>>>>>>>>>url", url
         try:
             response = requests.get(url, verify=False, timeout=self.httpTimeout)
         except:
             return
 
-        host.title = self.getTitle(response.content, response.text)
+        host.title = self.getTitle(response)
         try:
             server = response.headers['server']
         except (IndexError, KeyError):
