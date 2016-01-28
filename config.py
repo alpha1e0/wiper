@@ -42,45 +42,36 @@ class Dict(dict):
 
 class Log(object):
     '''
-    critical, error, warning, info, debug, notset
+    Log class, support:critical, error, warning, info, debug, notset
+    input:
+        logname: specify the logname
+        toConsole: whether outputing to console
     '''
-    def __new__(cls, logname=None):
+    def __new__(cls, logname=None, toConsole=True, toFile="wiper"):
         if not os.path.exists("log"):
             os.mkdir("log")
-            
-        if not logname:
-            log = logging.getLogger('wiper')
-            log.setLevel(logging.DEBUG)
+        
+        logname = logname if logname else "wiper"
 
+        log = logging.getLogger(logname)
+        log.setLevel(logging.DEBUG)
+
+        if toConsole:
             streamHD = logging.StreamHandler()
             streamHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             streamHD.setFormatter(formatter)
-
-            fileName = os.path.join("log","wiper.log")
-            if not os.path.exists(fileName):
-                with open(fileName,"w") as fd:
-                    fd.write("global log start----------------\r\n")
-            fileHD = logging.FileHandler(fileName)
-            fileHD.setLevel(logging.DEBUG)
-            formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
-            fileHD.setFormatter(formatter)
-
             log.addHandler(streamHD)
-            log.addHandler(fileHD)
-        else:
-            log = logging.getLogger(logname)
-            log.setLevel(logging.DEBUG)
 
-            fileName = os.path.join('log', '{0}.log'.format(logname))
+        if toFile:
+            fileName = os.path.join("log",'{0}.log'.format(toFile))
             if not os.path.exists(fileName):
                 with open(fileName,"w") as fd:
-                    fd.write("{0} log start----------------\r\n".format(logname))
+                    fd.write("{0} log start----------------\r\n".format(toFile))
             fileHD = logging.FileHandler(fileName)
             fileHD.setLevel(logging.DEBUG)
             formatter = logging.Formatter('[%(asctime)s] %(filename)s [line:%(lineno)d] %(levelname)s %(message)s')
             fileHD.setFormatter(formatter)
-
             log.addHandler(fileHD)
 
         return log
@@ -128,6 +119,31 @@ class RuntimeData(Dict):
         self.log = Log()
 
         super(RuntimeData, self).__init__(**kwargs)
+
+
+class Colorize(object):
+    RED = '\033[31m'
+    BLUE = '\033[34m'
+    YELLOW = '\033[33m'
+    GREEN = '\033[32m'
+
+    EOF = '\033[0m'
+
+    @staticmethod
+    def red(data):
+        return Colorize.RED + data + Colorize.EOF
+
+    @staticmethod
+    def blue(data):
+        return Colorize.BLUE + data + Colorize.EOF
+
+    @staticmethod
+    def yellow(data):
+        return Colorize.YELLOW + data + Colorize.EOF
+
+    @staticmethod
+    def green(data):
+        return Colorize.GREEN + data + Colorize.EOF
 
 
 CONF = Config()

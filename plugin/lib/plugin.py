@@ -151,8 +151,8 @@ class Plugin(Process):
         '''
         Put data to output queue.
         '''
-        #if self.log:
-        #    self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
+        if self.log:
+            self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
 
         for queue in self._outs:
             queue.insert(0,data)
@@ -190,8 +190,7 @@ class Plugin(Process):
         '''
 
         if self.log:
-            #self.log = Log("plugin")
-            self.log = Log()
+            self.log = Log(self.name, toFile="plugin")
             self.log.info("plugin {0} start, ins:{1}, outs:{2}".format(self.name, self._ins, self._outs))
         else:
             self.log = False

@@ -13,7 +13,7 @@ import json
 import threading
 
 from dbmanage import DBManage, SQLExec, SQLQuery, escapeString
-from config import RTD, WIPError, Dict
+from config import RTD, WIPError, Dict, Colorize
 
 
 class FieldError(WIPError):
@@ -540,7 +540,7 @@ class Model(Dict):
                 valuestr = value.encode(sys.stdout.encoding) if isinstance(value, unicode) else str(value)
             except UnicodeEncodeError:
                 valuestr = repr(value)
-            result = result + str(key) + " : " + valuestr + "\n"
+            result = result + Colorize.red(str(key)) + " : " + valuestr + "\n"
         return "\n" + result
 
 
