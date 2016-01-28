@@ -62,7 +62,7 @@ class Plugin(Process):
 
         self._dataSet = list()
 
-        self.log = True if log else False
+        self.log = True if log else None
 
 
     def addAppend(self, pluginObj):
@@ -151,8 +151,8 @@ class Plugin(Process):
         '''
         Put data to output queue.
         '''
-        if self.log:
-            self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
+        #if self.log:
+        #    self.log.info("plugin '{0}' put model {1}".format(self.__class__.__name__, data))
 
         for queue in self._outs:
             queue.insert(0,data)
@@ -188,9 +188,10 @@ class Plugin(Process):
         Start process, the subclass must rewrite this function or 'handle' function
         when all the father processes quits, then break to quit
         '''
-        print "debug:", "plugin ", self.name, " start", "ins: ", self._ins, "outs: ", self._outs
+
         if self.log:
-            self.log = Log("plugin")
+            #self.log = Log("plugin")
+            self.log = Log()
             self.log.info("plugin {0} start, ins:{1}, outs:{2}".format(self.name, self._ins, self._outs))
         else:
             self.log = False
@@ -207,12 +208,12 @@ class Plugin(Process):
                 break
             except PluginExit:
                 self.quit()
-                print "debug:", "plugin ", self.name, "quit"
+                #print "debug:", "plugin ", self.name, "quit"
                 if self.log:
                     self.log.info("plugin {0} quit".format(self.name))
                 break
             else:
-                print "debug:", "plugin ", self.name, "got", data
+                #print "debug:", "plugin ", self.name, "got", data
                 self.handle(data)
             finally:
                 time.sleep(self.timeout)

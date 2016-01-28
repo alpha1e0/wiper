@@ -313,8 +313,6 @@ class ServiceIdentify(object):
 
 
     def identify(self):
-        import pdb
-        pdb.set_trace()
         if self.cmd:
             hostAddr = self.host.get('url',None) if self.host.get('url',None) else self.host.get('ip',None)
             nmapCmd = self.cmd + hostAddr
@@ -340,12 +338,10 @@ class ServiceIdentify(object):
             yield host
 
 
-    def getTitle(self, response):
-        rawdoc = BeautifulSoup(response.content)
-
+    def getTitle(self, rawContent):
         titlePattern = re.compile(r"(?:<title>)(.*)(?:</title>)")
         charset = None
-        charsetPos = rawContent[0:500].lower().find("charset")
+        charsetPos = rawContent[0:1000].lower().find("charset")
         if charsetPos != -1:
             charsetSlice = rawContent[charsetPos:charsetPos+18]
             charsetList = {"utf-8":"utf-8","utf8":"utf-8","gbk":"gbk","gb2312":"gb2312"}
@@ -356,15 +352,8 @@ class ServiceIdentify(object):
         if not charset:
             charset = "utf-8"
 
-        print "debug>>>>>>>>>>>charset",charset
-
-        try:
-            decodedHtml = rawContent.decode(charset)
-            match = titlePattern.search(decodedHtml)
-        except:
-            match = titlePattern.search(text)
-
-        return match.groups()[0] if match else "title not found"
+        match = titlePattern.search(rawContent)
+        return match.groups()[0].decode(charset) if match else "title not found"
 
 
     def HTTPIdentify(self, host, https=False):
@@ -379,13 +368,12 @@ class ServiceIdentify(object):
 
         method = "https://" if https else "http://"
         url = method + url + ":" + str(port)
-        print "debug>>>>>>>>>>>>>>>>>>url", url
         try:
             response = requests.get(url, verify=False, timeout=self.httpTimeout)
         except:
             return
 
-        host.title = self.getTitle(response)
+        host.title = self.getTitle(response.content)
         try:
             server = response.headers['server']
         except (IndexError, KeyError):
@@ -399,6 +387,10 @@ class ServiceIdentify(object):
             pass
         else:
             host.middleware = middleware
+
+        if 'ip' not in host:
+            dnsresolver = DnsResolver()
+            host.ip = dnsresolver.domain2IP(host.url)
 
 
     def FTPIdentify(self, host):

@@ -7,6 +7,7 @@ Copyright (c) 2014-2015 alpha1e0
 See the file COPYING for copying detail
 '''
 
+import sys
 import re
 import json
 import threading
@@ -501,7 +502,6 @@ class Model(Dict):
             sqlCmd = "insert into {table}({keys}) values({values})".format(table=self._table,keys=keys,values=values)
         else:
             params = self._paramFormat(self)
-            print "debug",params
             setValue = [k+"='"+str(v if v else "")+"'" for k,v in params.iteritems() if k!=self._primaryKey.name]
             setValue = ",".join(setValue)
             where = "where " + "{key}={value}".format(key=self._primaryKey.name,value=self[self._primaryKey.name])
@@ -531,6 +531,17 @@ class Model(Dict):
             return self[key]
         except KeyError:
             return default
+
+
+    def __str__(self):
+        result = ""
+        for key,value in self.iteritems():
+            try:
+                valuestr = value.encode(sys.stdout.encoding) if isinstance(value, unicode) else str(value)
+            except UnicodeEncodeError:
+                valuestr = repr(value)
+            result = result + str(key) + " : " + valuestr + "\n"
+        return "\n" + result
 
 
     @classmethod
