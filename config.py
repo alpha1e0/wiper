@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: UTF-8 -*-
+#-*- coding:utf-8 -*-
 
 '''
 Wiper, an assistant tool for web penetration test.
@@ -46,6 +46,7 @@ class Log(object):
     input:
         logname: specify the logname
         toConsole: whether outputing to console
+        toFile: whether to logging to file
     '''
     def __new__(cls, logname=None, toConsole=True, toFile="wiper"):
         if not os.path.exists("log"):
