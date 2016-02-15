@@ -522,7 +522,7 @@ function deleteHost(){
     $.get("/deletehost?id="+current.getHost().id, function(data,status){        
         $("#wip-vul-comment-list").empty();
         current.setHost(null);
-        listHost(current.horderby);
+        //listHost(current.horderby);
     }); 
 }
 

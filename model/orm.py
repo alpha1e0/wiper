@@ -334,7 +334,7 @@ class Model(Dict):
             columns = "*"
 
         pvalue = cls._primaryKey.inputFormat(pvalue)
-        sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+        sqlCmd = "select * from {table} where {key}='{value}'".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
         cls._clearStatus()
 
         result = cls.sqlquery(sqlCmd)
@@ -379,7 +379,7 @@ class Model(Dict):
             columns = "*"
 
         pvalue = cls._primaryKey.inputFormat(pvalue)
-        sqlCmd = "select * from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+        sqlCmd = "select * from {table} where {key}='{value}'".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
         cls._clearStatus()
 
         result = cls.sqlquery(sqlCmd)
@@ -476,7 +476,7 @@ class Model(Dict):
         '''
         if pvalue:
             pvalue = cls._primaryKey.inputFormat(pvalue)
-            sqlCmd = "delete from {table} where {key}={value}".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
+            sqlCmd = "delete from {table} where {key}='{value}'".format(table=cls._table,key=cls._primaryKey.name,value=pvalue)
         else:
             sqlCmd = "delete from {table} {where}".format(table=cls._table,where=cls.strWhere())
             cls._clearStatus()
