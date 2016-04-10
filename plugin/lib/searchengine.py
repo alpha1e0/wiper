@@ -184,9 +184,9 @@ class SearchEngine(object):
                 [[titel,url,brief-information],[...]...]
         '''
         for i in xrange(self.retry):
-            #use timeout and random user-agent to bypass IP restrict policy
-            timeout = random.randint(1,3)
-            time.sleep(timeout)
+            #use delay time and random user-agent to bypass IP restrict policy
+            delayTime = random.randint(1,3)
+            time.sleep(delayTime)
 
             userAgent = self.userAgents[random.randint(0,len(self.userAgents))-1]
             xforward = "192.168.3." + str(random.randint(1,255))
@@ -200,6 +200,7 @@ class SearchEngine(object):
             if self.findSignature in reponse.text:
                 for item in self._parseHtml(reponse.text):
                     yield item
+                break
             elif self.notFindSignature in reponse.text:
                 raise StopIteration()
         else:

@@ -285,11 +285,14 @@ class Model(Dict):
             return ""
 
     @classmethod
-    def orderby(cls, orderby=1):
+    def orderby(cls, orderby=1, desc=False):
         '''
         Set the 'order by' part of the SQL command. 
         '''
-        cls._status.orderby = "order by {0}".format(orderby)
+        if desc is True:
+            cls._status.orderby = "order by {0} desc".format(orderby)
+        else:
+            cls._status.orderby = "order by {0}".format(orderby)
         return cls
 
     @classmethod
@@ -298,6 +301,25 @@ class Model(Dict):
             return cls._status.orderby
         except AttributeError:
             cls._status.orderby = ""
+            return ""
+
+    @classmethod
+    def limit(cls, low, high=None):
+        '''
+        Set the 'limit' part of the SQL command. 
+        '''
+        if not high:
+            cls._status.limit = "limit {0}".format(low)
+        else:
+            cls._status.limit = "limit {0},{1}".format(low,high)
+        return cls
+
+    @classmethod
+    def strLimit(cls):
+        try:
+            return cls._status.limit
+        except AttributeError:
+            cls._status.limit = ""
             return ""
 
     @classmethod
@@ -356,7 +378,7 @@ class Model(Dict):
         else:
             columns = "*"
 
-        sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby())
+        sqlCmd = "select {col} from {table} {where} {orderby} {limit}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby(),limit=cls.strLimit())
         cls._clearStatus()
 
         result = cls.sqlquery(sqlCmd)
@@ -400,7 +422,7 @@ class Model(Dict):
         else:
             columns = "*"
 
-        sqlCmd = "select {col} from {table} {where} {orderby}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby())
+        sqlCmd = "select {col} from {table} {where} {orderby} {limit}".format(col=columns,table=cls._table,where=cls.strWhere(),orderby=cls.strOrderby(),limit=cls.strLimit())
         cls._clearStatus()
 
         return cls.sqlquery(sqlCmd)
