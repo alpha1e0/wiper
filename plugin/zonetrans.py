@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 
 from plugin.lib.plugin import Plugin
-from plugin.lib.dnsresolve import DnsResolver
+from plugin.lib.commons import DnsResolver
 from model.model import Host
 
 

@@ -12,7 +12,7 @@ import os
 from thirdparty import yaml
 
 from plugin.lib.plugin import Plugin, PluginError
-from plugin.lib.nmapwrapper import Nmap
+from plugin.lib.commons import Nmap
 from model.model import Host
 
 
