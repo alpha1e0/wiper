@@ -31,13 +31,13 @@ class ServiceIdentifyPlugin(Plugin):
             2: scan nmap inner portList
             3: scan 1-65535 port
     '''
-    def __init__(self,log=True,ptype=0):
-        super(ServiceIdentifyPlugin, self).__init__(log=log)
+    def __init__(self, ptype=0, *args, **kwargs):
+        super(ServiceIdentifyPlugin, self).__init__(*args, **kwargs)
 
         self.ptype = ptype
 
 
-    def handle(self, data):
+    def _handle(self, data):
         if not isinstance(data, Host):
             self.put(data)
         else:

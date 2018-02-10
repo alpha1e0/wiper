@@ -10,12 +10,10 @@ import os
 import sys
 import multiprocessing
 
+from controller.application import server
+
 
 if __name__ == "__main__":
     os.chdir(sys.path[0])
-
-    import config
-    config.RTD.taskManager = multiprocessing.Manager()
     
-    from controller.application import startServer
-    startServer()
+    server.run()

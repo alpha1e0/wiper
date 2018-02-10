@@ -21,8 +21,8 @@ class DnsBrutePlugin(Plugin):
     '''
     Use wordlist to bruteforce subdomain.
     '''
-    def __init__(self, dictlist, log=True, bruteTopDomain=False):
-        super(DnsBrutePlugin, self).__init__(log=log)
+    def __init__(self, dictlist, bruteTopDomain=False, *args, **kwargs):
+        super(DnsBrutePlugin, self).__init__(*args, **kwargs)
 
         self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
         dictlist = dictlist if dictlist else ["subdomain_default.txt"]
@@ -30,7 +30,7 @@ class DnsBrutePlugin(Plugin):
         self.bruteTopDomain = bruteTopDomain
 
 
-    def handle(self, data):
+    def _handle(self, data):
         if not isinstance(data, Host):
             self.put(data)
             return

@@ -14,13 +14,14 @@ from model.dbmanage import DBError
 
 
 class DataSavePlugin(Plugin):
-    def __init__(self, projectid, hostid=None, log=True, defaultValue={}):
-        super(DataSavePlugin, self).__init__(timeout=1, log=log)
+    def __init__(self, projectid, hostid=None, defaultValue={}, 
+        *args, **kwargs):
+        super(DataSavePlugin, self).__init__(*args, **kwargs)
         self.defaultValue = defaultValue
         self.projectid = projectid
         self.hostid = hostid
 
-    def handle(self, data):
+    def _handle(self, data):
         try:
             if isinstance(data, Host):
                 data.project_id = self.projectid

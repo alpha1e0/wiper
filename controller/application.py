@@ -12,6 +12,7 @@ import sys
 import os
 import time
 import json
+import multiprocessing
 
 from thirdparty import web
 from thirdparty import yaml
@@ -29,46 +30,45 @@ from plugin.subnetscan import SubnetScanPlugin
 from plugin.zonetrans import ZoneTransPlugin
 
 
-def startServer():
-    urls = (
-        "/", "Index",
-        "/install", "Install",
-        "/addproject", "ProjectAdd",
-        "/listproject", "ProjectList",
-        "/getprojectdetail", "ProjectDetail",
-        "/deleteproject", "ProjectDelete",
-        "/modifyproject", "ProjectModify",
-        "/importproject", "ProjectImport",
-        "/exportproject", "ProjectExport",
-        "/addhost","HostAdd",
-        "/listhost","HostList",
-        "/gethostdetail","HostDetail",
-        "/deletehost","HostDelete",
-        "/modifyhost","HostModify",
-        "/addvul","VulAdd",
-        "/listvul","VulList",
-        "/getvuldetail","VulDetail",
-        "/deletevul","VulDelete",
-        "/modifyvul","VulModify",
-        "/addcomment","CommentAdd",
-        "/listcomment","CommentList",
-        "/getcommentdetail","CommentDetail",
-        "/deletecomment","CommentDelete",
-        "/modifycomment","CommentModify",
-        "/addattachment","AttachmentAdd",
-        "/subdomainscan","SubDomianScan",
-        "/subnetscan","SubNetScan",
-        "/savetmphost","SaveTmpHost",
-        "/deletetmphost","DeleteTmpHost",
-        "/servicerecognize","ServiceRecognize",
-        "/dbsetup","DBSetup",
-        "/adddict","DictAdd",
-        "/nmapsetup","NmapSetup"
-    )
+urls = (
+    "/", "Index",
+    "/install", "Install",
+    "/addproject", "ProjectAdd",
+    "/listproject", "ProjectList",
+    "/getprojectdetail", "ProjectDetail",
+    "/deleteproject", "ProjectDelete",
+    "/modifyproject", "ProjectModify",
+    "/importproject", "ProjectImport",
+    "/exportproject", "ProjectExport",
+    "/addhost","HostAdd",
+    "/listhost","HostList",
+    "/gethostdetail","HostDetail",
+    "/deletehost","HostDelete",
+    "/modifyhost","HostModify",
+    "/addvul","VulAdd",
+    "/listvul","VulList",
+    "/getvuldetail","VulDetail",
+    "/deletevul","VulDelete",
+    "/modifyvul","VulModify",
+    "/addcomment","CommentAdd",
+    "/listcomment","CommentList",
+    "/getcommentdetail","CommentDetail",
+    "/deletecomment","CommentDelete",
+    "/modifycomment","CommentModify",
+    "/addattachment","AttachmentAdd",
+    "/subdomainscan","SubDomianScan",
+    "/subnetscan","SubNetScan",
+    "/savetmphost","SaveTmpHost",
+    "/deletetmphost","DeleteTmpHost",
+    "/servicerecognize","ServiceRecognize",
+    "/dbsetup","DBSetup",
+    "/adddict","DictAdd",
+    "/nmapsetup","NmapSetup"
+)
 
 
-    app = web.application(urls, globals())
-    app.run()
+server = web.application(urls, globals())
+application = server.wsgifunc()
 
 
 # ================================================index page=========================================
@@ -513,22 +513,39 @@ class SubDomianScan(object):
         try:
             domainParams = formatParam(params, options)
         except ParamError as error:
-            raise web.internalerror("Parameter error, {0}.".format(error))      
+            raise web.internalerror("Parameter error, {0}.".format(error))
 
-        task = None
+        initQueue = multiprocessing.Queue()
+        domainQueue = multiprocessing.Queue()
+        saveQueue = multiprocessing.Queue()
+
+        domainTask = []
         if "dnsbrute" in params.keys():
-            task = DnsBrutePlugin(dictList)
+            domainTask.append(DnsBrutePlugin(dictList, inqueue=initQueue, 
+                outqueue=domainQueue))
         if "googlehacking" in params.keys():
-            task = (task + GoogleHackingPlugin()) if task else GoogleHackingPlugin()
+            domainTask.append(GoogleHackingPlugin(inqueue=initQueue, 
+                outqueue=domainQueue))
         if "zonetrans" in params.keys():
-            task = (task + ZoneTransPlugin()) if task else ZoneTransPlugin()
-        if task is None:
-            task = GoogleHackingPlugin()
+            domainTask.append(ZoneTransPlugin(inqueue=initQueue, 
+                outqueue=domainQueue))
+        if not domainTask:
+            domainTask = [GoogleHackingPlugin(inqueue=initQueue, 
+                outqueue=domainQueue)]
 
-        task = task | ServiceIdentifyPlugin() | DataSavePlugin(projectid=projectid)
+        serviceIdTask = ServiceIdentifyPlugin(inqueue=domainQueue, 
+            outqueue=saveQueue, stopcount=len(domainTask))
+
+        saveTask = DataSavePlugin(projectid=projectid, inqueue=saveQueue)
 
         host = Host(url=domainParams.domain)
-        task.dostart([host])
+        initQueue.put(host)
+        initQueue.put(saveTask.STOP_LABEL)
+
+        for task in domainTask:
+            task.start()
+        serviceIdTask.start()
+        saveTask.start()
 
         return jsonSuccess()
 
@@ -590,8 +607,24 @@ class SubNetScan(object):
 
         hosts = [Host(ip=x) for x in ipList]
         defaultValue = {"tmp":1}
-        task = SubnetScanPlugin() | ServiceIdentifyPlugin(ptype=1) | DataSavePlugin(defaultValue=defaultValue,projectid=projectid)
-        task.dostart(hosts)
+
+        initQueue = multiprocessing.Queue()
+        domainQueue = multiprocessing.Queue()
+        saveQueue = multiprocessing.Queue()
+
+        subnetTask = SubnetScanPlugin(inqueue=initQueue, outqueue=domainQueue)
+        serviceIdTask = ServiceIdentifyPlugin(ptype=1, inqueue=domainQueue, 
+            outqueue=saveQueue)
+        saveTask = DataSavePlugin(defaultValue=defaultValue, 
+            projectid=projectid, inqueue=saveQueue)
+
+        for host in hosts:
+            initQueue.put(host)
+        initQueue.put(saveTask.STOP_LABEL)
+
+        subnetTask.start()
+        serviceIdTask.start()
+        saveTask.start()
 
         return jsonSuccess()
 
@@ -683,9 +716,20 @@ class ServiceRecognize(object):
         if not protocol: protocol = "http"
         if not port: port = 80
 
-        task = ServiceIdentifyPlugin(ptype=int(params.type)) | DataSavePlugin(projectid=params.project_id)
+        initQueue = multiprocessing.Queue()
+        saveQueue = multiprocessing.Queue()
+
+        serviceIdTask = ServiceIdentifyPlugin(ptype=int(params.type), 
+            inqueue=initQueue, outqueue=saveQueue)
+        saveTask = DataSavePlugin(projectid=params.project_id, 
+            inqueue=saveQueue)
+
         host = Host(url=domain,protocol=protocol,port=port)
-        task.dostart([host])
+        initQueue.put(host)
+        initQueue.put(saveTask.STOP_LABEL)
+
+        serviceIdTask.start()
+        saveTask.start()
 
         return jsonSuccess()
 

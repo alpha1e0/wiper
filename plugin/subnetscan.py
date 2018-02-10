@@ -17,8 +17,8 @@ from model.model import Host
 
 
 class SubnetScanPlugin(Plugin):
-    def __init__(self, log=True):
-        super(SubnetScanPlugin, self).__init__(log=log)
+    def __init__(self, *args, **kwargs):
+        super(SubnetScanPlugin, self).__init__(*args, **kwargs)
 
         try:
             with open(os.path.join("plugin","config","portmapping.yaml"), "r") as fd:
@@ -28,7 +28,7 @@ class SubnetScanPlugin(Plugin):
         self.portList = [key for key in self.portDict]
 
 
-    def handle(self, data):
+    def _handle(self, data):
         if not isinstance(data, Host):
             self.put(data)
         else:

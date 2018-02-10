@@ -15,12 +15,13 @@ from plugin.lib.searchengine import Query
 from model.model import Host
 
 class GoogleHackingPlugin(Plugin):
-    def __init__(self, size=200):
-        super(GoogleHackingPlugin, self).__init__()
+    def __init__(self, size=200, *args, **kwargs):
+        super(GoogleHackingPlugin, self).__init__(*args, **kwargs)
         self.size = size
-        self.urlPattern = re.compile(r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
+        self.urlPattern = re.compile(
+            r"^(?:http(?:s)?\://)?((?:[-0-9a-zA-Z_]+\.)+(?:[-0-9a-zA-Z_]+))")
 
-    def handle(self, data):
+    def _handle(self, data):
         if not isinstance(data, Host):
             self.put(data)
         else:
