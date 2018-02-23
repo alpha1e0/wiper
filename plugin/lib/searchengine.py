@@ -12,9 +12,14 @@ import random
 import time
 
 from thirdparty import requests
+from thirdparty.requests.packages.urllib3.exceptions import InsecureRequestWarning
+from thirdparty.requests.packages.urllib3 import disable_warnings
 from thirdparty import yaml
 from thirdparty.BeautifulSoup import BeautifulSoup
 from config import Dict
+
+
+disable_warnings(InsecureRequestWarning)
 
 
 class SearchEngineError(Exception):

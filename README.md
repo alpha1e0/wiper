@@ -28,11 +28,17 @@ Nmap会默认添加环境变量，如果希望自己修改Nmap路径，则可以
 
 python wiper.py
 
+由于 OSX High Sierra 引入安全机制会造成 *NSPlaceholderDate* 异常，在该系统中需要设置一下环境变量
+
+    export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
 ---
 
 ## 备注
 
 请勿用于**未授权**的渗透测试
+
+uwsgi
 
 
 

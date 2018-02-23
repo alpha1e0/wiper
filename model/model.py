@@ -70,7 +70,9 @@ class Host(Model):
         if not isinstance(other,Host):
             raise ModelError("the right instance is not Host")
 
-        if self.getVal('ip')==other.getVal('ip') and self.getVal('url')==other.getVal('url') and self.getVal('port')==other.getVal('port'):
+        if self.getVal('ip')==other.getVal('ip') and \
+            self.getVal('url')==other.getVal('url') and \
+            self.getVal('port')==other.getVal('port'):
             return True
         else:
             return False

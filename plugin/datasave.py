@@ -9,7 +9,7 @@ See the file COPYING for copying detail
 
 from config import RTD
 from plugin.lib.plugin import Plugin
-from model.model import Project, Host, Vul, Comment
+from model.model import Project, Host
 from model.dbmanage import DBError
 
 
@@ -22,17 +22,9 @@ class DataSavePlugin(Plugin):
         self.hostid = hostid
 
     def _handle(self, data):
-        try:
-            if isinstance(data, Host):
-                data.project_id = self.projectid
-                for key,value in self.defaultValue.iteritems():
-                    data[key] = value
-                data.save()
-            elif isinstance(data, Vul) or isinstance(data, Comment):
-                data.host_id = self.hostid
-                data.save()
-            elif isinstance(data, Project):
-                data.save()
-        except DBError as error:
-            if self.log:
-                self.log.error("save model error"+str(error))
+        data['project_id'] = self.projectid
+        for key,value in self.defaultValue.iteritems():
+            data[key] = value
+            
+        host = Host(**data)
+        host.save()

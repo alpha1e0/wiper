@@ -538,7 +538,7 @@ class SubDomianScan(object):
 
         saveTask = DataSavePlugin(projectid=projectid, inqueue=saveQueue)
 
-        host = Host(url=domainParams.domain)
+        host = dict(url=domainParams.domain)
         initQueue.put(host)
         initQueue.put(saveTask.STOP_LABEL)
 
@@ -605,7 +605,7 @@ class SubNetScan(object):
         rawParamList = [x.split("=") for x in rawParam.split("&")]
         ipList = [x[1] for x in rawParamList if x[0]=="iplist"]
 
-        hosts = [Host(ip=x) for x in ipList]
+        hosts = [dict(ip=x) for x in ipList]
         defaultValue = {"tmp":1}
 
         initQueue = multiprocessing.Queue()
@@ -724,7 +724,7 @@ class ServiceRecognize(object):
         saveTask = DataSavePlugin(projectid=params.project_id, 
             inqueue=saveQueue)
 
-        host = Host(url=domain,protocol=protocol,port=port)
+        host = dict(url=domain,protocol=protocol,port=port)
         initQueue.put(host)
         initQueue.put(saveTask.STOP_LABEL)
 

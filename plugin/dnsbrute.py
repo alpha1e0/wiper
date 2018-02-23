@@ -31,16 +31,12 @@ class DnsBrutePlugin(Plugin):
 
 
     def _handle(self, data):
-        if not isinstance(data, Host):
-            self.put(data)
-            return
-        
         try:
-            dataDomain = self.urlPattern.match(data.url).groups()[0].lower()
+            dataDomain = self.urlPattern.match(data['url']).groups()[0].lower()
         except AttributeError:
             raise PluginError("dns brute plugin, domain format error")
 
         for item in DnsBrute(dataDomain, self.dictlist, self.bruteTopDomain):
-            self.put(Host(**item))
+            self.put(item)
         
 

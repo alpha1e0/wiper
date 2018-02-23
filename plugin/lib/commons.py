@@ -13,6 +13,8 @@ import re
 from subprocess import Popen, PIPE, STDOUT
 
 from thirdparty import requests
+from thirdparty.requests.packages.urllib3.exceptions import InsecureRequestWarning
+from thirdparty.requests.packages.urllib3 import disable_warnings
 from thirdparty import yaml
 from thirdparty.dns import resolver, reversename, query
 from thirdparty.dns.exception import DNSException
@@ -20,6 +22,8 @@ from thirdparty.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Navigabl
 
 from config import CONF, Dict
 
+
+disable_warnings(InsecureRequestWarning)
 
 
 def DictFileEnum(fileName):
@@ -304,7 +308,6 @@ class ServiceIdentify(object):
 
         self.type = ptype
         self.host = Dict(**kwargs)
-        #requests.packages.urllib3.disable_warnings()
         self.httpTimeout = CONF.http.timeout
 
 

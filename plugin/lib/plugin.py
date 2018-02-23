@@ -49,7 +49,7 @@ class Plugin(multiprocessing.Process):
     STOP_LABEL = {"stop":"stop"}
 
 
-    def __init__(self, inqueue, outqueue, timeout=2, unique=True, stopcount=1, 
+    def __init__(self, inqueue, outqueue=None, timeout=2, unique=True, stopcount=1, 
         log=True):
         super(Plugin, self).__init__()
 
@@ -79,14 +79,27 @@ class Plugin(multiprocessing.Process):
         '''
         Get data from input queues.
         '''
-        return self._inqueue.get()
+        if self._inqueue:
+            data = self._inqueue.get()
+            if self.is_stop(data):
+                raise PluginExit()
+
+            if self.log:
+                self.log.info("plugin '{0}' got model {1}".format(
+                    self.__class__.__name__, str(data)))
+
+            return data
 
 
     def put(self, data):
         '''
         Put data to output queue.
         '''
-        self._outqueue.put(data)
+        if self._outqueue:
+            if self.log:
+                self.log.info("plugin '{0}' put model {1}".format(
+                    self.__class__.__name__, data))
+            self._outqueue.put(data)
 
 
     def is_stop(self, data):
@@ -133,14 +146,11 @@ class Plugin(multiprocessing.Process):
         '''
         Handle data, the subclass must rewrite this function or 'run' function
         '''
-        if self.is_stop(data):
-            raise PluginExit()
-
         if self._unique:
             if data in self._dataSet:
                 return
             else:
-                self._dataSet.add(data)
+                self._dataSet.append(data)
 
         self._handle(data)
 
